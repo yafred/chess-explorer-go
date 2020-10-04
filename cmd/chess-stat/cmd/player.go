@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	stat "github.com/yafred/chess-com/internal/chess-stat"
 )
 
@@ -14,7 +15,7 @@ var playerCmd = &cobra.Command{
 	Long:  `Creates stats for a chess.com player based on games downloaded from https://chess.com/`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		stat.StatsToConsole(args[0], cachePath, cacheRefresh)
+		stat.StatsToConsole(args[0], viper.GetString("cache-path"), cacheRefresh)
 	},
 }
 
@@ -24,4 +25,7 @@ func init() {
 	playerCmd.Flags().StringVarP(&cachePath, "cache-path", "c", "", "Folder where downloaded data should be kept (data will not be kept if flag absent)")
 	playerCmd.MarkFlagDirname("cache-path")
 	playerCmd.Flags().BoolVarP(&cacheRefresh, "cache-refresh", "r", false, "Refresh cache before executing command (if flag absent, existing data will be used)")
+
+	// To be able to support the config file, we need to bind with viper (and read with viper.GetString())
+	viper.BindPFlag("cache-path", playerCmd.Flags().Lookup("cache-path"))
 }

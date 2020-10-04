@@ -56,6 +56,8 @@ type ArchivesResponse struct {
 // StatsToConsole ... does everything
 func StatsToConsole(player string, cachePath string, refreshCache bool) {
 
+	fmt.Println("cache", cachePath)
+
 	var chessClient = &http.Client{Timeout: 10 * time.Second}
 
 	// Get available archives
