@@ -58,7 +58,6 @@ func StatsToConsole(player string) {
 	var chessClient = &http.Client{Timeout: 10 * time.Second}
 
 	// Get available archives
-	// https://api.chess.com/pub/player/{username}/games/archives
 	archivesURL := "https://api.chess.com/pub/player/" + player + "/games/archives"
 
 	archiveResponse := ArchivesResponse{}
@@ -69,12 +68,12 @@ func StatsToConsole(player string) {
 	json.NewDecoder(r.Body).Decode(&archiveResponse)
 	r.Body.Close()
 
+	// Get games
 	var totalGames int
 	var loseResults = make(map[string]int)
 	var winResults = make(map[string]int)
 	var drawResults = make(map[string]int)
 
-	// Get all games
 	for _, archiveURL := range archiveResponse.Archives {
 		gamesResponse := GamesResponse{}
 		r, err := chessClient.Get(archiveURL)
