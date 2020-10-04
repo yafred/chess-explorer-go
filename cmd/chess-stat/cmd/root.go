@@ -1,3 +1,5 @@
+package cmd
+
 /*
 Copyright © 2020 NAME HERE <EMAIL ADDRESS>
 
@@ -13,12 +15,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	stat "github.com/yafred/chess-com/internal/chess-stat"
+
+	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -28,17 +32,14 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "chess-com",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "chess-stat",
+	Short: "Gives stats on a chess.com player",
+	Long:  `Gives stats on a chess.com player based on games downloaded from https://chess.com/`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		stat.StatsToConsole(args[0])
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -57,11 +58,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.chess-com.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.chess-stat.yaml)")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -77,9 +74,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".chess-com" (without extension).
+		// Search config in home directory with name ".chess-stat" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".chess-com")
+		viper.SetConfigName(".chess-stat")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
