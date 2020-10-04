@@ -20,8 +20,6 @@ import (
 	"fmt"
 	"os"
 
-	stat "github.com/yafred/chess-com/internal/chess-stat"
-
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -33,13 +31,9 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "chess-stat",
-	Short: "Gives stats on a chess.com player",
-	Long:  `Gives stats on a chess.com player based on games downloaded from https://chess.com/`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	Run: func(cmd *cobra.Command, args []string) {
-		stat.StatsToConsole(args[0])
-	},
+	Short: "Computes stats from chess.com data",
+	Long: `Computes stats from https://www.chess.com downloading data using developer API https://api.chess.com/
+See https://www.chess.com/news/view/published-data-api for technical details about the API`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
