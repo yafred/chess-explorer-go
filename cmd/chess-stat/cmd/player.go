@@ -6,6 +6,7 @@ import (
 )
 
 var cachePath string
+var cacheRefresh bool
 
 var playerCmd = &cobra.Command{
 	Use:   "player [username]",
@@ -13,7 +14,7 @@ var playerCmd = &cobra.Command{
 	Long:  `Creates stats for a chess.com player based on games downloaded from https://chess.com/`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		stat.StatsToConsole(args[0])
+		stat.StatsToConsole(args[0], cachePath, cacheRefresh)
 	},
 }
 
@@ -22,5 +23,5 @@ func init() {
 
 	playerCmd.Flags().StringVarP(&cachePath, "cache-path", "c", "", "Folder where downloaded data should be kept (data will not be kept if flag absent)")
 	playerCmd.MarkFlagDirname("cache-path")
-	playerCmd.Flags().BoolP("cache-refresh", "r", false, "Refresh cache before executing command (if flag absent, existing data will be used)")
+	playerCmd.Flags().BoolVarP(&cacheRefresh, "cache-refresh", "r", false, "Refresh cache before executing command (if flag absent, existing data will be used)")
 }

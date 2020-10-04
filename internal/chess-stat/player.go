@@ -54,7 +54,8 @@ type ArchivesResponse struct {
 }
 
 // StatsToConsole ... does everything
-func StatsToConsole(player string) {
+func StatsToConsole(player string, cachePath string, refreshCache bool) {
+
 	var chessClient = &http.Client{Timeout: 10 * time.Second}
 
 	// Get available archives
