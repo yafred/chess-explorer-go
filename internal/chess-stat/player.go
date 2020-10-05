@@ -2,11 +2,19 @@ package stat
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"strings"
 )
 
 // StatsToConsole ... does everything
 func StatsToConsole(player string, cachePath string) {
+	if cachePath != "" {
+		if _, err := os.Stat(cachePath); os.IsNotExist(err) {
+			log.Println("Folder " + cachePath + " does not exist. No caching will be used.")
+			cachePath = ""
+		}
+	}
 
 	archivesContainer := ArchivesContainer{}
 	getArchives(player, &archivesContainer, cachePath)
@@ -19,7 +27,7 @@ func StatsToConsole(player string, cachePath string) {
 
 	for _, archiveURL := range archivesContainer.Archives {
 		gamesContainer := GamesContainer{}
-		getGames(&gamesContainer, archiveURL, cachePath)
+		getGames(player, &gamesContainer, archiveURL, cachePath)
 
 		totalGames += len(gamesContainer.Games)
 
@@ -64,6 +72,7 @@ func StatsToConsole(player string, cachePath string) {
 		}
 	}
 
+	// Print results to console
 	fmt.Println(">>>> Total games: ", totalGames)
 	fmt.Println(">>>> Draw:")
 	for key, value := range drawResults {
@@ -77,4 +86,15 @@ func StatsToConsole(player string, cachePath string) {
 	for key, value := range winResults {
 		fmt.Println(key, ":", value)
 	}
+}
+
+// For some reason, we cannot import strings in cache.go
+func bitsFromArchivesURL(archiveURL string) (player string, month string, year string) {
+	// archiveURL is https://api.chess.com/pub/player/{player}/games/{year}/{month}
+
+	bits := strings.Split(archiveURL, "/")
+	month = bits[len(bits)-1]
+	year = bits[len(bits)-2]
+	player = bits[len(bits)-4]
+	return
 }

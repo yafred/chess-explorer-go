@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	stat "github.com/yafred/chess-com/internal/chess-stat"
@@ -16,7 +18,7 @@ var playerCmd = &cobra.Command{
 	Long:  `Creates stats for a chess.com player based on games downloaded from https://chess.com/`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		stat.StatsToConsole(args[0], viper.GetString("cache-path"))
+		stat.StatsToConsole(strings.ToLower(args[0]), viper.GetString("cache-path"))
 	},
 }
 
