@@ -87,14 +87,3 @@ func StatsToConsole(player string, cachePath string) {
 		fmt.Println(key, ":", value)
 	}
 }
-
-// For some reason, we cannot import strings in cache.go
-func bitsFromArchivesURL(archiveURL string) (player string, month string, year string) {
-	// archiveURL is https://api.chess.com/pub/player/{player}/games/{year}/{month}
-
-	bits := strings.Split(archiveURL, "/")
-	month = bits[len(bits)-1]
-	year = bits[len(bits)-2]
-	player = bits[len(bits)-4]
-	return
-}

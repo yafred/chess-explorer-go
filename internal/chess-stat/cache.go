@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -97,4 +98,14 @@ func getGames(player string, gamesContainer *GamesContainer, archiveURL string, 
 		json.NewDecoder(resp.Body).Decode(gamesContainer)
 		defer resp.Body.Close()
 	}
+}
+
+func bitsFromArchivesURL(archiveURL string) (player string, month string, year string) {
+	// archiveURL is https://api.chess.com/pub/player/{player}/games/{year}/{month}
+
+	bits := strings.Split(archiveURL, "/")
+	month = bits[len(bits)-1]
+	year = bits[len(bits)-2]
+	player = bits[len(bits)-4]
+	return
 }
