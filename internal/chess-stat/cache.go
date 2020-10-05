@@ -14,7 +14,7 @@ import (
 
 var chessClient = &http.Client{Timeout: 10 * time.Second}
 
-func getArchives(player string, archivesContainer *ArchivesContainer, cachePath string) {
+func getArchives(player string, archivesContainer *ArchivesContainer, cachePath string, cacheRefresh bool) {
 
 	if cachePath != "" {
 		_ = os.Mkdir(filepath.Join(cachePath, player), 0700)
@@ -25,7 +25,7 @@ func getArchives(player string, archivesContainer *ArchivesContainer, cachePath 
 	if cachePath != "" {
 		cacheFilePath := filepath.Join(cachePath, player, player+"-archives.json")
 
-		if _, err := os.Stat(cacheFilePath); os.IsNotExist(err) {
+		if _, err := os.Stat(cacheFilePath); os.IsNotExist(err) || cacheRefresh {
 			resp, err := chessClient.Get(archivesURL)
 			if err != nil {
 			}
@@ -57,7 +57,7 @@ func getArchives(player string, archivesContainer *ArchivesContainer, cachePath 
 	}
 }
 
-func getGames(player string, gamesContainer *GamesContainer, archiveURL string, cachePath string) {
+func getGames(player string, gamesContainer *GamesContainer, archiveURL string, cachePath string, cacheRefresh bool) {
 
 	if cachePath != "" {
 		_ = os.Mkdir(filepath.Join(cachePath, player), 0700)
@@ -67,7 +67,7 @@ func getGames(player string, gamesContainer *GamesContainer, archiveURL string, 
 		_, month, year := bitsFromArchivesURL(archiveURL)
 		cacheFilePath := filepath.Join(cachePath, player, player+"-"+year+"-"+month+".json")
 
-		if _, err := os.Stat(cacheFilePath); os.IsNotExist(err) {
+		if _, err := os.Stat(cacheFilePath); os.IsNotExist(err) || cacheRefresh {
 			resp, err := chessClient.Get(archiveURL)
 
 			if err != nil {

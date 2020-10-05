@@ -8,7 +8,7 @@ import (
 )
 
 // StatsToConsole ... does everything
-func StatsToConsole(player string, cachePath string) {
+func StatsToConsole(player string, cachePath string, cacheRefresh bool) {
 	if cachePath != "" {
 		if _, err := os.Stat(cachePath); os.IsNotExist(err) {
 			log.Println("Folder " + cachePath + " does not exist. No caching will be used.")
@@ -17,7 +17,7 @@ func StatsToConsole(player string, cachePath string) {
 	}
 
 	archivesContainer := ArchivesContainer{}
-	getArchives(player, &archivesContainer, cachePath)
+	getArchives(player, &archivesContainer, cachePath, cacheRefresh)
 
 	// Get games
 	var totalGames int
@@ -27,7 +27,7 @@ func StatsToConsole(player string, cachePath string) {
 
 	for _, archiveURL := range archivesContainer.Archives {
 		gamesContainer := GamesContainer{}
-		getGames(player, &gamesContainer, archiveURL, cachePath)
+		getGames(player, &gamesContainer, archiveURL, cachePath, cacheRefresh)
 
 		totalGames += len(gamesContainer.Games)
 
