@@ -24,6 +24,8 @@ func StatsToConsole(player string, cachePath string, cacheRefresh bool) {
 	var loseResults = make(map[string]int)
 	var winResults = make(map[string]int)
 	var drawResults = make(map[string]int)
+	var timeControls = make(map[string]int)
+	var rules = make(map[string]int)
 
 	for _, archiveURL := range archivesContainer.Archives {
 		gamesContainer := GamesContainer{}
@@ -32,6 +34,9 @@ func StatsToConsole(player string, cachePath string, cacheRefresh bool) {
 		totalGames += len(gamesContainer.Games)
 
 		for _, game := range gamesContainer.Games {
+			timeControls[game.TimeControl]++
+			rules[game.Rules]++
+
 			if game.White.Result != "win" && game.Black.Result != "win" { // Draw
 				if game.White.Result != game.Black.Result {
 					fmt.Println("Results should be the same for black and white: ", game.White, game.Black)
@@ -84,6 +89,14 @@ func StatsToConsole(player string, cachePath string, cacheRefresh bool) {
 	}
 	fmt.Println(">>>> Win:")
 	for key, value := range winResults {
+		fmt.Println(key, ":", value)
+	}
+	fmt.Println(">>>> Rules:")
+	for key, value := range rules {
+		fmt.Println(key, ":", value)
+	}
+	fmt.Println(">>>> Time Controls:")
+	for key, value := range timeControls {
 		fmt.Println(key, ":", value)
 	}
 }
