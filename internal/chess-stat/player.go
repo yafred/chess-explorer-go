@@ -1,75 +1,15 @@
 package stat
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
-	"time"
 )
 
-// Player ... a profile from Chess.com
-type Player struct {
-	PlayerID   int    `json:"player_id"`
-	ID         string `json:"@id"`
-	URL        string `json:"url"`
-	Username   string `json:"username"`
-	Followers  int    `json:"followers"`
-	Country    string `json:"country"`
-	LastOnline int    `json:"last_online"`
-	Joined     int    `json:"joined"`
-	Status     string `json:"status"`
-	IsStreamer bool   `json:"is_streamer"`
-}
-
-// GamesResponse ... a list of Games from Chess.com
-type GamesResponse struct {
-	Games []struct {
-		URL         string `json:"url"`
-		Pgn         string `json:"pgn"`
-		TimeControl string `json:"time_control"`
-		EndTime     int    `json:"end_time"`
-		Rated       bool   `json:"rated"`
-		Fen         string `json:"fen"`
-		TimeClass   string `json:"time_class"`
-		Rules       string `json:"rules"`
-		White       struct {
-			Rating   int    `json:"rating"`
-			Result   string `json:"result"`
-			ID       string `json:"@id"`
-			Username string `json:"username"`
-		} `json:"white"`
-		Black struct {
-			Rating   int    `json:"rating"`
-			Result   string `json:"result"`
-			ID       string `json:"@id"`
-			Username string `json:"username"`
-		} `json:"black"`
-	} `json:"games"`
-}
-
-// ArchivesResponse ... a list of available archives from Chess.com
-type ArchivesResponse struct {
-	Archives []string `json:"archives"`
-}
-
 // StatsToConsole ... does everything
-func StatsToConsole(player string, cachePath string, refreshCache bool) {
+func StatsToConsole(player string, cachePath string) {
 
-	fmt.Println("cache", cachePath)
-
-	var chessClient = &http.Client{Timeout: 10 * time.Second}
-
-	// Get available archives
-	archivesURL := "https://api.chess.com/pub/player/" + player + "/games/archives"
-
-	archiveResponse := ArchivesResponse{}
-	r, err := chessClient.Get(archivesURL)
-	if err != nil {
-	}
-
-	json.NewDecoder(r.Body).Decode(&archiveResponse)
-	r.Body.Close()
+	archivesContainer := ArchivesContainer{}
+	getArchives(player, &archivesContainer, cachePath)
 
 	// Get games
 	var totalGames int
@@ -77,18 +17,13 @@ func StatsToConsole(player string, cachePath string, refreshCache bool) {
 	var winResults = make(map[string]int)
 	var drawResults = make(map[string]int)
 
-	for _, archiveURL := range archiveResponse.Archives {
-		gamesResponse := GamesResponse{}
-		r, err := chessClient.Get(archiveURL)
-		if err != nil {
-		}
+	for _, archiveURL := range archivesContainer.Archives {
+		gamesContainer := GamesContainer{}
+		getGames(&gamesContainer, archiveURL, cachePath)
 
-		json.NewDecoder(r.Body).Decode(&gamesResponse)
-		r.Body.Close()
+		totalGames += len(gamesContainer.Games)
 
-		totalGames += len(gamesResponse.Games)
-
-		for _, game := range gamesResponse.Games {
+		for _, game := range gamesContainer.Games {
 			if game.White.Result != "win" && game.Black.Result != "win" { // Draw
 				if game.White.Result != game.Black.Result {
 					fmt.Println("Results should be the same for black and white: ", game.White, game.Black)
