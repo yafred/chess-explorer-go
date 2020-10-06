@@ -8,6 +8,7 @@ import (
 	stat "github.com/yafred/chess-com/internal/chess-stat"
 )
 
+var csvFilePath string
 var cachePath string
 var cacheRefresh bool
 
@@ -20,6 +21,9 @@ var playerCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		stat.StatsToConsole(strings.ToLower(args[0]), viper.GetString("cache-path"), cacheRefresh)
+		if csvFilePath != "" {
+			stat.CreateCsvFile(strings.ToLower(args[0]), viper.GetString("cache-path"), cacheRefresh, csvFilePath)
+		}
 	},
 }
 
@@ -29,6 +33,8 @@ func init() {
 	playerCmd.Flags().StringVarP(&cachePath, "cache-path", "c", "", "Folder where downloaded data should be kept (data will not be kept if flag absent)")
 	playerCmd.MarkFlagDirname("cache-path")
 	playerCmd.Flags().BoolVarP(&cacheRefresh, "cache-refresh", "r", false, "Refresh cache before executing command (if flag absent, existing data will be used)")
+	playerCmd.Flags().StringVarP(&csvFilePath, "csv", "", "", "Creates a csv file (you specify the file name)")
+	playerCmd.MarkFlagFilename("csv")
 
 	// To be able to support the config file, we need to bind with viper (and read with viper.GetString())
 	viper.BindPFlag("cache-path", playerCmd.Flags().Lookup("cache-path"))
