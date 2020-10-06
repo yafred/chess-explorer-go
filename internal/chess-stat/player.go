@@ -103,7 +103,7 @@ func StatsToConsole(player string, cachePath string, cacheRefresh bool) {
 	}
 }
 
-// CsvToConsole ... compiles games from chess.com into a cvs file for spreadsheets
+// CreateCsvFile ... compiles games from chess.com into a cvs file for spreadsheets
 func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath string) {
 
 	file, err := os.Create(filepath)
@@ -116,7 +116,7 @@ func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath 
 	archivesContainer := ArchivesContainer{}
 	getArchives(player, &archivesContainer, cachePath, cacheRefresh)
 
-	columns := []string{"EndTime", "Color", "Against", "Outcome", "Result", "TimeClass", "TimeControl", "Rating", "URL"}
+	columns := []string{"EndTime", "Color", "Against", "Outcome", "Result", "TimeClass", "TimeControl", "Rating", "URL", "Opening"}
 	fmt.Fprintln(file, strings.Join(columns, ","))
 
 	// Get games
@@ -129,6 +129,7 @@ func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath 
 		color := ""
 		against := ""
 		rating := 0
+		opening := ""
 		for _, game := range gamesContainer.Games {
 			if strings.EqualFold(game.White.Username, player) {
 				color = "white"
@@ -185,7 +186,15 @@ func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath 
 			unixTimeUTC := time.Unix(int64(game.EndTime), 0)      //gives unix time stamp in utc
 			unitTimeInRFC3339 := unixTimeUTC.Format(time.RFC3339) // converts utc time to RFC3339 format
 
-			values := []string{strconv.Quote(unitTimeInRFC3339), strconv.Quote(color), strconv.Quote(against), strconv.Quote(outcome), strconv.Quote(result), strconv.Quote(game.TimeClass), strconv.Quote(game.TimeControl), strconv.Itoa(rating), strconv.Quote(game.URL)}
+			pgnLines := strings.Split(game.Pgn, "\n")
+			for _, pgnLine := range pgnLines {
+				bits := strings.Split(pgnLine, " ")
+				if bits[0] == "[ECOUrl" {
+					opening = strings.TrimRight(bits[1], "]")
+				}
+			}
+
+			values := []string{strconv.Quote(unitTimeInRFC3339), strconv.Quote(color), strconv.Quote(against), strconv.Quote(outcome), strconv.Quote(result), strconv.Quote(game.TimeClass), strconv.Quote(game.TimeControl), strconv.Itoa(rating), strconv.Quote(game.URL), opening}
 			fmt.Fprintln(file, strings.Join(values, ","))
 		}
 	}
