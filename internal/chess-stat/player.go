@@ -115,7 +115,7 @@ func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath 
 	archivesContainer := ArchivesContainer{}
 	getArchives(player, &archivesContainer, cachePath, cacheRefresh)
 
-	columns := []string{"EndTime", "Color", "Against", "Outcome", "Result", "TimeClass", "TimeControl", "URL"}
+	columns := []string{"EndTime", "Color", "Against", "Outcome", "Result", "TimeClass", "TimeControl", "Rating", "URL"}
 	fmt.Fprintln(file, strings.Join(columns, ","))
 
 	// Get games
@@ -127,23 +127,34 @@ func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath 
 		result := ""
 		color := ""
 		against := ""
+		rating := 0
 		for _, game := range gamesContainer.Games {
 			if strings.EqualFold(game.White.Username, player) {
 				color = "white"
 				against = game.Black.Username
+				rating = game.White.Rating
 			} else {
 				color = "black"
 				against = game.White.Username
+				rating = game.Black.Rating
 			}
 			if game.White.Result != "win" && game.Black.Result != "win" {
 				outcome = "draw"
 				result = game.White.Result
 			} else if (game.White.Result == "win" && strings.EqualFold(game.White.Username, player)) || (game.Black.Result == "win" && strings.EqualFold(game.Black.Username, player)) {
 				outcome = "win"
-				result = game.Black.Result
+				if color == "white" {
+					result = game.Black.Result
+				} else {
+					result = game.White.Result
+				}
 			} else {
 				outcome = "lose"
-				result = game.White.Result
+				if color == "white" {
+					result = game.White.Result
+				} else {
+					result = game.Black.Result
+				}
 			}
 			/*
 				{
@@ -169,7 +180,7 @@ func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath 
 					}
 				}
 			*/
-			values := []string{strconv.Itoa(game.EndTime), color, against, outcome, result, game.TimeClass, game.TimeControl, game.URL}
+			values := []string{strconv.Itoa(game.EndTime), color, against, outcome, result, game.TimeClass, game.TimeControl, strconv.Itoa(rating), game.URL}
 			fmt.Fprintln(file, strings.Join(values, ","))
 		}
 	}
