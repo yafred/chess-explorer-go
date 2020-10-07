@@ -116,7 +116,7 @@ func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath 
 	archivesContainer := ArchivesContainer{}
 	getArchives(player, &archivesContainer, cachePath, cacheRefresh)
 
-	columns := []string{"EndTime", "Color", "Against", "Outcome", "Result", "TimeClass", "TimeControl", "Rating", "URL", "Opening"}
+	columns := []string{"EndTime", "PlayerColor", "Outcome", "Result", "PlayerRating", "OpponentUsername", "OpponentRating", "TimeClass", "TimeControl", "OpeningURL", "GameURL"}
 	fmt.Fprintln(file, strings.Join(columns, ","))
 
 	// Get games
@@ -126,33 +126,36 @@ func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath 
 
 		outcome := ""
 		result := ""
-		color := ""
-		against := ""
-		rating := 0
-		opening := ""
+		playerColor := ""
+		opponentUsername := ""
+		playerRating := 0 // Rating after the game is finished
+		opponentRating := 0
+		openingURL := ""
 		for _, game := range gamesContainer.Games {
 			if strings.EqualFold(game.White.Username, player) {
-				color = "white"
-				against = game.Black.Username
-				rating = game.White.Rating
+				playerColor = "white"
+				opponentUsername = game.Black.Username
+				playerRating = game.White.Rating
+				opponentRating = game.Black.Rating
 			} else {
-				color = "black"
-				against = game.White.Username
-				rating = game.Black.Rating
+				playerColor = "black"
+				opponentUsername = game.White.Username
+				playerRating = game.Black.Rating
+				opponentRating = game.White.Rating
 			}
 			if game.White.Result != "win" && game.Black.Result != "win" {
 				outcome = "draw"
 				result = game.White.Result
 			} else if (game.White.Result == "win" && strings.EqualFold(game.White.Username, player)) || (game.Black.Result == "win" && strings.EqualFold(game.Black.Username, player)) {
 				outcome = "win"
-				if color == "white" {
+				if playerColor == "white" {
 					result = game.Black.Result
 				} else {
 					result = game.White.Result
 				}
 			} else {
 				outcome = "lose"
-				if color == "white" {
+				if playerColor == "white" {
 					result = game.White.Result
 				} else {
 					result = game.Black.Result
@@ -190,11 +193,12 @@ func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath 
 			for _, pgnLine := range pgnLines {
 				bits := strings.Split(pgnLine, " ")
 				if bits[0] == "[ECOUrl" {
-					opening = strings.TrimRight(bits[1], "]")
+					openingURL = strings.TrimRight(bits[1], "]")
 				}
 			}
 
-			values := []string{strconv.Quote(unitTimeInRFC3339), strconv.Quote(color), strconv.Quote(against), strconv.Quote(outcome), strconv.Quote(result), strconv.Quote(game.TimeClass), strconv.Quote(game.TimeControl), strconv.Itoa(rating), strconv.Quote(game.URL), opening}
+			// 	columns := []string{"EndTime", "PlayerColor", "Outcome", "Result", "PlayerRating", "OpponentUsername", "OpponentRating", "TimeClass", "TimeControl", "OpeningURL", "GameURL"}
+			values := []string{strconv.Quote(unitTimeInRFC3339), strconv.Quote(playerColor), strconv.Quote(outcome), strconv.Quote(result), strconv.Itoa(playerRating), strconv.Quote(opponentUsername), strconv.Itoa(opponentRating), strconv.Quote(game.TimeClass), strconv.Quote(game.TimeControl), openingURL, strconv.Quote(game.URL)}
 			fmt.Fprintln(file, strings.Join(values, ","))
 		}
 	}
