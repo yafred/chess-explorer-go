@@ -203,3 +203,29 @@ func CreateCsvFile(player string, cachePath string, cacheRefresh bool, filepath 
 		}
 	}
 }
+
+// CreatePgnFile ... compiles games from chess.com into a pgn file for spreadsheets
+func CreatePgnFile(player string, cachePath string, cacheRefresh bool, filepath string) {
+
+	file, err := os.Create(filepath)
+	if err != nil {
+		fmt.Println("Cannot open", filepath)
+		return
+	}
+	defer file.Close()
+
+	archivesContainer := ArchivesContainer{}
+	getArchives(player, &archivesContainer, cachePath, cacheRefresh)
+
+	// Get games
+	for _, archiveURL := range archivesContainer.Archives {
+		gamesContainer := GamesContainer{}
+		getGames(player, &gamesContainer, archiveURL, cachePath, cacheRefresh)
+
+		for _, game := range gamesContainer.Games {
+			fmt.Fprintln(file, game.Pgn)
+			fmt.Fprintln(file)
+			fmt.Fprintln(file)
+		}
+	}
+}
