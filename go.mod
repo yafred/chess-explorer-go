@@ -1,4 +1,4 @@
-module github.com/yafred/chess-com
+module github.com/yafred/chess-stat
 
 go 1.15
 

@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	stat "github.com/yafred/chess-com/internal/chess-com"
+	stat "github.com/yafred/chess-stat/internal/chess-com"
 )
 
 var csvFilePath string
