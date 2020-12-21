@@ -1,4 +1,4 @@
-package chesscom
+package chess
 
 import (
 	"fmt"
