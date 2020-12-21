@@ -2,7 +2,7 @@
 
 ## Quick start
 
-* Download executable for your platform here: https://github.com/yafred/chess-com/releases
+* Download executable for your platform here: https://github.com/yafred/chess-stat/releases
 * Decompress
 * Execute to get help
 
