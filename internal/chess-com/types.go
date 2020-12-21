@@ -1,4 +1,4 @@
-package stat
+package chesscom
 
 // Player ... a profile from Chess.com
 type Player struct {
