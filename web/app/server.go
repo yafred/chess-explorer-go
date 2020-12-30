@@ -18,7 +18,7 @@ import (
 
 // Start ... start a web server on port 8080
 func Start(port int) {
-	fs := http.FileServer(http.Dir("../../internal/server/static"))
+	fs := http.FileServer(http.Dir("../../web/static"))
 	http.Handle("/", fs)
 
 	http.HandleFunc("/test", testHandler)
