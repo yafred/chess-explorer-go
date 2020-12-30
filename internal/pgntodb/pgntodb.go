@@ -2,8 +2,10 @@ package pgntodb
 
 import (
 	"context"
+	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,8 +13,32 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+// Process ... process a single file or all the files of a folder
+func Process(filepath string) {
+	info, err := os.Stat(filepath)
+	if os.IsNotExist(err) {
+		log.Fatal("Cannot access " + filepath)
+	}
+
+	if info.IsDir() {
+		fileinfos, err := ioutil.ReadDir(filepath)
+		if err != nil {
+			log.Fatal("Cannot list files in " + filepath)
+		}
+		for _, info := range fileinfos {
+			if !info.IsDir() {
+				log.Println(path.Join(filepath, info.Name()))
+				processFile(path.Join(filepath, info.Name()))
+			}
+		}
+	} else {
+		processFile(filepath)
+	}
+
+}
+
 // ProcessFile ... does everything
-func ProcessFile(filepath string) {
+func processFile(filepath string) {
 
 	// Open file
 	file, err := os.Open(filepath)

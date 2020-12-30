@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,8 +16,9 @@ func pgnFileToDB(f *os.File, db *mongo.Client) {
 
 	inGame := false
 	keyValues := make(map[string]string)
-	for scanner.Scan() {
+	for i := 1; scanner.Scan(); i++ {
 		line := scanner.Text()
+		line = strings.Trim(line, " ")
 		if len(line) == 0 {
 			continue
 		}
@@ -30,11 +32,19 @@ func pgnFileToDB(f *os.File, db *mongo.Client) {
 				keyValues[key] = value
 			}
 			break
+		case '0':
 		case '1':
-			keyValues["PGN"] = stripPgn(line)
-			insertGame(keyValues, db)
+			// If game was abandoned, pgn will be 0-1 or 1-0 (skip it)
+			if line != "0-1" && line != "1-0" {
+				keyValues["PGN"] = stripPgn(line)
+				insertGame(keyValues, db)
+			}
 			keyValues = make(map[string]string) // for next game
 			break
+		default:
+			// not a valid char
+			log.Println(f.Name() + " is not a pgn file (line " + strconv.Itoa(i) + ")")
+			return
 		}
 	}
 
