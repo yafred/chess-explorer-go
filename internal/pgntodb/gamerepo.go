@@ -10,7 +10,7 @@ import (
 )
 
 // Game ... for the database
-type game struct {
+type Game struct {
 	Site        string `json:"site,omitempty"`
 	White       string `json:"white,omitempty"`
 	Black       string `json:"black,omitempty"`
@@ -34,7 +34,7 @@ func insertGame(gameMap map[string]string, client *mongo.Client) {
 		gameMap["Site"] = "Lichess.org"
 	}
 
-	game := game{
+	game := Game{
 		Site:        gameMap["Site"],
 		White:       gameMap["White"],
 		Black:       gameMap["Black"],
