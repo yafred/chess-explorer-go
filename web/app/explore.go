@@ -86,9 +86,10 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	pipeline = append(pipeline, matchStage2)
 
+	moveField := "move01"
 	groupStage := bson.M{
 		"$group": bson.M{
-			"_id":    bson.M{"movew01": "$movew01", "result": "$result"},
+			"_id":    bson.M{moveField: "$" + moveField, "result": "$result"},
 			"total":  bson.M{"$sum": 1},
 			"result": bson.M{"$push": "$result"},
 		},
@@ -97,7 +98,7 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 
 	subGroupStage := bson.M{
 		"$group": bson.M{
-			"_id":     bson.M{"movew01": "$_id.movew01"},
+			"_id":     bson.M{moveField: "$_id." + moveField},
 			"results": bson.M{"$addToSet": bson.M{"result": "$_id.result", "sum": "$total"}},
 		},
 	}
@@ -106,7 +107,7 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	projectStage := bson.M{
 		"$project": bson.M{
 			"_id":     false,
-			"movew01": "$_id.movew01",
+			moveField: "$_id." + moveField,
 			"results": "$results",
 		},
 	}
@@ -124,7 +125,16 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 		Sum    uint16 `json:"sum,omitempty"`
 	}
 	type Exploration struct {
-		MoveW01 string `json:"movew01,omitempty"`
+		Move01  string `json:"move01,omitempty"`
+		Move02  string `json:"move02,omitempty"`
+		Move03  string `json:"move03,omitempty"`
+		Move04  string `json:"move04,omitempty"`
+		Move05  string `json:"move05,omitempty"`
+		Move06  string `json:"move06,omitempty"`
+		Move07  string `json:"move07,omitempty"`
+		Move08  string `json:"move08,omitempty"`
+		Move09  string `json:"move09,omitempty"`
+		Move10  string `json:"move10,omitempty"`
 		Results []Result
 	}
 

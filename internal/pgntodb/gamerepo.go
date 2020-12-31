@@ -22,16 +22,16 @@ type Game struct {
 	TimeControl string `json:"timecontrol,omitempty"`
 	Link        string `json:"link,omitempty"`
 	PGN         string `json:"pgn,omitempty"`
-	MoveW01     string `json:"movew01,omitempty"`
-	MoveB01     string `json:"moveb01,omitempty"`
-	MoveW02     string `json:"movew02,omitempty"`
-	MoveB02     string `json:"moveb02,omitempty"`
-	MoveW03     string `json:"movew03,omitempty"`
-	MoveB03     string `json:"moveb03,omitempty"`
-	MoveW04     string `json:"movew04,omitempty"`
-	MoveB04     string `json:"moveb04,omitempty"`
-	MoveW05     string `json:"movew05,omitempty"`
-	MoveB05     string `json:"moveb05,omitempty"`
+	Move01      string `json:"move01,omitempty"`
+	Move02      string `json:"move02,omitempty"`
+	Move03      string `json:"move03,omitempty"`
+	Move04      string `json:"move04,omitempty"`
+	Move05      string `json:"move05,omitempty"`
+	Move06      string `json:"move06,omitempty"`
+	Move07      string `json:"move07,omitempty"`
+	Move08      string `json:"move08,omitempty"`
+	Move09      string `json:"move09,omitempty"`
+	Move10      string `json:"move10,omitempty"`
 }
 
 var client *mongo.Client
@@ -81,33 +81,33 @@ func itemizePgn(game *Game) {
 	pgn := game.PGN
 	pgnElements := strings.Split(pgn, " ")
 	if len(pgnElements) > 2 {
-		game.MoveW01 = pgnElements[1]
+		game.Move01 = pgnElements[1]
 	}
 	if len(pgnElements) > 3 {
-		game.MoveB01 = pgnElements[2]
+		game.Move02 = pgnElements[2]
 	}
 	if len(pgnElements) > 5 {
-		game.MoveW02 = pgnElements[4]
+		game.Move03 = pgnElements[4]
 	}
 	if len(pgnElements) > 6 {
-		game.MoveB02 = pgnElements[5]
+		game.Move04 = pgnElements[5]
 	}
 	if len(pgnElements) > 8 {
-		game.MoveW03 = pgnElements[7]
+		game.Move05 = pgnElements[7]
 	}
 	if len(pgnElements) > 9 {
-		game.MoveB03 = pgnElements[8]
+		game.Move06 = pgnElements[8]
 	}
 	if len(pgnElements) > 11 {
-		game.MoveW04 = pgnElements[10]
+		game.Move07 = pgnElements[10]
 	}
 	if len(pgnElements) > 12 {
-		game.MoveB04 = pgnElements[11]
+		game.Move08 = pgnElements[11]
 	}
 	if len(pgnElements) > 14 {
-		game.MoveW05 = pgnElements[13]
+		game.Move09 = pgnElements[13]
 	}
 	if len(pgnElements) > 15 {
-		game.MoveB05 = pgnElements[14]
+		game.Move10 = pgnElements[14]
 	}
 }
