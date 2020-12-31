@@ -64,7 +64,7 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(value)
 	}
 
-	// Same with aggregation (to provide count)
+	// Same with aggregation (to provide counts)
 	pipeline := make([]bson.M, 0)
 
 	matchStage := bson.M{
@@ -75,12 +75,20 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 
 	groupStage := bson.M{
 		"$group": bson.M{
-			"_id":   "$movew01",
-			"count": bson.M{"$sum": 1},
+			"_id":    bson.M{"movew01": "$movew01", "result": "$result"},
+			"result": bson.M{"$push": "$result"},
+			"total":  bson.M{"$sum": 1},
 		},
 	}
 
-	pipeline = append(pipeline, matchStage, groupStage)
+	subGroupStage := bson.M{
+		"$group": bson.M{
+			"_id":    bson.M{"movew01": "$_id.movew01"},
+			"result": bson.M{"$addToSet": bson.M{"result": "$_id.result", "sum": "$total"}},
+		},
+	}
+
+	pipeline = append(pipeline, matchStage, groupStage, subGroupStage)
 
 	showInfoCursor, err := games.Aggregate(ctx, pipeline)
 	if err != nil {
