@@ -49,8 +49,10 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 	games := client.Database("chess-explorer").Collection("games")
 
 	// iterate all documents
-	cursor, _ := games.Find(ctx, bson.M{})
-
+	cursor, err := games.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer cursor.Close(ctx)
 
 	for i := 0; cursor.Next(ctx); i++ {
@@ -62,4 +64,45 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(game.Link)
 		}
 	}
+
+	// Get distinct first moves in all documents
+	values, err := games.Distinct(ctx, "movew01", bson.M{})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, value := range values {
+		fmt.Println(value)
+	}
+
+	// Same with aggregation (to provide count)
+	pipeline := make([]bson.M, 0)
+
+	/*
+		matchStage := bson.M{
+			"$match": bson.M{
+				"white": "fredo599",
+			},
+		}
+	*/
+	groupStage := bson.M{
+		"$group": bson.M{
+			"_id":   "$movew01",
+			"count": bson.M{"$sum": 1},
+		},
+	}
+
+	pipeline = append(pipeline, groupStage)
+
+	showInfoCursor, err := games.Aggregate(ctx, pipeline)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var showsWithInfo []bson.M
+	if err = showInfoCursor.All(ctx, &showsWithInfo); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(showsWithInfo)
+	fmt.Println(len(showsWithInfo))
 }

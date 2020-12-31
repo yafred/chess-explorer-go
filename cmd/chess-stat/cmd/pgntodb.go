@@ -6,7 +6,7 @@ import (
 )
 
 var pgnToDbCmd = &cobra.Command{
-	Use:   "pgn [pgn file]",
+	Use:   "pgntodb [pgn file]",
 	Short: "Parse a pgn file and feed mongo database",
 	Long:  `Parse a pgn file and feed mongo database. Designed for chess.com and lichess.org`,
 	Args:  cobra.ExactArgs(1),

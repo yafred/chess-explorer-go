@@ -22,6 +22,16 @@ type Game struct {
 	TimeControl string `json:"timecontrol,omitempty"`
 	Link        string `json:"link,omitempty"`
 	PGN         string `json:"pgn,omitempty"`
+	MoveW01     string `json:"movew01,omitempty"`
+	MoveB01     string `json:"moveb01,omitempty"`
+	MoveW02     string `json:"movew02,omitempty"`
+	MoveB02     string `json:"moveb02,omitempty"`
+	MoveW03     string `json:"movew03,omitempty"`
+	MoveB03     string `json:"moveb03,omitempty"`
+	MoveW04     string `json:"movew04,omitempty"`
+	MoveB04     string `json:"moveb04,omitempty"`
+	MoveW05     string `json:"movew05,omitempty"`
+	MoveB05     string `json:"moveb05,omitempty"`
 }
 
 var client *mongo.Client
@@ -48,6 +58,9 @@ func insertGame(gameMap map[string]string, client *mongo.Client) {
 		PGN:         gameMap["PGN"],
 	}
 
+	// Itemize first moves of the pgn
+	itemizePgn(&game)
+
 	// Look for a duplicate before inserting
 	games := client.Database("chess-explorer").Collection("games")
 
@@ -60,5 +73,41 @@ func insertGame(gameMap map[string]string, client *mongo.Client) {
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+}
+
+// Remider: last item of the pgn is "0-1" or "1-0" or "1/2-1/2"
+func itemizePgn(game *Game) {
+	pgn := game.PGN
+	pgnElements := strings.Split(pgn, " ")
+	if len(pgnElements) > 2 {
+		game.MoveW01 = pgnElements[1]
+	}
+	if len(pgnElements) > 3 {
+		game.MoveB01 = pgnElements[2]
+	}
+	if len(pgnElements) > 5 {
+		game.MoveW02 = pgnElements[4]
+	}
+	if len(pgnElements) > 6 {
+		game.MoveB02 = pgnElements[5]
+	}
+	if len(pgnElements) > 8 {
+		game.MoveW03 = pgnElements[7]
+	}
+	if len(pgnElements) > 9 {
+		game.MoveB03 = pgnElements[8]
+	}
+	if len(pgnElements) > 11 {
+		game.MoveW04 = pgnElements[10]
+	}
+	if len(pgnElements) > 12 {
+		game.MoveB04 = pgnElements[11]
+	}
+	if len(pgnElements) > 14 {
+		game.MoveW05 = pgnElements[13]
+	}
+	if len(pgnElements) > 15 {
+		game.MoveB05 = pgnElements[14]
 	}
 }
