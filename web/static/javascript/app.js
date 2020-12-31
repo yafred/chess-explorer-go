@@ -83,7 +83,7 @@ function updateStatus() {
     $fen.html(game.fen())
     $pgn.html(game.pgn())
 
-    $.post("explore", function (data) {
+    $.post("explore", { pgn: game.pgn() }, function (data) {
         $("#result").html(data);
     });
 }
