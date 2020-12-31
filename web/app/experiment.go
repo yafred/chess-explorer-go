@@ -95,28 +95,47 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 	groupStage := bson.M{
 		"$group": bson.M{
 			"_id":    bson.M{"movew01": "$movew01", "result": "$result"},
-			"result": bson.M{"$push": "$result"},
 			"total":  bson.M{"$sum": 1},
+			"result": bson.M{"$push": "$result"},
 		},
 	}
 
 	subGroupStage := bson.M{
 		"$group": bson.M{
-			"_id":    bson.M{"movew01": "$_id.movew01"},
-			"result": bson.M{"$addToSet": bson.M{"result": "$_id.result", "sum": "$total"}},
+			"_id":     bson.M{"movew01": "$_id.movew01"},
+			"results": bson.M{"$addToSet": bson.M{"result": "$_id.result", "sum": "$total"}},
 		},
 	}
 
-	pipeline = append(pipeline, matchStage, groupStage, subGroupStage)
+	projectStage := bson.M{
+		"$project": bson.M{
+			"_id":     false,
+			"movew01": "$_id.movew01",
+			"results": "$results",
+		},
+	}
 
-	showInfoCursor, err := games.Aggregate(ctx, pipeline)
+	pipeline = append(pipeline, matchStage, groupStage, subGroupStage, projectStage)
+
+	aggregateCursor, err := games.Aggregate(ctx, pipeline)
 	if err != nil {
 		log.Fatal(err)
 	}
-	var showsWithInfo []bson.M
-	if err = showInfoCursor.All(ctx, &showsWithInfo); err != nil {
+
+	defer aggregateCursor.Close(ctx)
+
+	type Result struct {
+		Result string `json:"result,omitempty"`
+		Sum    uint16 `json:"sum,omitempty"`
+	}
+	type Exploration struct {
+		MoveW01 string `json:"movew01,omitempty"`
+		Results []Result
+	}
+
+	var showsLoadedStruct []Exploration
+	if err = aggregateCursor.All(ctx, &showsLoadedStruct); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(showsWithInfo)
-	fmt.Println(len(showsWithInfo))
+	fmt.Println(showsLoadedStruct)
 }
