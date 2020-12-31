@@ -12,6 +12,7 @@ func Start(port int) {
 	http.Handle("/", fs)
 
 	http.HandleFunc("/test", testHandler)
+	http.HandleFunc("/explore", exploreHandler)
 
 	log.Println("Server is listening on port " + strconv.Itoa(port))
 	http.ListenAndServe(":"+strconv.Itoa(port), nil)

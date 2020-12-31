@@ -82,6 +82,10 @@ function updateStatus() {
     $status.html(status)
     $fen.html(game.fen())
     $pgn.html(game.pgn())
+
+    $.post("explore", function (data) {
+        $("#result").html(data);
+    });
 }
 
 var config = {
