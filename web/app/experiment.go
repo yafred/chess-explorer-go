@@ -67,9 +67,28 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 	// Same with aggregation (to provide counts)
 	pipeline := make([]bson.M, 0)
 
+	/*
+		matchStage := bson.M{
+			"$match": bson.M{
+				"white": "fredo599",
+				"site":  "Chess.com",
+			},
+		}
+
+		groupStage := bson.M{
+			"$group": bson.M{
+				"_id":   bson.M{"movew01": "$movew01"},
+				"total": bson.M{"$sum": 1},
+			},
+		}
+
+		pipeline = append(pipeline, matchStage, groupStage)
+	*/
+
 	matchStage := bson.M{
 		"$match": bson.M{
 			"white": "fredo599",
+			"site":  "Chess.com",
 		},
 	}
 
