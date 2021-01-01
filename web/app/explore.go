@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -23,18 +24,19 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 		Sum    uint16 `json:"sum,omitempty"`
 	}
 	type Exploration struct {
-		Move01  string `json:"move01,omitempty"`
-		Move02  string `json:"move02,omitempty"`
-		Move03  string `json:"move03,omitempty"`
-		Move04  string `json:"move04,omitempty"`
-		Move05  string `json:"move05,omitempty"`
-		Move06  string `json:"move06,omitempty"`
-		Move07  string `json:"move07,omitempty"`
-		Move08  string `json:"move08,omitempty"`
-		Move09  string `json:"move09,omitempty"`
-		Move10  string `json:"move10,omitempty"`
-		Total   uint16 `json:"total,omitempty"`
-		Results []Result
+		MoveField string `json:"movefield,omitempty"`
+		Move01    string `json:"move01,omitempty"`
+		Move02    string `json:"move02,omitempty"`
+		Move03    string `json:"move03,omitempty"`
+		Move04    string `json:"move04,omitempty"`
+		Move05    string `json:"move05,omitempty"`
+		Move06    string `json:"move06,omitempty"`
+		Move07    string `json:"move07,omitempty"`
+		Move08    string `json:"move08,omitempty"`
+		Move09    string `json:"move09,omitempty"`
+		Move10    string `json:"move10,omitempty"`
+		Total     uint16 `json:"total,omitempty"`
+		Results   []Result
 	}
 
 	var explorations []Exploration
@@ -178,7 +180,13 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 			total += y.Sum
 		}
 		explorations[i].Total = total
+		explorations[i].MoveField = moveField
 	}
+
+	// sort by counts
+	sort.Slice(explorations, func(i, j int) bool {
+		return explorations[i].Total > explorations[j].Total
+	})
 
 	// send the response
 	json.NewEncoder(w).Encode(explorations)

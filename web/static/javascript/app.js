@@ -10,6 +10,7 @@ var $fen = $('#fen')
 var $pgn = $('#pgn')
 
 $("#undo").on("click", undoClicked);
+$("#reset").on("click", resetClicked);
 
 function undoClicked(e) {
     console.log("undo clicked")
@@ -18,6 +19,47 @@ function undoClicked(e) {
     updateStatus()
     $fen.html(game.fen())
     $pgn.html(game.pgn())
+}
+
+function resetClicked(e) {
+    console.log("undo clicked")
+    game.reset()
+    board.position(game.fen())
+    updateStatus()
+    $fen.html(game.fen())
+    $pgn.html(game.pgn())
+}
+
+function explore() {
+    $("#result").html("");
+    $.post("explore", { pgn: game.pgn() }, function (data) {
+        console.log(data)
+        formatData(JSON.parse(data));
+    });
+}
+
+function formatData(dataObject) {
+    if (Array.isArray(dataObject) == false) {
+        console.log("not an array")
+        return
+    }
+
+    dataObject.forEach(element => {
+        console.log(element)
+        var htmlElement =
+            ['<div>',
+                element.total,
+                `<a href="javascript:move('${element[element.movefield]}');">${element[element.movefield]}</a>`,
+                '</div>'
+            ].join('\n');
+            $("#result").append(htmlElement)
+    });
+}
+
+function move(position) {
+    game.move(position)
+    updateStatus()
+    board.position(game.fen(), false)
 }
 
 function onDragStart(source, piece, position, orientation) {
@@ -82,10 +124,7 @@ function updateStatus() {
     $status.html(status)
     $fen.html(game.fen())
     $pgn.html(game.pgn())
-
-    $.post("explore", { pgn: game.pgn() }, function (data) {
-        $("#result").html(data);
-    });
+    explore()
 }
 
 var config = {
