@@ -38,7 +38,6 @@ function dataToHtml(dataObject) {
         return
     }
 
-    grandTotal = 0
     dataObject.forEach(element => {
         var htmlAsArray = [
             '<div>',
@@ -46,22 +45,27 @@ function dataToHtml(dataObject) {
             `<a href="javascript:move('${element.move}');">${element.move}</a>`]
 
         element.Results.forEach(result => {
-            grandTotal = grandTotal + result.sum
             var result = [
                 '<span>(',
-                result.result + ':' + result.sum,
+                result.result + ':' + result.sum, 
                 ')</span>'
             ]
             htmlAsArray = htmlAsArray.concat(result)
         });
 
+        if(element.link) {
+            var linkElement = [
+                '<span>(',
+                `<a target="_blank" href="${element.link}">Go to game</a>`,
+                ')</span>'
+            ]
+            htmlAsArray = htmlAsArray.concat(linkElement)
+        }
+        
         var tail = '</div>'
         htmlAsArray = htmlAsArray.concat(tail)
         $("#result").append(htmlAsArray.join('\n'))
     });
-    if (grandTotal == 1) {
-        $("#result").append('<div><a href="javascript:linkToRemoteGame();">link to game</div>')
-    }
 }
 
 function linkToRemoteGame() {

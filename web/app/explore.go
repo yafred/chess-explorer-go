@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/yafred/chess-stat/internal/pgntodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -36,6 +37,7 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 		Move09  string `json:"move09,omitempty"`
 		Move10  string `json:"move10,omitempty"`
 		Total   uint16 `json:"total,omitempty"`
+		Link    string `json:"link,omitempty"` // when Total = 1
 		Results []Result
 	}
 
@@ -162,10 +164,19 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	// add a total
 	for iExploration, x := range explorations {
 		var total uint16
+		var move string
 		for _, y := range x.Results {
 			total += y.Sum
+			move = x.Move
 		}
 		explorations[iExploration].Total = total
+		if total == 1 {
+			// get link for moves pgn + move
+			game := getGame(ctx, games, pgnMoves, move)
+			if game != nil {
+				explorations[iExploration].Link = game.Link
+			}
+		}
 		sort.Slice(explorations[iExploration].Results, func(i, j int) bool {
 			if explorations[iExploration].Results[i].Result == "1-0" {
 				return true
@@ -195,4 +206,32 @@ func buildMoveFieldName(fieldNum int) (moveField string) {
 	}
 	moveField = moveField + strconv.Itoa(fieldNum)
 	return moveField
+}
+
+func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, move string) (game *pgntodb.Game) {
+	var andClause []bson.M
+	andClause = append(andClause, bson.M{"site": "Chess.com"})
+	andClause = append(andClause, bson.M{"white": "fredo599"})
+	for i := 0; i < len(pgnMoves); i++ {
+		andClause = append(andClause, bson.M{buildMoveFieldName(i + 1): pgnMoves[i]})
+	}
+	andClause = append(andClause, bson.M{buildMoveFieldName(len(pgnMoves) + 1): move})
+
+	cursor, err := games.Find(ctx, bson.M{"$and": andClause})
+	defer cursor.Close(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var resultGame []pgntodb.Game
+	err = cursor.All(ctx, &resultGame)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var ret *pgntodb.Game
+	if len(resultGame) != 0 {
+		return &resultGame[0]
+	}
+	return ret
 }
