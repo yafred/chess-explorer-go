@@ -41,6 +41,7 @@ function dataToHtml(dataObject) {
         return
     }
 
+    grandTotal = 0
     dataObject.forEach(element => {
         console.log(element)
         var htmlAsArray = [
@@ -49,6 +50,7 @@ function dataToHtml(dataObject) {
             `<a href="javascript:move('${element.move}');">${element.move}</a>`]
 
         element.Results.forEach(result => {
+            grandTotal = grandTotal + result.sum
             var result = [
                 '<span>(',
                 result.result + ':' + result.sum,
@@ -61,6 +63,13 @@ function dataToHtml(dataObject) {
         htmlAsArray = htmlAsArray.concat(tail)
         $("#result").append(htmlAsArray.join('\n'))
     });
+    if (grandTotal == 1) {
+        $.post("find", { pgn: game.pgn() }, function (data) {
+            console.log(data)
+            game = JSON.parse(data)
+            $("#result").append('<div><a target="_blank" href="' + game.link + '">link to game</div>')
+        });
+    }
 }
 
 function move(position) {
