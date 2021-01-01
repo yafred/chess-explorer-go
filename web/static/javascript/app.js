@@ -31,11 +31,11 @@ function explore() {
     $("#result").html("");
     $.post("explore", { pgn: game.pgn() }, function (data) {
         console.log(data)
-        formatData(JSON.parse(data));
+        dataToHtml(JSON.parse(data));
     });
 }
 
-function formatData(dataObject) {
+function dataToHtml(dataObject) {
     if (Array.isArray(dataObject) == false) {
         console.log("not an array")
         return
@@ -43,13 +43,23 @@ function formatData(dataObject) {
 
     dataObject.forEach(element => {
         console.log(element)
-        var htmlElement =
-            ['<div>',
-                element.total,
-                `<a href="javascript:move('${element.move}');">${element.move}</a>`,
-                '</div>'
-            ].join('\n');
-            $("#result").append(htmlElement)
+        var htmlAsArray = [
+            '<div>',
+            element.total,
+            `<a href="javascript:move('${element.move}');">${element.move}</a>`]
+
+        element.Results.forEach(result => {
+            var result = [
+                '<span>(',
+                result.result + ':' + result.sum,
+                ')</span>'
+            ]
+            htmlAsArray = htmlAsArray.concat(result)
+        });
+
+        var tail = '</div>'
+        htmlAsArray = htmlAsArray.concat(tail)
+        $("#result").append(htmlAsArray.join('\n'))
     });
 }
 

@@ -174,12 +174,23 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// add a total
-	for i, x := range explorations {
+	for iExploration, x := range explorations {
 		var total uint16
 		for _, y := range x.Results {
 			total += y.Sum
 		}
-		explorations[i].Total = total
+		explorations[iExploration].Total = total
+		sort.Slice(explorations[iExploration].Results, func(i, j int) bool {
+			if explorations[iExploration].Results[i].Result == "1-0" {
+				return true
+			} else if explorations[iExploration].Results[i].Result == "0-1" {
+				return false
+			} else if explorations[iExploration].Results[j].Result == "1-0" {
+				return false
+			} else {
+				return true
+			}
+		})
 	}
 
 	// sort by counts
