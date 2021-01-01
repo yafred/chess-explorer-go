@@ -36,6 +36,16 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 		Move08  string `json:"move08,omitempty"`
 		Move09  string `json:"move09,omitempty"`
 		Move10  string `json:"move10,omitempty"`
+		Move11  string `json:"move11,omitempty"`
+		Move12  string `json:"move12,omitempty"`
+		Move13  string `json:"move13,omitempty"`
+		Move14  string `json:"move14,omitempty"`
+		Move15  string `json:"move15,omitempty"`
+		Move16  string `json:"move16,omitempty"`
+		Move17  string `json:"move17,omitempty"`
+		Move18  string `json:"move18,omitempty"`
+		Move19  string `json:"move19,omitempty"`
+		Move20  string `json:"move20,omitempty"`
 		Total   uint16 `json:"total,omitempty"`
 		Link    string `json:"link,omitempty"` // when Total = 1
 		Results []Result
@@ -74,8 +84,8 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	pgnMoves = pgnMoves[:i]
 
-	// Our logic allows input pgn to have 0 to 9 moves
-	if len(pgnMoves) > 9 {
+	// Our logic allows input pgn to have 0 to 19 moves
+	if len(pgnMoves) > 19 {
 		json.NewEncoder(w).Encode(explorations) // empty array
 		return
 	}
