@@ -33,6 +33,7 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 		Move08  string `json:"move08,omitempty"`
 		Move09  string `json:"move09,omitempty"`
 		Move10  string `json:"move10,omitempty"`
+		Total   uint16 `json:"total,omitempty"`
 		Results []Result
 	}
 
@@ -168,6 +169,15 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err = aggregateCursor.All(ctx, &explorations); err != nil {
 		log.Fatal(err)
+	}
+
+	// add a total
+	for i, x := range explorations {
+		var total uint16
+		for _, y := range x.Results {
+			total += y.Sum
+		}
+		explorations[i].Total = total
 	}
 
 	// send the response
