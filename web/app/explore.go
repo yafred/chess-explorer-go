@@ -103,33 +103,14 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	site := "Chess.com"
 	pipeline := make([]bson.M, 0)
 
-	{
-		matchStage := bson.M{
-			"$match": bson.M{
-				"white": player,
-			},
-		}
-		pipeline = append(pipeline, matchStage)
-	}
-
-	{
-		matchStage := bson.M{
-			"$match": bson.M{
-				"site": site,
-			},
-		}
-		pipeline = append(pipeline, matchStage)
-	}
+	var andClause []bson.M
+	andClause = append(andClause, bson.M{"site": site})
+	andClause = append(andClause, bson.M{"white": player})
 
 	// filter on previous moves
 	for i := 1; i < len(pgnMoves)+1; i++ {
 		moveField := buildMoveFieldName(i)
-		matchStage := bson.M{
-			"$match": bson.M{
-				moveField: pgnMoves[i-1],
-			},
-		}
-		pipeline = append(pipeline, matchStage)
+		andClause = append(andClause, bson.M{moveField: pgnMoves[i-1]})
 	}
 
 	// move field for aggregate
@@ -137,15 +118,9 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	moveField := buildMoveFieldName(fieldNum)
 
 	// make sure next move exists
+	andClause = append(andClause, bson.M{moveField: bson.M{"$exists": true, "$ne": ""}})
 
-	{
-		matchStage := bson.M{
-			"$match": bson.M{
-				moveField: bson.M{"$exists": true, "$ne": ""},
-			},
-		}
-		pipeline = append(pipeline, matchStage)
-	}
+	pipeline = append(pipeline, bson.M{"$match": bson.M{"$and": andClause}})
 
 	groupStage := bson.M{
 		"$group": bson.M{
