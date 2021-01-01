@@ -223,8 +223,10 @@ func buildMoveFieldName(fieldNum int) (moveField string) {
 
 func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, move string) (game *pgntodb.Game) {
 	var andClause []bson.M
-	andClause = append(andClause, bson.M{"site": "Chess.com"})
-	andClause = append(andClause, bson.M{"white": "fredo599"})
+	/*
+		andClause = append(andClause, bson.M{"site": "Chess.com"})
+		andClause = append(andClause, bson.M{"white": "fredo599"})
+	*/
 	for i := 0; i < len(pgnMoves); i++ {
 		andClause = append(andClause, bson.M{buildMoveFieldName(i + 1): pgnMoves[i]})
 	}
