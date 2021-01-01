@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +18,26 @@ import (
 
 func exploreHandler(w http.ResponseWriter, r *http.Request) {
 
+	type Result struct {
+		Result string `json:"result,omitempty"`
+		Sum    uint16 `json:"sum,omitempty"`
+	}
+	type Exploration struct {
+		Move01  string `json:"move01,omitempty"`
+		Move02  string `json:"move02,omitempty"`
+		Move03  string `json:"move03,omitempty"`
+		Move04  string `json:"move04,omitempty"`
+		Move05  string `json:"move05,omitempty"`
+		Move06  string `json:"move06,omitempty"`
+		Move07  string `json:"move07,omitempty"`
+		Move08  string `json:"move08,omitempty"`
+		Move09  string `json:"move09,omitempty"`
+		Move10  string `json:"move10,omitempty"`
+		Results []Result
+	}
+
+	var explorations []Exploration
+
 	pgn := ""
 
 	switch r.Method {
@@ -26,7 +47,7 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
 			return
 		}
-		pgn = r.FormValue("pgn")
+		pgn = strings.TrimSpace(r.FormValue("pgn"))
 		log.Println(pgn)
 	default:
 		fmt.Fprintf(w, "Sorry, only POST methods is supported.")
@@ -34,7 +55,10 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process input pgn (remove "1." etc)
-	pgnMoves := strings.Split(pgn, " ")
+	var pgnMoves []string
+	if len(pgn) > 0 {
+		pgnMoves = strings.Split(pgn, " ")
+	}
 
 	i := 0 // output index
 	for _, x := range pgnMoves {
@@ -46,6 +70,12 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	pgnMoves = pgnMoves[:i]
 	log.Println(pgnMoves)
+
+	// Our logic allows input pgn to have 0 to 9 moves
+	if len(pgnMoves) > 9 {
+		json.NewEncoder(w).Encode(explorations) // empty array
+		return
+	}
 
 	// Connect to DB
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
@@ -86,7 +116,23 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	pipeline = append(pipeline, matchStage2)
 
-	moveField := "move01"
+	// filter on previous moves
+	for i := 1; i < len(pgnMoves)+1; i++ {
+		moveField := buildMoveFieldName(i)
+		log.Println(moveField)
+		matchStage := bson.M{
+			"$match": bson.M{
+				moveField: pgnMoves[i-1],
+			},
+		}
+		pipeline = append(pipeline, matchStage)
+	}
+
+	// move field for aggregate
+	fieldNum := len(pgnMoves) + 1
+	moveField := buildMoveFieldName(fieldNum)
+	log.Println(moveField)
+
 	groupStage := bson.M{
 		"$group": bson.M{
 			"_id":    bson.M{moveField: "$" + moveField, "result": "$result"},
@@ -120,29 +166,19 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer aggregateCursor.Close(ctx)
 
-	type Result struct {
-		Result string `json:"result,omitempty"`
-		Sum    uint16 `json:"sum,omitempty"`
-	}
-	type Exploration struct {
-		Move01  string `json:"move01,omitempty"`
-		Move02  string `json:"move02,omitempty"`
-		Move03  string `json:"move03,omitempty"`
-		Move04  string `json:"move04,omitempty"`
-		Move05  string `json:"move05,omitempty"`
-		Move06  string `json:"move06,omitempty"`
-		Move07  string `json:"move07,omitempty"`
-		Move08  string `json:"move08,omitempty"`
-		Move09  string `json:"move09,omitempty"`
-		Move10  string `json:"move10,omitempty"`
-		Results []Result
-	}
-
-	var explorations []Exploration
 	if err = aggregateCursor.All(ctx, &explorations); err != nil {
 		log.Fatal(err)
 	}
 
 	// send the response
 	json.NewEncoder(w).Encode(explorations)
+}
+
+func buildMoveFieldName(fieldNum int) (moveField string) {
+	moveField = "move"
+	if fieldNum < 10 {
+		moveField = moveField + "0"
+	}
+	moveField = moveField + strconv.Itoa(fieldNum)
+	return moveField
 }
