@@ -9,9 +9,6 @@ var $status = $('#status')
 var $fen = $('#fen')
 var $pgn = $('#pgn')
 
-$("#undo").on("click", undoClicked);
-$("#reset").on("click", resetClicked);
-
 function undoClicked(e) {
     console.log("undo clicked")
     game.undo()
@@ -49,7 +46,7 @@ function formatData(dataObject) {
         var htmlElement =
             ['<div>',
                 element.total,
-                `<a href="javascript:move('${element[element.movefield]}');">${element[element.movefield]}</a>`,
+                `<a href="javascript:move('${element.move}');">${element.move}</a>`,
                 '</div>'
             ].join('\n');
             $("#result").append(htmlElement)
