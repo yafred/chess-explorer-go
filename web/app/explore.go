@@ -101,13 +101,15 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	games := client.Database("chess-explorer").Collection("games")
 
 	// Distinct moves with counts
-	player := "fredo599"
-	site := "Chess.com"
-	pipeline := make([]bson.M, 0)
-
 	var andClause []bson.M
-	andClause = append(andClause, bson.M{"site": site})
-	andClause = append(andClause, bson.M{"white": player})
+
+	/*
+		player := "fredo599"
+		site := "Chess.com"
+
+		andClause = append(andClause, bson.M{"site": site})
+		andClause = append(andClause, bson.M{"white": player})
+	*/
 
 	// filter on previous moves
 	for i := 1; i < len(pgnMoves)+1; i++ {
@@ -122,6 +124,7 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	// make sure next move exists
 	andClause = append(andClause, bson.M{moveField: bson.M{"$exists": true, "$ne": ""}})
 
+	pipeline := make([]bson.M, 0)
 	pipeline = append(pipeline, bson.M{"$match": bson.M{"$and": andClause}})
 
 	groupStage := bson.M{

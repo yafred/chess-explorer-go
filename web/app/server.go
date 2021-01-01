@@ -13,7 +13,6 @@ func Start(port int) {
 
 	http.HandleFunc("/test", testHandler)
 	http.HandleFunc("/explore", exploreHandler)
-	http.HandleFunc("/find", findHandler)
 
 	log.Println("Server is listening on port " + strconv.Itoa(port))
 	http.ListenAndServe(":"+strconv.Itoa(port), nil)
