@@ -51,7 +51,6 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		pgn = strings.TrimSpace(r.FormValue("pgn"))
-		log.Println(pgn)
 	default:
 		fmt.Fprintf(w, "Sorry, only POST methods is supported.")
 		return
@@ -72,7 +71,6 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	pgnMoves = pgnMoves[:i]
-	log.Println(pgnMoves)
 
 	// Our logic allows input pgn to have 0 to 9 moves
 	if len(pgnMoves) > 9 {
@@ -105,24 +103,27 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	site := "Chess.com"
 	pipeline := make([]bson.M, 0)
 
-	matchStage := bson.M{
-		"$match": bson.M{
-			"white": player,
-		},
+	{
+		matchStage := bson.M{
+			"$match": bson.M{
+				"white": player,
+			},
+		}
+		pipeline = append(pipeline, matchStage)
 	}
-	pipeline = append(pipeline, matchStage)
 
-	matchStage2 := bson.M{
-		"$match": bson.M{
-			"site": site,
-		},
+	{
+		matchStage := bson.M{
+			"$match": bson.M{
+				"site": site,
+			},
+		}
+		pipeline = append(pipeline, matchStage)
 	}
-	pipeline = append(pipeline, matchStage2)
 
 	// filter on previous moves
 	for i := 1; i < len(pgnMoves)+1; i++ {
 		moveField := buildMoveFieldName(i)
-		log.Println(moveField)
 		matchStage := bson.M{
 			"$match": bson.M{
 				moveField: pgnMoves[i-1],
@@ -134,7 +135,19 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	// move field for aggregate
 	fieldNum := len(pgnMoves) + 1
 	moveField := buildMoveFieldName(fieldNum)
-	log.Println(moveField)
+
+	// make sure next move exists
+	/*
+		{
+			matchStage := bson.M{
+				"$match": bson.M{
+					moveField: bson.M{
+						"$exists": true,
+						"$not":    bson.M{"$size": 0}}},
+			}
+			pipeline = append(pipeline, matchStage)
+		}
+	*/
 
 	groupStage := bson.M{
 		"$group": bson.M{
@@ -172,6 +185,7 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	if err = aggregateCursor.All(ctx, &explorations); err != nil {
 		log.Fatal(err)
 	}
+	log.Println(explorations)
 
 	// add a total
 	for iExploration, x := range explorations {
