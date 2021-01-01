@@ -137,17 +137,15 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	moveField := buildMoveFieldName(fieldNum)
 
 	// make sure next move exists
-	/*
-		{
-			matchStage := bson.M{
-				"$match": bson.M{
-					moveField: bson.M{
-						"$exists": true,
-						"$not":    bson.M{"$size": 0}}},
-			}
-			pipeline = append(pipeline, matchStage)
+
+	{
+		matchStage := bson.M{
+			"$match": bson.M{
+				moveField: bson.M{"$exists": true, "$ne": ""},
+			},
 		}
-	*/
+		pipeline = append(pipeline, matchStage)
+	}
 
 	groupStage := bson.M{
 		"$group": bson.M{
@@ -185,7 +183,6 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	if err = aggregateCursor.All(ctx, &explorations); err != nil {
 		log.Fatal(err)
 	}
-	log.Println(explorations)
 
 	// add a total
 	for iExploration, x := range explorations {
