@@ -10,7 +10,6 @@ var $fen = $('#fen')
 var $pgn = $('#pgn')
 
 function undoClicked(e) {
-    console.log("undo clicked")
     game.undo()
     board.position(game.fen())
     updateStatus()
@@ -19,7 +18,6 @@ function undoClicked(e) {
 }
 
 function resetClicked(e) {
-    console.log("undo clicked")
     game.reset()
     board.position(game.fen())
     updateStatus()
@@ -30,7 +28,6 @@ function resetClicked(e) {
 function explore() {
     $("#result").html("");
     $.post("explore", { pgn: game.pgn() }, function (data) {
-        console.log(data)
         dataToHtml(JSON.parse(data));
     });
 }
@@ -43,7 +40,6 @@ function dataToHtml(dataObject) {
 
     grandTotal = 0
     dataObject.forEach(element => {
-        console.log(element)
         var htmlAsArray = [
             '<div>',
             element.total,
@@ -64,12 +60,15 @@ function dataToHtml(dataObject) {
         $("#result").append(htmlAsArray.join('\n'))
     });
     if (grandTotal == 1) {
-        $.post("find", { pgn: game.pgn() }, function (data) {
-            console.log(data)
-            game = JSON.parse(data)
-            $("#result").append('<div><a target="_blank" href="' + game.link + '">link to game</div>')
-        });
+        $("#result").append('<div><a href="javascript:linkToRemoteGame();">link to game</div>')
     }
+}
+
+function linkToRemoteGame() {
+    $.post("find", { pgn: game.pgn() }, function (data) {
+        game = JSON.parse(data)
+        window.open(game.link, '_blank'); 
+    });
 }
 
 function move(position) {
