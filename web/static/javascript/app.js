@@ -8,6 +8,16 @@ var game = new Chess()
 var $status = $('#status')
 var $fen = $('#fen')
 var $pgn = $('#pgn')
+var $white = $('#white')
+var $black = $('#black')
+
+
+function swapBlackWhiteClicked(e) {
+    var black = $black.val()
+    $black.val($white.val())
+    $white.val(black)
+    resetClicked()
+}
 
 function undoClicked(e) {
     game.undo()
@@ -27,7 +37,7 @@ function resetClicked(e) {
 
 function explore() {
     $("#result").html("");
-    $.post("explore", { pgn: game.pgn() }, function (data) {
+    $.post("explore", { pgn: game.pgn(), white: $white.val(), black: $black.val() }, function (data) {
         dataToHtml(JSON.parse(data));
     });
 }
@@ -47,13 +57,13 @@ function dataToHtml(dataObject) {
         element.Results.forEach(result => {
             var result = [
                 '<span>(',
-                result.result + ':' + result.sum, 
+                result.result + ':' + result.sum,
                 ')</span>'
             ]
             htmlAsArray = htmlAsArray.concat(result)
         });
 
-        if(element.link) {
+        if (element.link) {
             var linkElement = [
                 '<span>(',
                 `<a target="_blank" href="${element.link}">Go to game</a>`,
@@ -61,7 +71,7 @@ function dataToHtml(dataObject) {
             ]
             htmlAsArray = htmlAsArray.concat(linkElement)
         }
-        
+
         var tail = '</div>'
         htmlAsArray = htmlAsArray.concat(tail)
         $("#result").append(htmlAsArray.join('\n'))

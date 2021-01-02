@@ -18,6 +18,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+type filter struct {
+	pgn   string
+	white string
+	black string
+}
+
 func exploreHandler(w http.ResponseWriter, r *http.Request) {
 
 	type Result struct {
@@ -52,8 +58,7 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var explorations []Exploration
-
-	pgn := ""
+	var filter filter
 
 	switch r.Method {
 	case "POST":
@@ -62,7 +67,9 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
 			return
 		}
-		pgn = strings.TrimSpace(r.FormValue("pgn"))
+		filter.pgn = strings.TrimSpace(r.FormValue("pgn"))
+		filter.white = strings.TrimSpace(r.FormValue("white"))
+		filter.black = strings.TrimSpace(r.FormValue("black"))
 	default:
 		fmt.Fprintf(w, "Sorry, only POST methods is supported.")
 		return
@@ -70,8 +77,8 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Process input pgn (remove "1." etc)
 	var pgnMoves []string
-	if len(pgn) > 0 {
-		pgnMoves = strings.Split(pgn, " ")
+	if len(filter.pgn) > 0 {
+		pgnMoves = strings.Split(filter.pgn, " ")
 	}
 
 	i := 0 // output index
@@ -113,13 +120,9 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 	// Distinct moves with counts
 	var andClause []bson.M
 
-	/*
-		player := "fredo599"
-		site := "Chess.com"
-
-		andClause = append(andClause, bson.M{"site": site})
-		andClause = append(andClause, bson.M{"white": player})
-	*/
+	// process white and black filter
+	userFilterBson := processUserFilter(filter)
+	andClause = append(andClause, userFilterBson)
 
 	// filter on previous moves
 	for i := 1; i < len(pgnMoves)+1; i++ {
@@ -185,7 +188,7 @@ func exploreHandler(w http.ResponseWriter, r *http.Request) {
 		explorations[iExploration].Total = total
 		if total == 1 {
 			// get link for moves pgn + move
-			game := getGame(ctx, games, pgnMoves, move)
+			game := getGame(ctx, games, pgnMoves, move, userFilterBson)
 			if game != nil {
 				explorations[iExploration].Link = game.Link
 			}
@@ -221,12 +224,11 @@ func buildMoveFieldName(fieldNum int) (moveField string) {
 	return moveField
 }
 
-func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, move string) (game *pgntodb.Game) {
+func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, move string, userFilterBson bson.M) (game *pgntodb.Game) {
 	var andClause []bson.M
-	/*
-		andClause = append(andClause, bson.M{"site": "Chess.com"})
-		andClause = append(andClause, bson.M{"white": "fredo599"})
-	*/
+
+	andClause = append(andClause, userFilterBson)
+
 	for i := 0; i < len(pgnMoves); i++ {
 		andClause = append(andClause, bson.M{buildMoveFieldName(i + 1): pgnMoves[i]})
 	}
@@ -247,6 +249,94 @@ func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, mo
 	var ret *pgntodb.Game
 	if len(resultGame) != 0 {
 		return &resultGame[0]
+	}
+	return ret
+}
+
+func processUserFilter(filter filter) bson.M {
+	ret := bson.M{}
+
+	whiteBson := make([]bson.M, 0)
+
+	// example: c:fred, l:john, alfredo
+	whiteUsers := strings.Split(filter.white, ",")
+	for _, user := range whiteUsers {
+		if strings.TrimSpace(user) == "" {
+			break
+		}
+		splitUser := strings.Split(strings.TrimSpace(user), ":")
+		if len(splitUser) > 1 {
+			site := convertSite(splitUser[0])
+			whiteBson = append(whiteBson, bson.M{"site": site, "white": splitUser[1]})
+		} else {
+			whiteBson = append(whiteBson, bson.M{"white": splitUser[0]})
+		}
+	}
+
+	blackBson := make([]bson.M, 0)
+
+	blackUsers := strings.Split(filter.black, ",")
+	for _, user := range blackUsers {
+		if strings.TrimSpace(user) == "" {
+			break
+		}
+		splitUser := strings.Split(strings.TrimSpace(user), ":")
+		if len(splitUser) > 1 {
+			site := convertSite(splitUser[0])
+			blackBson = append(blackBson, bson.M{"site": site, "black": splitUser[1]})
+		} else {
+			blackBson = append(blackBson, bson.M{"black": splitUser[0]})
+		}
+	}
+
+	finalBson := make([]bson.M, 0)
+
+	switch len(whiteBson) {
+	case 0:
+		break
+	case 1:
+		finalBson = append(finalBson, whiteBson[0])
+		break
+	default:
+		finalBson = append(finalBson, bson.M{"$or": whiteBson})
+		break
+	}
+
+	switch len(blackBson) {
+	case 0:
+		break
+	case 1:
+		finalBson = append(finalBson, blackBson[0])
+		break
+	default:
+		finalBson = append(finalBson, bson.M{"$or": blackBson})
+		break
+	}
+
+	switch len(finalBson) {
+	case 0:
+		break
+	case 1:
+		ret = finalBson[0]
+		break
+	default:
+		ret = bson.M{"$and": finalBson}
+	}
+
+	return ret
+}
+
+func convertSite(shortName string) string {
+	ret := ""
+	switch shortName {
+	case "c":
+		ret = "Chess.com"
+		break
+	case "l":
+		ret = "Lichess.org"
+		break
+	default:
+		break
 	}
 	return ret
 }

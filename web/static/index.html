@@ -14,15 +14,40 @@
 <body>
   <div class="grid-container">
     <div class="grid-x grid-margin-x">
-      <div class="cell small-4">
-        <div><a href="javascript:undoClicked();">Take back last move.</a></div>
-        <div><a href="javascript:resetClicked();">Reset board.</a></div>
-        <div><label>Status:</label><span id="status"></span></div>
-        <div><label>FEN:</label><span id="fen"></span></div>
-        <div><label>PGN:</label><span id="pgn"></span></div>
+      <div class="cell small-1">
       </div>
-      <div class="cell small-4">
-        <div id="myBoard" style="width: 400px"></div>
+      <div class="cell small-5">
+        <label for="white">White:</label>
+        <input type="text" id="white" name="white">
+        <a href="javascript:resetClicked();">Apply</a>
+      </div>
+      <div class="cell small-5">
+        <label for="black">Black:</label>
+        <input type="text" id="black" name="black">
+        <a href="javascript:swapBlackWhiteClicked();">Swap black and white</a>
+      </div>
+      <div class="cell small-1">
+      </div>
+    </div>
+    <div class="grid-x grid-margin-x">
+      <div class="cell small-3">
+        <label>PGN:</label><span id="pgn"></span>
+      </div>
+      <div class="cell small-5">
+        <div class="grid-x grid-margin-x">
+          <div class="cell small-12"></div>
+          <div id="myBoard" style="width: 400px"></div>
+        </div>
+        <div class="grid-x grid-margin-x">
+          <div class="cell small-6"><a href="javascript:undoClicked();">Take back last move</a></div>
+          <div class="cell small-6"><a href="javascript:resetClicked();">Reset board</a></div>
+        </div>
+        <div class="grid-x grid-margin-x">
+          <div class="cell small-12">
+            <div><label>Status:</label><span id="status"></span></div>
+            <div><label>FEN:</label><span id="fen"></span></div>
+          </div>
+        </div>
       </div>
       <div class="cell small-4">
         <div id="result"></div>
