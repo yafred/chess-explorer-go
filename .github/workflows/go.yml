@@ -32,7 +32,7 @@ jobs:
 
     - name: Build
       run: |
-        ls
+        ls -R
         go build -v .
 
     - name: Test
