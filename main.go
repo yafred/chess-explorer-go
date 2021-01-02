@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import "github.com/yafred/chess-stat/cmd/chess-stat/cmd"
+import "github.com/yafred/chess-stat/cmd"
 
 func main() {
 	cmd.Execute()
