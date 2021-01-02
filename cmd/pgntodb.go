@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	pgntodb "github.com/yafred/chess-stat/internal/pgntodb"
+	pgntodb "github.com/yafred/chess-explorer/internal/pgntodb"
 )
 
 var pgnToDbCmd = &cobra.Command{

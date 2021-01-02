@@ -20,7 +20,7 @@ jobs:
         with:
             platforms: 'linux/amd64, darwin/amd64, windows/amd64'
             package: '.'
-            name: 'chess-stat'
+            name: 'chess-explorer'
             compress: 'true'
             dest: 'dist'
       - name: Copy build-artifacts

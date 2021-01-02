@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yafred/chess-stat/internal/pgntodb"
+	"github.com/yafred/chess-explorer/internal/pgntodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

@@ -1,4 +1,4 @@
-module github.com/yafred/chess-stat
+module github.com/yafred/chess-explorer
 
 go 1.15
 

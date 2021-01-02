@@ -30,7 +30,7 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "chess-stat",
+	Use:   "chess-explorer",
 	Short: "Computes stats from chess.com data",
 	Long: `Computes stats from https://www.chess.com downloading data using developer API https://api.chess.com/
 See https://www.chess.com/news/view/published-data-api for technical details about the API`,
@@ -52,7 +52,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.chess-stat.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.chess-explorer.yaml)")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -68,9 +68,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".chess-stat" (without extension).
+		// Search config in home directory with name ".chess-explorer" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".chess-stat")
+		viper.SetConfigName(".chess-explorer")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

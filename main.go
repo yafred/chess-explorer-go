@@ -1,7 +1,7 @@
 package main
 
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+Copyright © 2020 YaFred https://github.com/yafred/chess-explorer
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import "github.com/yafred/chess-stat/cmd"
+import "github.com/yafred/chess-explorer/cmd"
 
 func main() {
 	cmd.Execute()

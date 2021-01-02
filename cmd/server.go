@@ -2,15 +2,15 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	server "github.com/yafred/chess-stat/web/app"
+	server "github.com/yafred/chess-explorer/web/app"
 )
 
 var serverPort int
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "Start a web server on port 8080",
-	Long:  `Web server and API server`,
+	Short: "Start a web server",
+	Long:  `Start a web server`,
 	Run: func(cmd *cobra.Command, args []string) {
 		server.Start(serverPort)
 	},
