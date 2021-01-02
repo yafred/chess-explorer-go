@@ -68,13 +68,6 @@ function dataToHtml(dataObject) {
     });
 }
 
-function linkToRemoteGame() {
-    $.post("find", { pgn: game.pgn() }, function (data) {
-        game = JSON.parse(data)
-        window.open(game.link, '_blank'); 
-    });
-}
-
 function move(position) {
     game.move(position)
     updateStatus()
