@@ -32,9 +32,6 @@ jobs:
 
     - name: Build
       run: |
-        go get -u github.com/go-bindata/go-bindata/
-        echo $GOPATH
-        #go-bindata -fs -prefix "web/" web/
         go build -v .
 
     - name: Test
