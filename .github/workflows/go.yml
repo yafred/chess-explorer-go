@@ -32,10 +32,8 @@ jobs:
 
     - name: Build
       run: |
-        cd cmd/chess-stat
         go build -v .
 
     - name: Test
       run: |
-        cd cmd/chess-stat
         go test -v .
