@@ -32,7 +32,8 @@ jobs:
 
     - name: Build
       run: |
-        ls -R
+        go get -u github.com/go-bindata/go-bindata/
+        go-bindata -fs -prefix "web/" web/
         go build -v .
 
     - name: Test
