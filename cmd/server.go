@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	server "github.com/yafred/chess-explorer/web/app"
+	server "github.com/yafred/chess-explorer/internal/server"
 )
 
 var serverPort int
