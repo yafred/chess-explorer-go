@@ -49,7 +49,7 @@ func processFile(filepath string) {
 	}
 
 	// Connect to DB
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
 	if err != nil {
 		log.Fatal(err)
 	}
