@@ -76,11 +76,18 @@ func parseKeyValue(line string) (key string, value string) {
 func stripPgn(line string) (pgn string) {
 	split := strings.Split(line, " ")
 	i := 0 // output index
+	skip := false
 	for _, bit := range split {
-		if !strings.HasPrefix(bit, "{[%") && !strings.HasSuffix(bit, "]}") && !strings.HasSuffix(bit, "...") {
+		if strings.HasPrefix(bit, "{") {
+			skip = true
+		}
+		if skip == false && !strings.HasSuffix(bit, "...") {
 			// copy and increment index
 			split[i] = bit
 			i++
+		}
+		if strings.HasSuffix(bit, "}") {
+			skip = false
 		}
 	}
 	pgn = strings.Join(split[:i], " ")
