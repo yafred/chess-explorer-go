@@ -30,10 +30,10 @@ jobs:
         with:
           args: "./dist/*"
       - name: zip assets
-        run: zip -r www.zip www
+        run: zip -r assets.zip docs/v1
       - name: Copy build-artifacts
         uses: skx/github-action-publish-binaries@master
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_ARTIFACTS }}
         with:
-          args: "www.zip"
+          args: "assets.zip"
