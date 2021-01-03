@@ -15,6 +15,10 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
+      - name: Build
+        run: |
+          go get github.com/pyros2097/go-embed
+          go-embed -input www/ -output assets/main.go
       - name: Generate build files
         uses: thatisuday/go-cross-build@v1
         with:
