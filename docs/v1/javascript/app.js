@@ -35,9 +35,9 @@ function resetClicked(e) {
     $pgn.html(game.pgn())
 }
 
-function explore() {
+function nextmove() {
     $("#result").html("");
-    $.post("http://127.0.0.1:52825/explore", { pgn: game.pgn(), white: $white.val(), black: $black.val() }, function (data) {
+    $.post("http://127.0.0.1:52825/nextmove", { pgn: game.pgn(), white: $white.val(), black: $black.val() }, function (data) {
         dataToHtml(JSON.parse(data));
     });
 }
@@ -146,7 +146,7 @@ function updateStatus() {
     $status.html(status)
     $fen.html(game.fen())
     $pgn.html(game.pgn())
-    explore()
+    nextmove()
 }
 
 var config = {

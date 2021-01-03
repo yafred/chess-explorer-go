@@ -18,7 +18,7 @@ You can, either authorize this program or follow the alternate procedure
   * Run the command `chess-explorer server` 
   * Browse your games on https://yafred.github.io/chess-explorer/v1/
 
-## Alternate procedure
+## Alternate procedure (the one I prefer)
   * Install MongoDB and gather PGN files
   * Install [Golang](https://golang.org/doc/install) 
   * Download Source Code from https://github.com/yafred/chess-explorer/releases and unzip it

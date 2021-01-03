@@ -24,7 +24,7 @@ type filter struct {
 	black string
 }
 
-func exploreHandler(w http.ResponseWriter, r *http.Request) {
+func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 
 	// allow cross origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
