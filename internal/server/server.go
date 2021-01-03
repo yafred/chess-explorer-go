@@ -11,12 +11,13 @@ import (
 
 // Start ... start a web server
 func Start(port int) {
-	fs := http.FileServer(http.Dir("./assets/"))
+	fs := http.FileServer(http.Dir("./www/"))
 	http.Handle("/", fs)
 
 	http.HandleFunc("/explore", exploreHandler)
 
 	log.Println("Server is listening on port " + strconv.Itoa(port))
+
 	openbrowser("http://localhost:" + strconv.Itoa(port))
 	http.ListenAndServe(":"+strconv.Itoa(port), nil)
 }
