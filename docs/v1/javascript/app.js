@@ -38,21 +38,30 @@ function resetClicked(e) {
 function nextmove() {
     $("#result").html("");
     $.post("http://127.0.0.1:52825/nextmove", { pgn: game.pgn(), white: $white.val(), black: $black.val() }, function (data) {
-        dataToHtml(JSON.parse(data));
+        nextMoveToHtml(JSON.parse(data));
     });
 }
 
-function dataToHtml(dataObject) {
+function loadGame(aMove) {
+    pgn = getPgnPlusMove(aMove)
+    console.log("load " + pgn)
+}
+
+function nextMoveToHtml(dataObject) {
     if (Array.isArray(dataObject) == false) {
         console.log("not an array")
         return
     }
 
     dataObject.forEach(element => {
+        moveLink = `<a href="javascript:move('${element.move}');">${element.move}</a>`
+        if(element.link) {
+            moveLink = `<a href="javascript:loadGame('${element.move}');">${element.move}</a>`
+        }
         var htmlAsArray = [
             '<div>',
             element.total,
-            `<a href="javascript:move('${element.move}');">${element.move}</a>`]
+            moveLink]
 
         element.Results.forEach(result => {
             var result = [
@@ -76,6 +85,18 @@ function dataToHtml(dataObject) {
         htmlAsArray = htmlAsArray.concat(tail)
         $("#result").append(htmlAsArray.join('\n'))
     });
+}
+
+function getPgnPlusMove(aMove) {
+    pgn = game.pgn()
+    splitPgn = pgn.split(" ")
+    lineCount = Math.floor((splitPgn.length / 3))
+    if(splitPgn.length % 3 == 0) {
+        // create a new line
+        pgn = pgn + " " + (lineCount + 1) + "."
+    }
+    pgn = pgn + " " + aMove
+    return pgn
 }
 
 function displayPgn() {
