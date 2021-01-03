@@ -23,6 +23,8 @@ jobs:
             name: 'chess-explorer'
             compress: 'true'
             dest: 'dist'
+      - name: zip assets
+        run: zip -r ./dist/www.zip www
       - name: Copy build-artifacts
         uses: skx/github-action-publish-binaries@master
         env:
