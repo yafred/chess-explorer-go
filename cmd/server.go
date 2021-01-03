@@ -19,5 +19,5 @@ var serverCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(serverCmd)
 
-	serverCmd.Flags().IntVar(&serverPort, "server-port", 52825, "Server http port (default is 8080)")
+	serverCmd.Flags().IntVar(&serverPort, "server-port", 52825, "Server http port")
 }
