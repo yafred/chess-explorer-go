@@ -11,7 +11,8 @@ import (
 
 // Start ... start a web server
 func Start(port int) {
-	fs := http.FileServer(http.Dir("./www/"))
+
+	fs := http.FileServer(http.Dir("./docs/v1"))
 	http.Handle("/", fs)
 
 	http.HandleFunc("/explore", exploreHandler)

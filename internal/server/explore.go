@@ -26,6 +26,9 @@ type filter struct {
 
 func exploreHandler(w http.ResponseWriter, r *http.Request) {
 
+	// allow cross origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	type Result struct {
 		Result string `json:"result,omitempty"`
 		Sum    uint16 `json:"sum,omitempty"`
