@@ -24,7 +24,7 @@ function undoClicked(e) {
     board.position(game.fen())
     updateStatus()
     $fen.html(game.fen())
-    $pgn.html(game.pgn())
+    displayPgn()
 }
 
 function resetClicked(e) {
@@ -32,7 +32,7 @@ function resetClicked(e) {
     board.position(game.fen())
     updateStatus()
     $fen.html(game.fen())
-    $pgn.html(game.pgn())
+    displayPgn()
 }
 
 function nextmove() {
@@ -76,6 +76,29 @@ function dataToHtml(dataObject) {
         htmlAsArray = htmlAsArray.concat(tail)
         $("#result").append(htmlAsArray.join('\n'))
     });
+}
+
+function displayPgn() {
+    pgn = game.pgn()
+    splitPgn = pgn.split(" ")
+
+    organizedPgn = [] // array of array of 3 strings ("1.", "move1", "move2")
+
+    pgnMove = []
+    splitPgn.forEach(function (item, index, array) {
+       if (index % 3 == 0) {
+            pgnMove = []
+            organizedPgn.push(pgnMove)
+        }
+        pgnMove.push(item)
+    })
+
+    resultString = ""
+    organizedPgn.forEach(function (item, index, array) {
+        resultString = resultString + item.join(' ') + '<br/>'
+    })
+
+    $pgn.html(resultString)
 }
 
 function move(position) {
@@ -145,7 +168,7 @@ function updateStatus() {
 
     $status.html(status)
     $fen.html(game.fen())
-    $pgn.html(game.pgn())
+    displayPgn()
     nextmove()
 }
 
