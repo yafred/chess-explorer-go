@@ -9,7 +9,7 @@ import (
 /*
 When assets must be embedded:
 go get github.com/pyros2097/go-embed
-go-embed -input public/ -output assets/main.go
+go-embed -input www/ -output assets/main.go
 */
 func assetHandler(res http.ResponseWriter, req *http.Request) {
 	data, hash, contentType, err := assets.Asset("www/", req.URL.Path)
