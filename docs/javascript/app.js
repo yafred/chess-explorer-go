@@ -37,7 +37,7 @@ function resetClicked(e) {
 
 function explore() {
     $("#result").html("");
-    $.post("http://127.0.0.1/explore", { pgn: game.pgn(), white: $white.val(), black: $black.val() }, function (data) {
+    $.post("http://127.0.0.1:8080/explore", { pgn: game.pgn(), white: $white.val(), black: $black.val() }, function (data) {
         dataToHtml(JSON.parse(data));
     });
 }
