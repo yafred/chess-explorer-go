@@ -83,6 +83,8 @@ func stripPgn(line string) (pgn string) {
 		}
 		if skip == false && !strings.HasSuffix(bit, "...") {
 			// copy and increment index
+			bit = strings.Replace(bit, "!", "", -1)
+			bit = strings.Replace(bit, "?", "", -1)
 			split[i] = bit
 			i++
 		}
