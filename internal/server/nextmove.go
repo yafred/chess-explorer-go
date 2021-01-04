@@ -31,7 +31,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 
 	type Result struct {
 		Result string `json:"result,omitempty"`
-		Sum    uint16 `json:"sum,omitempty"`
+		Sum    uint32 `json:"sum,omitempty"`
 	}
 	type Exploration struct {
 		Move    string `json:"move,omitempty"`
@@ -55,7 +55,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		Move18  string `json:"move18,omitempty"`
 		Move19  string `json:"move19,omitempty"`
 		Move20  string `json:"move20,omitempty"`
-		Total   uint16 `json:"total,omitempty"`
+		Total   uint32 `json:"total,omitempty"`
 		Link    string `json:"link,omitempty"` // when Total = 1
 		Results []Result
 	}
@@ -182,8 +182,9 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 
 	// add a total
 	for iExploration, x := range explorations {
-		var total uint16
+		var total uint32
 		var move string
+
 		for _, y := range x.Results {
 			total += y.Sum
 			move = x.Move
