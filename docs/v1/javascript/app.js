@@ -10,6 +10,7 @@ var $fen = $('#fen')
 var $pgn = $('#pgn')
 var $white = $('#white')
 var $black = $('#black')
+var browsingGame = ""
 
 
 function swapBlackWhiteClicked(e) {
@@ -20,19 +21,21 @@ function swapBlackWhiteClicked(e) {
 }
 
 function undoClicked(e) {
+    browsingGame = ""
     game.undo()
     board.position(game.fen())
     updateStatus()
     $fen.html(game.fen())
-    displayPgn()
+    displayPgn(game.pgn())
 }
 
 function resetClicked(e) {
+    browsingGame = ""
     game.reset()
     board.position(game.fen())
     updateStatus()
     $fen.html(game.fen())
-    displayPgn()
+    displayPgn(game.pgn())
 }
 
 function nextmove() {
@@ -42,9 +45,15 @@ function nextmove() {
     });
 }
 
-function loadGame(aMove) {
-    pgn = getPgnPlusMove(aMove)
-    console.log("load " + pgn)
+function loadGame(link, aMove) {
+    // set tool in browsing game mode
+    $("#result").html("");
+    browsingGame = getPgnPlusMove(aMove)
+    move(aMove)
+    $.post("http://127.0.0.1:52825/games", { link: link }, function (data) {
+        ret = JSON.parse(data);
+        displayPgn(ret[0].pgn)
+    });
 }
 
 function nextMoveToHtml(dataObject) {
@@ -55,8 +64,9 @@ function nextMoveToHtml(dataObject) {
 
     dataObject.forEach(element => {
         moveLink = `<a href="javascript:move('${element.move}');">${element.move}</a>`
-        if(element.link) {
-            moveLink = `<a href="javascript:loadGame('${element.move}');">${element.move}</a>`
+        if (element.link) {
+            // moveLink = `<a href="javascript:loadGame('${element.link}','${element.move}');">${element.move}</a>`
+            moveLink = element.move
         }
         var htmlAsArray = [
             '<div>',
@@ -87,11 +97,12 @@ function nextMoveToHtml(dataObject) {
     });
 }
 
+// Not used (I use game link instead)
 function getPgnPlusMove(aMove) {
     pgn = game.pgn()
     splitPgn = pgn.split(" ")
     lineCount = Math.floor((splitPgn.length / 3))
-    if(splitPgn.length % 3 == 0) {
+    if (splitPgn.length % 3 == 0) {
         // create a new line
         pgn = pgn + " " + (lineCount + 1) + "."
     }
@@ -99,15 +110,14 @@ function getPgnPlusMove(aMove) {
     return pgn
 }
 
-function displayPgn() {
-    pgn = game.pgn()
+function displayPgn(pgn) {
     splitPgn = pgn.split(" ")
 
     organizedPgn = [] // array of array of 3 strings ("1.", "move1", "move2")
 
     pgnMove = []
     splitPgn.forEach(function (item, index, array) {
-       if (index % 3 == 0) {
+        if (index % 3 == 0) {
             pgnMove = []
             organizedPgn.push(pgnMove)
         }
@@ -122,8 +132,8 @@ function displayPgn() {
     $pgn.html(resultString)
 }
 
-function move(position) {
-    game.move(position)
+function move(aMove) {
+    game.move(aMove)
     updateStatus()
     board.position(game.fen(), false)
 }
@@ -150,6 +160,7 @@ function onDrop(source, target) {
     // illegal move
     if (move === null) return 'snapback'
 
+    browsingGame = "" // quit browsing mode
     updateStatus()
 }
 
@@ -162,6 +173,13 @@ function onSnapEnd() {
 function updateStatus() {
     var status = ''
 
+    if (browsingGame == "") {
+        status = "Opening mode"
+    }
+    else {
+        status = "Browsing game " + browsingGame
+    }
+
     var moveColor = 'White'
     if (game.turn() === 'b') {
         moveColor = 'Black'
@@ -169,17 +187,17 @@ function updateStatus() {
 
     // checkmate?
     if (game.in_checkmate()) {
-        status = 'Game over, ' + moveColor + ' is in checkmate.'
+        status += ', Game over, ' + moveColor + ' is in checkmate.'
     }
 
     // draw?
     else if (game.in_draw()) {
-        status = 'Game over, drawn position'
+        status += ', Game over, drawn position'
     }
 
     // game still on
     else {
-        status = moveColor + ' to move'
+        status += ", " + moveColor + ' to move'
 
         // check?
         if (game.in_check()) {
@@ -189,8 +207,10 @@ function updateStatus() {
 
     $status.html(status)
     $fen.html(game.fen())
-    displayPgn()
-    nextmove()
+    displayPgn(game.pgn())
+    if (browsingGame == "") {
+        nextmove()
+    }
 }
 
 var config = {
