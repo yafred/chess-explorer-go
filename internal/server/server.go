@@ -16,6 +16,8 @@ func Start(port int) {
 	http.Handle("/", fs)
 
 	http.HandleFunc("/nextmove", nextMoveHandler)
+	http.HandleFunc("/games", gamesHandler)
+
 	log.Println("Server is listening on port " + strconv.Itoa(port))
 
 	openbrowser("http://localhost:" + strconv.Itoa(port))
