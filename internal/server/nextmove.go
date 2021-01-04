@@ -34,7 +34,6 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		Sum    uint32 `json:"sum,omitempty"`
 	}
 	type Exploration struct {
-		Move    string `json:"move,omitempty"`
 		Move01  string `json:"move01,omitempty"`
 		Move02  string `json:"move02,omitempty"`
 		Move03  string `json:"move03,omitempty"`
@@ -55,9 +54,14 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		Move18  string `json:"move18,omitempty"`
 		Move19  string `json:"move19,omitempty"`
 		Move20  string `json:"move20,omitempty"`
-		Total   uint32 `json:"total,omitempty"`
-		Link    string `json:"link,omitempty"` // when Total = 1
 		Results []Result
+		// Only the fields below go in the response
+		Move  string `json:"move"`
+		Win   uint32 `json:"win"`
+		Draw  uint32 `json:"draw"`
+		Lose  uint32 `json:"lose"`
+		Total uint32 `json:"total"`
+		Link  string `json:"link,omitempty"` // when Total = 1
 	}
 
 	var explorations []Exploration
@@ -181,33 +185,26 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// add a total
-	for iExploration, x := range explorations {
-		var total uint32
-		var move string
-
-		for _, y := range x.Results {
-			total += y.Sum
-			move = x.Move
+	for iExploration := range explorations {
+		for _, y := range explorations[iExploration].Results {
+			if y.Result == "1-0" {
+				explorations[iExploration].Win = y.Sum
+			} else if y.Result == "0-1" {
+				explorations[iExploration].Lose = y.Sum
+			} else {
+				explorations[iExploration].Draw = y.Sum
+			}
 		}
-		explorations[iExploration].Total = total
-		if total == 1 {
+
+		explorations[iExploration].Total = explorations[iExploration].Win + explorations[iExploration].Draw + explorations[iExploration].Lose
+
+		if explorations[iExploration].Total == 1 {
 			// get link for moves pgn + move
-			game := getGame(ctx, games, pgnMoves, move, userFilterBson)
+			game := getGame(ctx, games, pgnMoves, explorations[iExploration].Move, userFilterBson)
 			if game != nil {
 				explorations[iExploration].Link = game.Link
 			}
 		}
-		sort.Slice(explorations[iExploration].Results, func(i, j int) bool {
-			if explorations[iExploration].Results[i].Result == "1-0" {
-				return true
-			} else if explorations[iExploration].Results[i].Result == "0-1" {
-				return false
-			} else if explorations[iExploration].Results[j].Result == "1-0" {
-				return false
-			} else {
-				return true
-			}
-		})
 	}
 
 	// sort by counts

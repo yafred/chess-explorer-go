@@ -76,24 +76,17 @@ function nextMoveToHtml(dataObject) {
         var progressAsArray = [
             '<div style="background-color: grey; width:100%; display:flex; border: 1px solid grey;">']
 
-        element.Results.forEach(item => {
-            var result = [
-                '<span>(',
-                item.result + ':' + item.sum,
-                ')</span>'
-            ]
-            htmlAsArray = htmlAsArray.concat(result)
+        htmlAsArray.push(`<span>(1-0:${element.win})</span>`)
+        percentage = Math.round(100 * element.win / element.total)
+        progressAsArray.push(`<div style="background-color: white; width:${percentage}%">${percentage}%</div>`)
 
-            percentage = Math.round(100 * item.sum / element.total)
-            if (item.result == "1-0") {
-                progressAsArray.push(`<div style="background-color: white; width:${percentage}%">${percentage}%</div>`)
-            } else if (item.result == "0-1") {
-                progressAsArray.push(`<div style="text-align: right; color: white; background-color: black; width:${percentage}%">${percentage}%</div>`)
-            }
-            else {
-                progressAsArray.push(`<div style="background-color: grey; width:${percentage}%"></div>`)
-            }
-        });
+        htmlAsArray.push(`<span>(1/2-1/2:${element.draw})</span>`)
+        percentage = Math.round(100 * element.draw / element.total)
+        progressAsArray.push(`<div style="background-color: grey; width:${percentage}%"></div>`)
+
+        htmlAsArray.push(`<span>(0-1:${element.lose})</span>`)
+        percentage = Math.round(100 * element.lose / element.total)
+        progressAsArray.push(`<div style="text-align: right; color: white; background-color: black; width:${percentage}%">${percentage}%</div>`)
 
         progressAsArray.push('</div>')
 
@@ -109,7 +102,7 @@ function nextMoveToHtml(dataObject) {
         var tail = '</div>'
         htmlAsArray = htmlAsArray.concat(tail)
 
-        //htmlAsArray = htmlAsArray.concat(progressAsArray)
+        htmlAsArray = htmlAsArray.concat(progressAsArray)
 
         $("#result").append(htmlAsArray.join('\n'))
     });
