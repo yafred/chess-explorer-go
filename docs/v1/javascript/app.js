@@ -73,14 +73,29 @@ function nextMoveToHtml(dataObject) {
             element.total,
             moveLink]
 
-        element.Results.forEach(result => {
+        var progressAsArray = [
+            '<div style="background-color: grey; width:100%; display:flex; border: 1px solid grey;">']
+
+        element.Results.forEach(item => {
             var result = [
                 '<span>(',
-                result.result + ':' + result.sum,
+                item.result + ':' + item.sum,
                 ')</span>'
             ]
             htmlAsArray = htmlAsArray.concat(result)
+
+            percentage = Math.round(100 * item.sum / element.total)
+            if (item.result == "1-0") {
+                progressAsArray.push(`<div style="background-color: white; width:${percentage}%">${percentage}%</div>`)
+            } else if (item.result == "0-1") {
+                progressAsArray.push(`<div style="text-align: right; color: white; background-color: black; width:${percentage}%">${percentage}%</div>`)
+            }
+            else {
+                progressAsArray.push(`<div style="background-color: grey; width:${percentage}%"></div>`)
+            }
         });
+
+        progressAsArray.push('</div>')
 
         if (element.link) {
             var linkElement = [
@@ -93,6 +108,9 @@ function nextMoveToHtml(dataObject) {
 
         var tail = '</div>'
         htmlAsArray = htmlAsArray.concat(tail)
+
+        //htmlAsArray = htmlAsArray.concat(progressAsArray)
+
         $("#result").append(htmlAsArray.join('\n'))
     });
 }
