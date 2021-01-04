@@ -69,7 +69,6 @@ func gamesHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(resultGames)
 
 	// send the response
 	json.NewEncoder(w).Encode(resultGames)
