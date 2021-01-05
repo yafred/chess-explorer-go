@@ -22,6 +22,8 @@ type filter struct {
 	pgn   string
 	white string
 	black string
+	from  string
+	to    string
 }
 
 func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +79,9 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		filter.pgn = strings.TrimSpace(r.FormValue("pgn"))
 		filter.white = strings.TrimSpace(r.FormValue("white"))
 		filter.black = strings.TrimSpace(r.FormValue("black"))
+		filter.from = strings.TrimSpace(r.FormValue("from"))
+		filter.to = strings.TrimSpace(r.FormValue("to"))
+
 	default:
 		fmt.Fprintf(w, "Sorry, only POST methods is supported.")
 		return
@@ -128,8 +133,8 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 	var andClause []bson.M
 
 	// process white and black filter
-	userFilterBson := processUserFilter(filter)
-	andClause = append(andClause, userFilterBson)
+	gameFilterBson := processGameFilter(filter)
+	andClause = append(andClause, gameFilterBson)
 
 	// filter on previous moves
 	for i := 1; i < len(pgnMoves)+1; i++ {
@@ -200,7 +205,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 
 		if explorations[iExploration].Total == 1 {
 			// get link for moves pgn + move
-			game := getGame(ctx, games, pgnMoves, explorations[iExploration].Move, userFilterBson)
+			game := getGame(ctx, games, pgnMoves, explorations[iExploration].Move, gameFilterBson)
 			if game != nil {
 				explorations[iExploration].Link = game.Link
 			}
@@ -225,10 +230,10 @@ func buildMoveFieldName(fieldNum int) (moveField string) {
 	return moveField
 }
 
-func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, move string, userFilterBson bson.M) (game *pgntodb.Game) {
+func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, move string, gameFilterBson bson.M) (game *pgntodb.Game) {
 	var andClause []bson.M
 
-	andClause = append(andClause, userFilterBson)
+	andClause = append(andClause, gameFilterBson)
 
 	for i := 0; i < len(pgnMoves); i++ {
 		andClause = append(andClause, bson.M{buildMoveFieldName(i + 1): pgnMoves[i]})
@@ -254,9 +259,34 @@ func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, mo
 	return ret
 }
 
-func processUserFilter(filter filter) bson.M {
+func processGameFilter(filter filter) bson.M {
 	ret := bson.M{}
 
+	// date filter
+	dateBson := make([]bson.M, 0)
+	if filter.from != "" {
+		fromDate, error := time.Parse(time.RFC3339, filter.from+"T00:00:00+00:00")
+		if error != nil {
+			log.Print("datetime error " + filter.from)
+		} else {
+			dateBson = append(dateBson, bson.M{
+				"datetime": bson.M{"$gt": fromDate},
+			})
+		}
+	}
+
+	if filter.to != "" {
+		toDate, error := time.Parse(time.RFC3339, filter.to+"T23:59:59+00:00")
+		if error != nil {
+			log.Print("datetime error " + filter.to)
+		} else {
+			dateBson = append(dateBson, bson.M{
+				"datetime": bson.M{"$lt": toDate},
+			})
+		}
+	}
+
+	// user filter
 	whiteBson := make([]bson.M, 0)
 
 	// example: c:fred, l:john, alfredo
@@ -290,7 +320,19 @@ func processUserFilter(filter filter) bson.M {
 		}
 	}
 
+	// wrap up
 	finalBson := make([]bson.M, 0)
+
+	switch len(dateBson) {
+	case 0:
+		break
+	case 1:
+		finalBson = append(finalBson, dateBson[0])
+		break
+	default:
+		finalBson = append(finalBson, bson.M{"$and": dateBson})
+		break
+	}
 
 	switch len(whiteBson) {
 	case 0:
