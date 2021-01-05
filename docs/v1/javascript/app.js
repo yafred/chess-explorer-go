@@ -14,6 +14,25 @@ var browsingGame = ""
 
 var nextMoveTpl = document.getElementById('nextMoveTpl').innerHTML;
 
+var keydownTimeout;
+var keydownTimeoutValue = 1500; // millisecs
+
+$white.keydown(function () {
+    clearTimeout(keydownTimeout);
+    keydownTimeout = setTimeout(function () {
+        // do stuff when user has been idle for 1.5 second
+        resetClicked()
+    }, keydownTimeoutValue);
+});
+
+$black.keydown(function () {
+    clearTimeout(keydownTimeout);
+    keydownTimeout = setTimeout(function () {
+        // do stuff when user has been idle for 1.5 second
+        resetClicked()
+    }, keydownTimeoutValue);
+});
+
 function swapBlackWhiteClicked(e) {
     var black = $black.val()
     $black.val($white.val())
@@ -70,30 +89,30 @@ function nextMoveToHtml(dataObject) {
         winPercent = Math.round(100 * element.win / element.total)
         drawPercent = Math.round(100 * element.draw / element.total)
         drawPercentText = ""
-        if(drawPercent > 12) {
+        if (drawPercent > 12) {
             drawPercentText = "" + drawPercent + "%"
         }
         losePercent = Math.round(100 * element.lose / element.total)
 
         internalLink = false
         externalLink = false
-        if(element.link) {
+        if (element.link) {
             externalLink = true
         }
         else {
             internalLink = true
         }
 
-        moves.push({ 
-            move: element.move, 
-            link: element.link, 
+        moves.push({
+            move: element.move,
+            link: element.link,
             internalLink: internalLink,
             externalLink: externalLink,
-            total: element.total, 
-            winPercent: winPercent, 
-            drawPercent: drawPercent,   
-            drawPercentText: drawPercentText,   
-            losePercent: losePercent,   
+            total: element.total,
+            winPercent: winPercent,
+            drawPercent: drawPercent,
+            drawPercentText: drawPercentText,
+            losePercent: losePercent,
         })
     });
 
