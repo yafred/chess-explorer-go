@@ -62,50 +62,38 @@ function nextMoveToHtml(dataObject) {
         return
     }
 
+
+    var htmlAsArray = []
+
     dataObject.forEach(element => {
+
+        htmlAsArray.push('<div style="display: flex">')
+
+        htmlAsArray.push('<div style="width:20%;">')
         moveLink = `<a href="javascript:move('${element.move}');">${element.move}</a>`
         if (element.link) {
-            // moveLink = `<a href="javascript:loadGame('${element.link}','${element.move}');">${element.move}</a>`
-            moveLink = element.move
+            moveLink = `<a target="_blank" href="${element.link}">${element.move}</a>`
         }
-        var htmlAsArray = [
-            '<div>',
-            element.total,
-            moveLink]
+        htmlAsArray.push(moveLink)
+        htmlAsArray.push('</div>')
 
-        var progressAsArray = [
-            '<div style="background-color: grey; width:100%; display:flex; border: 1px solid grey;">']
+        htmlAsArray.push('<div style="width:20%;">')
+        htmlAsArray.push(element.total)
+        htmlAsArray.push('</div>')
 
-        htmlAsArray.push(`<span>(1-0:${element.win})</span>`)
+        htmlAsArray.push('<div style="width:60%; display:flex; border: 1px solid #aaa; margin-bottom: .1rem">')
         percentage = Math.round(100 * element.win / element.total)
-        progressAsArray.push(`<div style="background-color: white; width:${percentage}%">${percentage}%</div>`)
-
-        htmlAsArray.push(`<span>(1/2-1/2:${element.draw})</span>`)
+        htmlAsArray.push(`<div style="background-color: white; width:${percentage}%">${percentage}%</div>`)
         percentage = Math.round(100 * element.draw / element.total)
-        progressAsArray.push(`<div style="background-color: grey; width:${percentage}%"></div>`)
-
-        htmlAsArray.push(`<span>(0-1:${element.lose})</span>`)
+        htmlAsArray.push(`<div style="background-color: #aaa; width:${percentage}%"></div>`)
         percentage = Math.round(100 * element.lose / element.total)
-        progressAsArray.push(`<div style="text-align: right; color: white; background-color: black; width:${percentage}%">${percentage}%</div>`)
+        htmlAsArray.push(`<div style="text-align: right; color: white; background-color: #595959; width:${percentage}%">${percentage}%</div>`)
+        htmlAsArray.push('</div>')
 
-        progressAsArray.push('</div>')
-
-        if (element.link) {
-            var linkElement = [
-                '<span>(',
-                `<a target="_blank" href="${element.link}">Go to game</a>`,
-                ')</span>'
-            ]
-            htmlAsArray = htmlAsArray.concat(linkElement)
-        }
-
-        var tail = '</div>'
-        htmlAsArray = htmlAsArray.concat(tail)
-
-        htmlAsArray = htmlAsArray.concat(progressAsArray)
-
-        $("#result").append(htmlAsArray.join('\n'))
+        htmlAsArray.push('</div>')
     });
+
+    $("#result").append(htmlAsArray.join('\n'))
 }
 
 // Not used (I use game link instead)
