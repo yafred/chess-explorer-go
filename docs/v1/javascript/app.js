@@ -65,8 +65,6 @@ function undoClicked(e) {
     game.undo()
     board.position(game.fen())
     updateStatus()
-    $fen.html(game.fen())
-    displayPgn(game.pgn())
 }
 
 function resetClicked(e) {
@@ -74,8 +72,6 @@ function resetClicked(e) {
     game.reset()
     board.position(game.fen())
     updateStatus()
-    $fen.html(game.fen())
-    displayPgn(game.pgn())
 }
 
 function getNextMove() {
@@ -153,25 +149,7 @@ function getPgnPlusMove(aMove) {
 }
 
 function displayPgn(pgn) {
-    splitPgn = pgn.split(" ")
-
-    organizedPgn = [] // array of array of 3 strings ("1.", "move1", "move2")
-
-    pgnMove = []
-    splitPgn.forEach(function (item, index, array) {
-        if (index % 3 == 0) {
-            pgnMove = []
-            organizedPgn.push(pgnMove)
-        }
-        pgnMove.push(item)
-    })
-
-    resultString = ""
-    organizedPgn.forEach(function (item, index, array) {
-        resultString = resultString + item.join(' ') + '<br/>'
-    })
-
-    $pgn.html(resultString)
+    $pgn.html(pgn)
 }
 
 function move(aMove) {
@@ -214,6 +192,7 @@ function onSnapEnd() {
 
 function updateStatus() {
     displayPgn(game.pgn())
+    $fen.html(game.fen())
     getNextMove()
 }
 

@@ -38,28 +38,22 @@
 <body>
   <div class="grid-container">
     <div id="filter-container" class="grid-x grid-margin-x">
-      <div class="cell small-1">
-      </div>
-      <div class="cell small-5">
-        <span style="color: grey;">use comma between user names, hit enter ...</span>
-        <label for="white">User(s) playing white:</label>
-        <input type="text" id="white" name="white" />
-        <label for="from">From:</label>
-        <input type="date" id="from" name="from" style="color: grey;" />
-      </div>
-      <div class="cell small-5">
-        <a href="javascript:swapBlackWhiteClicked();">Swap black and white</a>
-        <label for="black">User(s) playing black:</label>
-        <input type="text" id="black" name="black" />
-        <label for="to">To:</label>
-        <input type="date" id="to" name="to" style="color: grey;" />
-      </div>
-      <div class="cell small-1">
+      <div class="cell small-12" id="info">
+        <div>PGN: <span id="pgn"></span></div>
+        <div>FEN: <span id="fen"></span></div>
       </div>
     </div>
     <div class="grid-x grid-margin-x">
       <div class="cell small-3">
-        <div id="pgn"></div>
+        <label for="white">User(s) playing white:</label>
+        <input type="text"  id="white" name="white" />
+        <label for="black">User(s) playing black:</label>
+        <input type="text" id="black" name="black" />
+        <a href="javascript:swapBlackWhiteClicked();">Swap black and white</a>
+        <label for="from">From:</label>
+        <input type="date" id="from" name="from" style="color: grey;" />
+        <label for="to">To:</label>
+        <input type="date" id="to" name="to" style="color: grey;" />
       </div>
       <div class="cell small-5">
         <div class="grid-x grid-margin-x">

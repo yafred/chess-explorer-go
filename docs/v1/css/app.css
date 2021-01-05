@@ -1,9 +1,17 @@
-#white, #black, #from, #to {
-    height: 1.5rem;
-    margin-bottom: 0.3rem;
-    padding: 0.1rem;
+#white, #black {
+    width: 100%;
 }
 
 #filter-container {
     margin-bottom: 1rem;
 }
+
+#info {
+    color: grey
+}
+
+
+#pgn, #fen {
+    height: 1.5rem;
+}
+
