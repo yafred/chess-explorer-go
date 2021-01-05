@@ -12,6 +12,7 @@ var $white = $('#white')
 var $black = $('#black')
 var browsingGame = ""
 
+var nextMoveTpl = document.getElementById('nextMoveTpl').innerHTML;
 
 function swapBlackWhiteClicked(e) {
     var black = $black.val()
@@ -38,7 +39,7 @@ function resetClicked(e) {
     displayPgn(game.pgn())
 }
 
-function nextmove() {
+function getNextMove() {
     $("#result").html("");
     $.post("http://127.0.0.1:52825/nextmove", { pgn: game.pgn(), white: $white.val(), black: $black.val() }, function (data) {
         nextMoveToHtml(JSON.parse(data));
@@ -62,38 +63,41 @@ function nextMoveToHtml(dataObject) {
         return
     }
 
-
-    var htmlAsArray = []
+    var moves = []
 
     dataObject.forEach(element => {
 
-        htmlAsArray.push('<div style="display: flex">')
-
-        htmlAsArray.push('<div style="width:20%;">')
-        moveLink = `<a href="javascript:move('${element.move}');">${element.move}</a>`
-        if (element.link) {
-            moveLink = `<a target="_blank" href="${element.link}">${element.move}</a>`
+        winPercent = Math.round(100 * element.win / element.total)
+        drawPercent = Math.round(100 * element.draw / element.total)
+        drawPercentText = ""
+        if(drawPercent > 12) {
+            drawPercentText = "" + drawPercent + "%"
         }
-        htmlAsArray.push(moveLink)
-        htmlAsArray.push('</div>')
+        losePercent = Math.round(100 * element.lose / element.total)
 
-        htmlAsArray.push('<div style="width:20%;">')
-        htmlAsArray.push(element.total)
-        htmlAsArray.push('</div>')
+        internalLink = false
+        externalLink = false
+        if(element.link) {
+            externalLink = true
+        }
+        else {
+            internalLink = true
+        }
 
-        htmlAsArray.push('<div style="width:60%; display:flex; border: 1px solid #aaa; margin-bottom: .1rem">')
-        percentage = Math.round(100 * element.win / element.total)
-        htmlAsArray.push(`<div style="background-color: white; width:${percentage}%">${percentage}%</div>`)
-        percentage = Math.round(100 * element.draw / element.total)
-        htmlAsArray.push(`<div style="background-color: #aaa; width:${percentage}%"></div>`)
-        percentage = Math.round(100 * element.lose / element.total)
-        htmlAsArray.push(`<div style="text-align: right; color: white; background-color: #595959; width:${percentage}%">${percentage}%</div>`)
-        htmlAsArray.push('</div>')
-
-        htmlAsArray.push('</div>')
+        moves.push({ 
+            move: element.move, 
+            link: element.link, 
+            internalLink: internalLink,
+            externalLink: externalLink,
+            total: element.total, 
+            winPercent: winPercent, 
+            drawPercent: drawPercent,   
+            drawPercentText: drawPercentText,   
+            losePercent: losePercent,   
+        })
     });
 
-    $("#result").append(htmlAsArray.join('\n'))
+    $("#result").html(Mustache.render(nextMoveTpl, moves))
 }
 
 // Not used (I use game link instead)
@@ -170,46 +174,8 @@ function onSnapEnd() {
 }
 
 function updateStatus() {
-    var status = ''
-
-    if (browsingGame == "") {
-        status = "Opening mode"
-    }
-    else {
-        status = "Browsing game " + browsingGame
-    }
-
-    var moveColor = 'White'
-    if (game.turn() === 'b') {
-        moveColor = 'Black'
-    }
-
-    // checkmate?
-    if (game.in_checkmate()) {
-        status += ', Game over, ' + moveColor + ' is in checkmate.'
-    }
-
-    // draw?
-    else if (game.in_draw()) {
-        status += ', Game over, drawn position'
-    }
-
-    // game still on
-    else {
-        status += ", " + moveColor + ' to move'
-
-        // check?
-        if (game.in_check()) {
-            status += ', ' + moveColor + ' is in check'
-        }
-    }
-
-    $status.html(status)
-    $fen.html(game.fen())
     displayPgn(game.pgn())
-    if (browsingGame == "") {
-        nextmove()
-    }
+    getNextMove()
 }
 
 var config = {
