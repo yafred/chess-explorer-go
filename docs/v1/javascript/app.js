@@ -10,10 +10,13 @@ var $fen = $('#fen')
 var $pgn = $('#pgn')
 var $white = $('#white')
 var $black = $('#black')
+var $from = $('#from')
+var $to = $('#to')
 var browsingGame = ""
 
 var nextMoveTpl = document.getElementById('nextMoveTpl').innerHTML;
 
+/* we could do some completion with this ...
 var keydownTimeout;
 var keydownTimeoutValue = 1500; // millisecs
 
@@ -24,7 +27,6 @@ $white.keydown(function () {
         resetClicked()
     }, keydownTimeoutValue);
 });
-
 $black.keydown(function () {
     clearTimeout(keydownTimeout);
     keydownTimeout = setTimeout(function () {
@@ -32,6 +34,24 @@ $black.keydown(function () {
         resetClicked()
     }, keydownTimeoutValue);
 });
+*/
+
+$from.change(function () {
+    resetClicked()
+});
+
+$to.change(function () {
+    resetClicked()
+});
+
+$white.change(function () {
+    resetClicked()
+});
+
+$black.change(function () {
+    resetClicked()
+});
+
 
 function swapBlackWhiteClicked(e) {
     var black = $black.val()
@@ -60,7 +80,7 @@ function resetClicked(e) {
 
 function getNextMove() {
     $("#result").html("");
-    $.post("http://127.0.0.1:52825/nextmove", { pgn: game.pgn(), white: $white.val(), black: $black.val() }, function (data) {
+    $.post("http://127.0.0.1:52825/nextmove", { pgn: game.pgn(), white: $white.val(), black: $black.val(), from: $from.val(), to: $to.val() }, function (data) {
         nextMoveToHtml(JSON.parse(data));
     });
 }

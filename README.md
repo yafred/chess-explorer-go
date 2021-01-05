@@ -1,5 +1,14 @@
 # Tool to explore chess openings 
 
+## What is it ?
+
+An opening explorer allows you to browse games move by move.
+
+## Why is this one different ?
+
+  * The database is on your machine
+  * You can filter games from multiple users (handy if you play on different sites)
+
 ## Important for windows users
 
 If you follow the procedure described in the Quick start, your antivirus (like Windows Defender) may report a virus (Trojan:Script/Wacatac.B!ml)
