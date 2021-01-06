@@ -3,6 +3,7 @@ package pgntodb
 import (
 	"context"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,8 +18,8 @@ type Game struct {
 	Black       string    `json:"black,omitempty"`
 	DateTime    time.Time `json:"datetime,omitempty"`
 	Result      string    `json:"result,omitempty"`
-	WhiteElo    string    `json:"whiteelo,omitempty"`
-	BlackElo    string    `json:"blackelo,omitempty"`
+	WhiteElo    uint16    `json:"whiteelo,omitempty"`
+	BlackElo    uint16    `json:"blackelo,omitempty"`
 	TimeControl string    `json:"timecontrol,omitempty"`
 	Link        string    `json:"link,omitempty"`
 	PGN         string    `json:"pgn,omitempty"`
@@ -63,14 +64,29 @@ func insertGame(gameMap map[string]string, client *mongo.Client) {
 		log.Fatal("Not a valid date: " + dateTimeAsUTCString)
 	}
 
+	whiteelo := 0
+	blackelo := 0
+	if gameMap["WhiteElo"] != "" && strings.Index(gameMap["WhiteElo"], "?") == -1 {
+		whiteelo, error = strconv.Atoi(gameMap["WhiteElo"])
+		if error != nil {
+			log.Fatal("Not a valid ELO: " + gameMap["WhiteElo"] + " for white " + gameMap["White"])
+		}
+	}
+	if gameMap["BlackElo"] != "" && strings.Index(gameMap["BlackElo"], "?") == -1 {
+		blackelo, error = strconv.Atoi(gameMap["BlackElo"])
+		if error != nil {
+			log.Fatal("Not a valid ELO: " + gameMap["BlackElo"] + " for black " + gameMap["Black"])
+		}
+	}
+
 	game := Game{
 		Site:        gameMap["Site"],
 		White:       gameMap["White"],
 		Black:       gameMap["Black"],
 		DateTime:    dateTime,
 		Result:      gameMap["Result"],
-		WhiteElo:    gameMap["WhiteElo"],
-		BlackElo:    gameMap["BlackElo"],
+		WhiteElo:    uint16(whiteelo),
+		BlackElo:    uint16(blackelo),
 		TimeControl: gameMap["TimeControl"],
 		Link:        gameMap["Link"],
 		PGN:         gameMap["PGN"],

@@ -19,11 +19,14 @@ import (
 )
 
 type filter struct {
-	pgn   string
-	white string
-	black string
-	from  string
-	to    string
+	pgn    string
+	white  string
+	black  string
+	from   string
+	to     string
+	minelo string
+	maxelo string
+	site   string
 }
 
 func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,6 +84,9 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		filter.black = strings.TrimSpace(r.FormValue("black"))
 		filter.from = strings.TrimSpace(r.FormValue("from"))
 		filter.to = strings.TrimSpace(r.FormValue("to"))
+		filter.minelo = strings.TrimSpace(r.FormValue("minelo"))
+		filter.maxelo = strings.TrimSpace(r.FormValue("maxelo"))
+		filter.site = strings.TrimSpace(r.FormValue("site"))
 
 	default:
 		fmt.Fprintf(w, "Sorry, only POST methods is supported.")
@@ -262,6 +268,34 @@ func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, mo
 func processGameFilter(filter filter) bson.M {
 	ret := bson.M{}
 
+	// Site filter
+	siteBson := make([]bson.M, 0)
+	sites := strings.Split(filter.site, ",")
+	for _, site := range sites {
+		if strings.TrimSpace(site) != "" {
+			siteBson = append(siteBson, bson.M{"site": strings.TrimSpace(site)})
+		}
+	}
+
+	// ELO filter
+	eloBson := make([]bson.M, 0)
+
+	if filter.minelo != "" {
+		minelo, _ := strconv.Atoi(filter.minelo)
+		eloBson = append(eloBson, bson.M{
+			"whiteelo": bson.M{"$gte": minelo},
+			"blackelo": bson.M{"$gte": minelo},
+		})
+	}
+
+	if filter.maxelo != "" {
+		maxelo, _ := strconv.Atoi(filter.maxelo)
+		eloBson = append(eloBson, bson.M{
+			"whiteelo": bson.M{"$lte": maxelo},
+			"blackelo": bson.M{"$lte": maxelo},
+		})
+	}
+
 	// date filter
 	dateBson := make([]bson.M, 0)
 	if filter.from != "" {
@@ -270,7 +304,7 @@ func processGameFilter(filter filter) bson.M {
 			log.Print("datetime error " + filter.from)
 		} else {
 			dateBson = append(dateBson, bson.M{
-				"datetime": bson.M{"$gt": fromDate},
+				"datetime": bson.M{"$gte": fromDate},
 			})
 		}
 	}
@@ -281,7 +315,7 @@ func processGameFilter(filter filter) bson.M {
 			log.Print("datetime error " + filter.to)
 		} else {
 			dateBson = append(dateBson, bson.M{
-				"datetime": bson.M{"$lt": toDate},
+				"datetime": bson.M{"$lte": toDate},
 			})
 		}
 	}
@@ -320,8 +354,30 @@ func processGameFilter(filter filter) bson.M {
 		}
 	}
 
-	// wrap up
+	// gather all filters
 	finalBson := make([]bson.M, 0)
+
+	switch len(siteBson) {
+	case 0:
+		break
+	case 1:
+		finalBson = append(finalBson, siteBson[0])
+		break
+	default:
+		finalBson = append(finalBson, bson.M{"$or": siteBson})
+		break
+	}
+
+	switch len(eloBson) {
+	case 0:
+		break
+	case 1:
+		finalBson = append(finalBson, eloBson[0])
+		break
+	default:
+		finalBson = append(finalBson, bson.M{"$and": eloBson})
+		break
+	}
 
 	switch len(dateBson) {
 	case 0:
@@ -356,6 +412,7 @@ func processGameFilter(filter filter) bson.M {
 		break
 	}
 
+	// wrap up
 	switch len(finalBson) {
 	case 0:
 		break
@@ -366,6 +423,7 @@ func processGameFilter(filter filter) bson.M {
 		ret = bson.M{"$and": finalBson}
 	}
 
+	log.Println(finalBson)
 	return ret
 }
 

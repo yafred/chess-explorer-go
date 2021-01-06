@@ -12,6 +12,9 @@ var $white = $('#white')
 var $black = $('#black')
 var $from = $('#from')
 var $to = $('#to')
+var $minelo = $('#minelo')
+var $maxelo = $('#maxelo')
+var $site = $('#site')
 var browsingGame = ""
 
 var nextMoveTpl = document.getElementById('nextMoveTpl').innerHTML;
@@ -52,6 +55,17 @@ $black.change(function () {
     resetClicked()
 });
 
+$minelo.change(function () {
+    resetClicked()
+});
+
+$maxelo.change(function () {
+    resetClicked()
+});
+
+$site.change(function () {
+    resetClicked()
+});
 
 function swapBlackWhiteClicked(e) {
     var black = $black.val()
@@ -76,7 +90,16 @@ function resetClicked(e) {
 
 function getNextMove() {
     $("#result").html("");
-    $.post("http://127.0.0.1:52825/nextmove", { pgn: game.pgn(), white: $white.val(), black: $black.val(), from: $from.val(), to: $to.val() }, function (data) {
+    $.post("http://127.0.0.1:52825/nextmove", {
+        pgn: game.pgn(),
+        white: $white.val(),
+        black: $black.val(),
+        from: $from.val(),
+        to: $to.val(),
+        minelo: $minelo.val(),
+        maxelo: $maxelo.val(),
+        site: $site.val()
+    }, function (data) {
         nextMoveToHtml(JSON.parse(data));
     });
 }
