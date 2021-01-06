@@ -47,8 +47,50 @@ type Game struct {
 
 var client *mongo.Client
 
+var queue []interface{} // queue for insert many
+
 func insertGame(gameMap map[string]string, client *mongo.Client) {
 
+	game := Game{}
+
+	mapToGame(gameMap, &game)
+
+	// Look for a duplicate before inserting
+	games := client.Database("chess-explorer").Collection("games")
+
+	count, error := games.CountDocuments(context.TODO(), bson.M{"white": game.White, "black": game.Black, "datetime": game.DateTime})
+
+	// Insert
+	if count == 0 && error == nil {
+		_, err := games.InsertOne(context.TODO(), game)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func pushGame(gameMap map[string]string, client *mongo.Client) {
+	game := Game{}
+	mapToGame(gameMap, &game)
+	queue = append(queue, game)
+	if len(queue) > 1000 {
+		flushGames(client)
+	}
+}
+
+func flushGames(client *mongo.Client) {
+	games := client.Database("chess-explorer").Collection("games")
+	_, err := games.InsertMany(context.TODO(), queue)
+
+	queue = queue[:0]
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func mapToGame(gameMap map[string]string, game *Game) {
 	// Clean up data
 	if strings.Index(gameMap["Site"], "lichess.org") != -1 {
 		gameMap["Link"] = gameMap["Site"]
@@ -79,38 +121,22 @@ func insertGame(gameMap map[string]string, client *mongo.Client) {
 		}
 	}
 
-	game := Game{
-		Site:        gameMap["Site"],
-		White:       gameMap["White"],
-		Black:       gameMap["Black"],
-		DateTime:    dateTime,
-		Result:      gameMap["Result"],
-		WhiteElo:    uint16(whiteelo),
-		BlackElo:    uint16(blackelo),
-		TimeControl: gameMap["TimeControl"],
-		Link:        gameMap["Link"],
-		PGN:         gameMap["PGN"],
-	}
+	game.Site = gameMap["Site"]
+	game.White = gameMap["White"]
+	game.Black = gameMap["Black"]
+	game.DateTime = dateTime
+	game.Result = gameMap["Result"]
+	game.WhiteElo = uint16(whiteelo)
+	game.BlackElo = uint16(blackelo)
+	game.TimeControl = gameMap["TimeControl"]
+	game.Link = gameMap["Link"]
+	game.PGN = gameMap["PGN"]
 
 	// Itemize first moves of the pgn
-	itemizePgn(&game)
-
-	// Look for a duplicate before inserting
-	games := client.Database("chess-explorer").Collection("games")
-
-	count, error := games.CountDocuments(context.TODO(), bson.M{"white": game.White, "black": game.Black, "datetime": game.DateTime})
-
-	// Insert
-	if count == 0 && error == nil {
-		_, err := games.InsertOne(context.TODO(), game)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+	itemizePgn(game)
 }
 
-// Remider: last item of the pgn is "0-1" or "1-0" or "1/2-1/2" (for len(pgnElements) test)
+// Reminder: last item of the pgn is "0-1" or "1-0" or "1/2-1/2" (for len(pgnElements) test)
 func itemizePgn(game *Game) {
 	pgn := game.PGN
 	pgnElements := strings.Split(pgn, " ")

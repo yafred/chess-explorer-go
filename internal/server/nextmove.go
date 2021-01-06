@@ -423,7 +423,6 @@ func processGameFilter(filter filter) bson.M {
 		ret = bson.M{"$and": finalBson}
 	}
 
-	log.Println(finalBson)
 	return ret
 }
 

@@ -37,7 +37,8 @@ func pgnFileToDB(f *os.File, db *mongo.Client) {
 			// If game was abandoned, pgn will be 0-1 or 1-0 (skip it)
 			if line != "0-1" && line != "1-0" {
 				keyValues["PGN"] = stripPgn(line)
-				insertGame(keyValues, db)
+				//insertGame(keyValues, db)
+				pushGame(keyValues, db)
 			}
 			keyValues = make(map[string]string) // for next game
 			break
@@ -47,6 +48,8 @@ func pgnFileToDB(f *os.File, db *mongo.Client) {
 			return
 		}
 	}
+
+	flushGames(db)
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
