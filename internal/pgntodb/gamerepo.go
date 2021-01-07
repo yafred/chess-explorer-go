@@ -74,7 +74,7 @@ func pushGame(gameMap map[string]string, client *mongo.Client) {
 	game := Game{}
 	mapToGame(gameMap, &game)
 	queue = append(queue, game)
-	if len(queue) > 1000 {
+	if len(queue) > 10000 {
 		flushGames(client)
 	}
 }
