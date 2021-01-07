@@ -2,18 +2,24 @@ package pgntodb
 
 import (
 	"bufio"
-	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func pgnFileToDB(f *os.File, db *mongo.Client) {
+// PgnStringToDB ... PgnStringToDB stores a PGN into database
+func PgnStringToDB(pgn string, db *mongo.Client) bool {
+	scanner := bufio.NewScanner(strings.NewReader(pgn))
+	return pgnToDB(scanner, db)
+}
 
+func pgnFileToDB(f *os.File, db *mongo.Client) bool {
 	scanner := bufio.NewScanner(f)
+	return pgnToDB(scanner, db)
+}
 
+func pgnToDB(scanner *bufio.Scanner, db *mongo.Client) bool {
 	inGame := false
 	keyValues := make(map[string]string)
 	for i := 1; scanner.Scan(); i++ {
@@ -38,22 +44,20 @@ func pgnFileToDB(f *os.File, db *mongo.Client) {
 			if line != "0-1" && line != "1-0" {
 				keyValues["PGN"] = stripPgn(line)
 				//insertGame(keyValues, db)
-				pushGame(keyValues, db)
+				goOn := pushGame(keyValues, db)
+				if goOn == false {
+					return false
+				}
 			}
 			keyValues = make(map[string]string) // for next game
 			break
 		default:
-			// not a valid char
-			log.Println(f.Name() + " is not a pgn file (line " + strconv.Itoa(i) + ")")
-			return
+			// not a valid char, skip
+			return true
 		}
 	}
 
-	flushGames(db)
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
+	return flushGames(db)
 }
 
 // [Key "value"]

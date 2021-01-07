@@ -49,7 +49,7 @@ var client *mongo.Client
 
 var queue []interface{} // queue for insert many
 
-func insertGame(gameMap map[string]string, client *mongo.Client) {
+func insertGame(gameMap map[string]string, client *mongo.Client) bool {
 
 	game := Game{}
 
@@ -59,24 +59,34 @@ func insertGame(gameMap map[string]string, client *mongo.Client) {
 	games := client.Database("chess-explorer").Collection("games")
 
 	// Insert
-	_, _ = games.InsertOne(context.TODO(), game)
+	_, error := games.InsertOne(context.TODO(), game)
 
+	if error != nil {
+		return false
+	}
+	return true
 }
 
-func pushGame(gameMap map[string]string, client *mongo.Client) {
+func pushGame(gameMap map[string]string, client *mongo.Client) bool {
 	game := Game{}
 	mapToGame(gameMap, &game)
 	queue = append(queue, game)
 	if len(queue) > 10000 {
-		flushGames(client)
+		return flushGames(client)
 	}
+	return true
 }
 
-func flushGames(client *mongo.Client) {
+func flushGames(client *mongo.Client) bool {
 	games := client.Database("chess-explorer").Collection("games")
-	_, _ = games.InsertMany(context.TODO(), queue)
+	_, error := games.InsertMany(context.TODO(), queue)
+
+	if error != nil {
+		return false
+	}
 
 	queue = queue[:0]
+	return true
 }
 
 func mapToGame(gameMap map[string]string, game *Game) {
