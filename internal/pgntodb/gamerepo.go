@@ -7,12 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Game ... for the database
 type Game struct {
+	ID          string    `json:"_id" bson:"_id"`
 	Site        string    `json:"site,omitempty"`
 	White       string    `json:"white,omitempty"`
 	Black       string    `json:"black,omitempty"`
@@ -58,16 +58,9 @@ func insertGame(gameMap map[string]string, client *mongo.Client) {
 	// Look for a duplicate before inserting
 	games := client.Database("chess-explorer").Collection("games")
 
-	count, error := games.CountDocuments(context.TODO(), bson.M{"white": game.White, "black": game.Black, "datetime": game.DateTime})
-
 	// Insert
-	if count == 0 && error == nil {
-		_, err := games.InsertOne(context.TODO(), game)
+	_, _ = games.InsertOne(context.TODO(), game)
 
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
 }
 
 func pushGame(gameMap map[string]string, client *mongo.Client) {
@@ -81,13 +74,9 @@ func pushGame(gameMap map[string]string, client *mongo.Client) {
 
 func flushGames(client *mongo.Client) {
 	games := client.Database("chess-explorer").Collection("games")
-	_, err := games.InsertMany(context.TODO(), queue)
+	_, _ = games.InsertMany(context.TODO(), queue)
 
 	queue = queue[:0]
-
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func mapToGame(gameMap map[string]string, game *Game) {
@@ -121,6 +110,7 @@ func mapToGame(gameMap map[string]string, game *Game) {
 		}
 	}
 
+	game.ID = gameMap["Site"] + ":" + gameMap["White"] + ":" + gameMap["Black"] + ":" + gameMap["UTCDate"] + ":" + gameMap["UTCTime"]
 	game.Site = gameMap["Site"]
 	game.White = gameMap["White"]
 	game.Black = gameMap["Black"]
