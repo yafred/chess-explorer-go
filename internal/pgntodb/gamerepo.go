@@ -49,6 +49,11 @@ var client *mongo.Client
 
 var queue []interface{} // queue for insert many
 
+/*
+The returned bool is a hint for the caller:
+- true: you can go on
+- false: stop
+*/
 func insertGame(gameMap map[string]string, client *mongo.Client) bool {
 
 	game := Game{}
