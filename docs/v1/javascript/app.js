@@ -3,6 +3,7 @@
 // https://github.com/oakmac/chessboardjs
 // https://github.com/jhlywa/chess.js
 
+var apiPort = "52825"
 var board = null
 var game = new Chess()
 var $status = $('#status')
@@ -90,7 +91,7 @@ function resetClicked(e) {
 
 function getNextMove() {
     $("#result").html("");
-    $.post("http://127.0.0.1:52825/nextmove", {
+    $.post(`http://127.0.0.1:${apiPort}/nextmove`, {
         pgn: game.pgn(),
         white: $white.val(),
         black: $black.val(),
@@ -109,7 +110,7 @@ function loadGame(link, aMove) {
     $("#result").html("");
     browsingGame = getPgnPlusMove(aMove)
     move(aMove)
-    $.post("http://127.0.0.1:52825/games", { link: link }, function (data) {
+    $.post(`http://127.0.0.1:${apiPort}/games`, { link: link }, function (data) {
         ret = JSON.parse(data);
         displayPgn(ret[0].pgn)
     });

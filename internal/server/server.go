@@ -7,10 +7,12 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+
+	"github.com/spf13/viper"
 )
 
 // Start ... start a web server
-func Start(port int) {
+func Start() {
 
 	fs := http.FileServer(http.Dir("./docs/v1"))
 	http.Handle("/", fs)
@@ -18,9 +20,16 @@ func Start(port int) {
 	http.HandleFunc("/nextmove", nextMoveHandler)
 	http.HandleFunc("/games", gamesHandler)
 
+	port := viper.GetInt("server-port")
+	if port == 0 {
+		log.Fatal("server-port does not have a valid integer value")
+	}
 	log.Println("Server is listening on port " + strconv.Itoa(port))
 
-	openbrowser("http://localhost:" + strconv.Itoa(port))
+	browser := viper.GetBool("start-browser")
+	if browser {
+		openbrowser("http://localhost:" + strconv.Itoa(port))
+	}
 	http.ListenAndServe(":"+strconv.Itoa(port), nil)
 }
 
