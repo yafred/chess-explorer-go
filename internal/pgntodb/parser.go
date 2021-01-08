@@ -8,8 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// PgnStringToDB ... PgnStringToDB stores a PGN into database
-func PgnStringToDB(pgn string, db *mongo.Client) bool {
+func pgnStringToDB(pgn string, db *mongo.Client) bool {
 	scanner := bufio.NewScanner(strings.NewReader(pgn))
 	return pgnToDB(scanner, db)
 }
@@ -43,7 +42,6 @@ func pgnToDB(scanner *bufio.Scanner, db *mongo.Client) bool {
 			// If game was abandoned, pgn will be 0-1 or 1-0 (skip it)
 			if line != "0-1" && line != "1-0" {
 				keyValues["PGN"] = stripPgn(line)
-				//insertGame(keyValues, db)
 				goOn := pushGame(keyValues, db)
 				if goOn == false {
 					return false

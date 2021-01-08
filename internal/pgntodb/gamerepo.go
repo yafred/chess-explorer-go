@@ -83,10 +83,12 @@ func pushGame(gameMap map[string]string, client *mongo.Client) bool {
 }
 
 func flushGames(client *mongo.Client) bool {
+	log.Println("Flushing " + strconv.Itoa(len(queue)) + " games to DB")
 	games := client.Database("chess-explorer").Collection("games")
 	_, error := games.InsertMany(context.TODO(), queue)
 
 	if error != nil {
+		log.Println(error)
 		return false
 	}
 

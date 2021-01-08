@@ -43,7 +43,7 @@ func DownloadGames(username string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.Remove(tmpfile.Name()) // clean up
+	//defer os.Remove(tmpfile.Name()) // clean up
 	log.Println(tmpfile.Name())
 	// Create the file
 	out, err := os.Create(tmpfile.Name())
