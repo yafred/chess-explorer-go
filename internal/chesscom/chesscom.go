@@ -42,7 +42,7 @@ func DownloadGames(player string) {
 	// Store games in database
 	// Stop on first duplicate
 	for i := len(archivesContainer.Archives) - 1; i > -1; i-- {
-		log.Println("Downloading " + archivesContainer.Archives[i] + "/pgn")
+		log.Println("GET " + archivesContainer.Archives[i] + "/pgn")
 		goOn := downloadArchive(chessClient, archivesContainer.Archives[i]+"/pgn")
 		if goOn == false {
 			break
@@ -65,7 +65,7 @@ func downloadArchive(chessClient *http.Client, url string) bool {
 		log.Fatal(err)
 	}
 	defer os.Remove(tmpfile.Name()) // clean up
-	log.Println(tmpfile.Name())
+
 	// Create the file
 	out, err := os.Create(tmpfile.Name())
 	if err != nil {

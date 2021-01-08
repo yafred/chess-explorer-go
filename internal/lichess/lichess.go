@@ -19,12 +19,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-/*
-TODO:
-- lichess user/password to decrease throttle
-- search for most recent game in DB and use parm 'since' in request
-*/
-
 // DownloadGames ... Downloads games from Chess.com for user {user}
 // https://lichess.org/api#operation/apiGamesUser
 func DownloadGames(username string) {
@@ -44,11 +38,10 @@ func DownloadGames(username string) {
 		req.Header.Add("Authorization", "Bearer "+lichessToken)
 	}
 
-	// Get most recent game to set 'since' if possible
-	since := getLastUnixTime(username)
-
 	q := req.URL.Query()
 
+	// Get most recent game to set 'since' if possible
+	since := getLastUnixTime(username)
 	if since != 0 {
 		since += 1000 // add 1 sec to avoid downloading the last game we have
 		q.Add("since", strconv.FormatInt(since, 10))
@@ -56,7 +49,7 @@ func DownloadGames(username string) {
 
 	req.URL.RawQuery = q.Encode()
 
-	fmt.Println(req.URL.String())
+	fmt.Println("GET " + req.URL.String())
 
 	// Get data
 	resp, err := chessClient.Do(req)
@@ -71,7 +64,7 @@ func DownloadGames(username string) {
 		log.Fatal(err)
 	}
 	defer os.Remove(tmpfile.Name()) // clean up
-	log.Println(tmpfile.Name())
+
 	// Create the file
 	out, err := os.Create(tmpfile.Name())
 	if err != nil {
