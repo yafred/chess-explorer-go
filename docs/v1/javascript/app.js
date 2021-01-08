@@ -75,6 +75,10 @@ function swapBlackWhiteClicked(e) {
     resetClicked()
 }
 
+function flipClicked() {
+    board.flip()
+}
+
 function undoClicked(e) {
     browsingGame = ""
     game.undo()
