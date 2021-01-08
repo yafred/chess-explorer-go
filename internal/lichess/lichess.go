@@ -39,11 +39,11 @@ func DownloadGames(username string) {
 	}
 
 	// Create a temp file
-	tmpfile, err := ioutil.TempFile("", "example")
+	tmpfile, err := ioutil.TempFile("", "lichess")
 	if err != nil {
 		log.Fatal(err)
 	}
-	//defer os.Remove(tmpfile.Name()) // clean up
+	defer os.Remove(tmpfile.Name()) // clean up
 	log.Println(tmpfile.Name())
 	// Create the file
 	out, err := os.Create(tmpfile.Name())

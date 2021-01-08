@@ -1,16 +1,15 @@
 package chesscom
 
 import (
-	"context"
 	"encoding/json"
+	"io"
+	"io/ioutil"
 	"log"
-	"net/http"
+	http "net/http"
+	"os"
 	"time"
 
 	"github.com/yafred/chess-explorer/internal/pgntodb"
-
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 /*
@@ -22,32 +21,6 @@ No limitation but concurrent requests forbidden
 // archivesContainer ... a list of available archives from Chess.com
 type archivesContainer struct {
 	Archives []string `json:"archives"`
-}
-
-// gamesContainer ... a list of Games from Chess.com
-type gamesContainer struct {
-	Games []struct {
-		URL         string `json:"url"`
-		Pgn         string `json:"pgn"`
-		TimeControl string `json:"time_control"`
-		EndTime     int    `json:"end_time"`
-		Rated       bool   `json:"rated"`
-		Fen         string `json:"fen"`
-		TimeClass   string `json:"time_class"`
-		Rules       string `json:"rules"`
-		White       struct {
-			Rating   int    `json:"rating"`
-			Result   string `json:"result"`
-			ID       string `json:"@id"`
-			Username string `json:"username"`
-		} `json:"white"`
-		Black struct {
-			Rating   int    `json:"rating"`
-			Result   string `json:"result"`
-			ID       string `json:"@id"`
-			Username string `json:"username"`
-		} `json:"black"`
-	} `json:"games"`
 }
 
 // DownloadGames ... Downloads games from Chess.com for user {user}
@@ -68,38 +41,43 @@ func DownloadGames(player string) {
 	// Download PGN files most recent first
 	// Store games in database
 	// Stop on first duplicate
-	// Connect to DB
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer client.Disconnect(ctx)
-
-	goOn := true
 	for i := len(archivesContainer.Archives) - 1; i > -1; i-- {
-		log.Println("Downloading " + archivesContainer.Archives[i])
-		gamesContainer := gamesContainer{}
-		resp, err := chessClient.Get(archivesContainer.Archives[i])
-		if err != nil {
-			log.Fatal(err)
-		}
-		json.NewDecoder(resp.Body).Decode(&gamesContainer)
-		for _, game := range gamesContainer.Games {
-			// Note: we should make it a real insert many
-			goOn = pgntodb.PgnStringToDB(game.Pgn, client)
-			if goOn == false {
-				break
-			}
-		}
-		defer resp.Body.Close()
+		log.Println("Downloading " + archivesContainer.Archives[i] + "/pgn")
+		goOn := downloadArchive(chessClient, archivesContainer.Archives[i]+"/pgn")
 		if goOn == false {
 			break
 		}
 	}
+}
+
+func downloadArchive(chessClient *http.Client, url string) bool {
+
+	// Get data
+	resp, err := chessClient.Get(url)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create a temp file
+	tmpfile, err := ioutil.TempFile("", "chesscom")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name()) // clean up
+	log.Println(tmpfile.Name())
+	// Create the file
+	out, err := os.Create(tmpfile.Name())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer out.Close()
+
+	// Write the body to file
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return pgntodb.Process(tmpfile.Name())
 }

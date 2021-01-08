@@ -14,7 +14,8 @@ import (
 )
 
 // Process ... process a single file or all the files of a folder
-func Process(filepath string) {
+func Process(filepath string) bool {
+	goOn := true
 	// Connect to DB
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
 	if err != nil {
@@ -46,17 +47,21 @@ func Process(filepath string) {
 		for _, info := range fileinfos {
 			if !info.IsDir() {
 				log.Println(path.Join(filepath, info.Name()))
-				processFile(path.Join(filepath, info.Name()), client)
+				goOn = processFile(path.Join(filepath, info.Name()), client)
+				if goOn == false {
+					break
+				}
 			}
 		}
 	} else {
-		processFile(filepath, client)
+		goOn = processFile(filepath, client)
 	}
 
+	return goOn
 }
 
 // ProcessFile ... does everything
-func processFile(filepath string, client *mongo.Client) {
+func processFile(filepath string, client *mongo.Client) bool {
 
 	// Open file
 	file, err := os.Open(filepath)
@@ -67,5 +72,5 @@ func processFile(filepath string, client *mongo.Client) {
 	}
 
 	// Do the work
-	pgnFileToDB(file, client)
+	return pgnFileToDB(file, client)
 }
