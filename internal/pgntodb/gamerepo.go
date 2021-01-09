@@ -7,7 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 // Game ... for the database
@@ -48,6 +51,46 @@ type Game struct {
 var client *mongo.Client
 
 var queue []interface{} // queue for insert many
+
+// GetLatestGame ... Get the most recent game played by {username} on {site}
+func GetLatestGame(username string, site string, game *Game) {
+	// Connect to DB
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	// Ping MongoDB
+	if err = client.Ping(ctx, readpref.Primary()); err != nil {
+		log.Fatal("Cannot connect to DB")
+	}
+
+	games := client.Database("chess-explorer").Collection("games")
+
+	siteBson := bson.M{"site": site}
+	userBson := make([]bson.M, 0)
+	userBson = append(userBson, bson.M{"white": username})
+	userBson = append(userBson, bson.M{"black": username})
+	finalBson := make([]bson.M, 0)
+	finalBson = append(finalBson, siteBson)
+	finalBson = append(finalBson, bson.M{"$or": userBson})
+
+	queryOptions := options.FindOneOptions{}
+	queryOptions.SetSort(bson.M{"datetime": -1})
+
+	error := games.FindOne(context.TODO(), bson.M{"$and": finalBson}, &queryOptions).Decode(game)
+
+	if error != nil {
+		log.Fatal(error)
+	}
+}
 
 /*
 The returned bool is a hint for the caller:
@@ -129,7 +172,7 @@ func mapToGame(gameMap map[string]string, game *Game) {
 		}
 	}
 
-	game.ID = gameMap["Site"] + ":" + gameMap["White"] + ":" + gameMap["Black"] + ":" + gameMap["UTCDate"] + ":" + gameMap["UTCTime"]
+	game.ID = createGameID(gameMap)
 	game.Site = gameMap["Site"]
 	game.White = gameMap["White"]
 	game.Black = gameMap["Black"]
@@ -143,6 +186,10 @@ func mapToGame(gameMap map[string]string, game *Game) {
 
 	// Itemize first moves of the pgn
 	itemizePgn(game)
+}
+
+func createGameID(gameMap map[string]string) string {
+	return gameMap["Site"] + ":" + gameMap["White"] + ":" + gameMap["Black"] + ":" + gameMap["UTCDate"] + ":" + gameMap["UTCTime"]
 }
 
 // Reminder: last item of the pgn is "0-1" or "1-0" or "1/2-1/2" (for len(pgnElements) test)

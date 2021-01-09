@@ -23,12 +23,12 @@ type archivesContainer struct {
 	Archives []string `json:"archives"`
 }
 
-// DownloadGames ... Downloads games from Chess.com for user {user}
-func DownloadGames(player string) {
+// DownloadGames ... Downloads games from Chess.com for {username}
+func DownloadGames(username string) {
 
 	// Download archive list
 	chessClient := &http.Client{Timeout: 10 * time.Second}
-	archivesURL := "https://api.chess.com/pub/player/" + player + "/games/archives"
+	archivesURL := "https://api.chess.com/pub/player/" + username + "/games/archives"
 
 	archivesContainer := archivesContainer{}
 	resp, err := chessClient.Get(archivesURL)
@@ -38,19 +38,23 @@ func DownloadGames(player string) {
 	json.NewDecoder(resp.Body).Decode(&archivesContainer)
 	defer resp.Body.Close()
 
+	// Get most recent game to set 'since' if possible
+	latestGame := pgntodb.Game{}
+	pgntodb.GetLatestGame(username, "Chess.com", &latestGame)
+
 	// Download PGN files most recent first
 	// Store games in database
 	// Stop on first duplicate
 	for i := len(archivesContainer.Archives) - 1; i > -1; i-- {
 		log.Println("GET " + archivesContainer.Archives[i] + "/pgn")
-		goOn := downloadArchive(chessClient, archivesContainer.Archives[i]+"/pgn")
+		goOn := downloadArchive(chessClient, archivesContainer.Archives[i]+"/pgn", latestGame)
 		if goOn == false {
 			break
 		}
 	}
 }
 
-func downloadArchive(chessClient *http.Client, url string) bool {
+func downloadArchive(chessClient *http.Client, url string, latestGame pgntodb.Game) bool {
 
 	// Get data
 	resp, err := chessClient.Get(url)
@@ -79,5 +83,5 @@ func downloadArchive(chessClient *http.Client, url string) bool {
 		log.Fatal(err)
 	}
 
-	return pgntodb.Process(tmpfile.Name())
+	return pgntodb.Process(tmpfile.Name(), latestGame)
 }

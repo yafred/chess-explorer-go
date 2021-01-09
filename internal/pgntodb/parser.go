@@ -8,17 +8,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func pgnStringToDB(pgn string, db *mongo.Client) bool {
+func pgnStringToDB(pgn string, db *mongo.Client, latestGame Game) bool {
 	scanner := bufio.NewScanner(strings.NewReader(pgn))
-	return pgnToDB(scanner, db)
+	return pgnToDB(scanner, db, latestGame)
 }
 
-func pgnFileToDB(f *os.File, db *mongo.Client) bool {
+func pgnFileToDB(f *os.File, db *mongo.Client, latestGame Game) bool {
 	scanner := bufio.NewScanner(f)
-	return pgnToDB(scanner, db)
+	return pgnToDB(scanner, db, latestGame)
 }
 
-func pgnToDB(scanner *bufio.Scanner, db *mongo.Client) bool {
+func pgnToDB(scanner *bufio.Scanner, db *mongo.Client, latestGame Game) bool {
 	inGame := false
 	keyValues := make(map[string]string)
 	for i := 1; scanner.Scan(); i++ {
@@ -39,6 +39,11 @@ func pgnToDB(scanner *bufio.Scanner, db *mongo.Client) bool {
 			break
 		case '0':
 		case '1':
+			if !latestGame.DateTime.IsZero() && latestGame.ID == createGameID(keyValues) {
+				flushGames(db)
+				return false
+			}
+
 			// If game was abandoned, pgn will be 0-1 or 1-0 (skip it)
 			if line != "0-1" && line != "1-0" {
 				keyValues["PGN"] = stripPgn(line)

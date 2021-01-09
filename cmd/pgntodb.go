@@ -11,7 +11,8 @@ var pgnToDbCmd = &cobra.Command{
 	Long:  `Parse a pgn file and feed mongo database. Designed for chess.com and lichess.org`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		pgntodb.Process(args[0])
+		latestGame := pgntodb.Game{}
+		pgntodb.Process(args[0], latestGame)
 	},
 }
 
