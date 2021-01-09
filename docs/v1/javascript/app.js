@@ -140,24 +140,46 @@ function nextMoveToHtml(dataObject) {
 
         internalLink = false
         externalLink = false
-        if (element.link) {
+        if (element.total == 1) {
             externalLink = true
+            // win,draw,lose
+            win = false
+            lose = false
+            draw = false
+            if (element.game.result == "1-0") {
+                win = true
+            } else if (element.game.result == "0-1") {
+                lose = true
+            } else {
+                element.game.result = "1/2"
+                draw = true
+            }
+            // date
+            element.game.date = new Date(Date.parse(element.game.datetime)).toLocaleDateString()
+            moves.push({
+                internalLink: internalLink,
+                externalLink: externalLink,
+                win: win,
+                lose: lose,
+                draw: draw,
+                game: element.game,
+                move: element.move,
+            })
         }
         else {
             internalLink = true
+            moves.push({
+                internalLink: internalLink,
+                externalLink: externalLink,
+                move: element.move,
+                total: element.total,
+                winPercent: winPercent,
+                drawPercent: drawPercent,
+                drawPercentText: drawPercentText,
+                losePercent: losePercent,
+            })
         }
 
-        moves.push({
-            move: element.move,
-            link: element.link,
-            internalLink: internalLink,
-            externalLink: externalLink,
-            total: element.total,
-            winPercent: winPercent,
-            drawPercent: drawPercent,
-            drawPercentText: drawPercentText,
-            losePercent: losePercent,
-        })
     });
 
     $("#result").html(Mustache.render(nextMoveTpl, moves))

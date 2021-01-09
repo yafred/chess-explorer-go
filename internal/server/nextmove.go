@@ -61,12 +61,12 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		Move20  string `json:"move20,omitempty"`
 		Results []Result
 		// Only the fields below go in the response
-		Move  string `json:"move"`
-		Win   uint32 `json:"win"`
-		Draw  uint32 `json:"draw"`
-		Lose  uint32 `json:"lose"`
-		Total uint32 `json:"total"`
-		Link  string `json:"link,omitempty"` // when Total = 1
+		Move  string       `json:"move"`
+		Win   uint32       `json:"win"`
+		Draw  uint32       `json:"draw"`
+		Lose  uint32       `json:"lose"`
+		Total uint32       `json:"total"`
+		Game  pgntodb.Game `json:"game,omitempty"` // when Total = 1
 	}
 
 	var explorations []Exploration
@@ -213,7 +213,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 			// get link for moves pgn + move
 			game := getGame(ctx, games, pgnMoves, explorations[iExploration].Move, gameFilterBson)
 			if game != nil {
-				explorations[iExploration].Link = game.Link
+				explorations[iExploration].Game = *game
 			}
 		}
 	}

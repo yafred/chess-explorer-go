@@ -14,13 +14,8 @@
   <script id="nextMoveTpl" type="text/mustache">
     {{#.}}   
       <div style="display: flex">
-
-        {{#internalLink}}
+      {{#internalLink}}
         <div style="width:20%;"><a href="javascript:move('{{move}}');">{{move}}</a></div>
-        {{/internalLink}}
-        {{#externalLink}}
-        <div style="width:20%;"><a target="_blank" href="{{link}}">{{move}}</a></div>
-        {{/externalLink}}
 
         <div style="width:20%;">{{total}}</div>
 
@@ -29,7 +24,24 @@
         <div style="text-align: center; background-color: #aaa; width:{{drawPercent}}%">{{drawPercentText}}</div>
         <div style="text-align: right; color: white; background-color: #595959; width:{{losePercent}}%">{{losePercent}}%</div>
         </div>
-
+      {{/internalLink}}
+      {{#externalLink}}
+        <div style="width:20%;"><a target="_blank" href="{{game.link}}">{{move}}</a></div>
+        <div style="width:10%;border: 1px solid #aaa; margin-bottom: .1rem; text-align: center;">
+          {{#win}}
+          <div style="background-color: white;"><span>{{game.result}}</span></div>
+          {{/win}}
+          {{#draw}}
+          <div style="background-color: #aaa;"><span>{{game.result}}</span></div>
+          {{/draw}}
+          {{#lose}}
+          <div style="background-color: #595959; color: white;"><span>{{game.result}}</span></div>
+          {{/lose}}
+        </div>
+        <div style="width:70%;">
+          <span>{{game.white}}&nbsp;({{game.whiteelo}})&nbsp;-&nbsp;{{game.black}}&nbsp;({{game.blackelo}})&nbsp;-&nbsp;{{game.date}}&nbsp;on&nbsp;{{game.site}}</span>
+        </div>
+      {{/externalLink}}
       </div>
     {{/.}}
       </script>
@@ -56,7 +68,7 @@
             <input type="date" id="from" name="from" style="color: grey;" />
           </div>
           <div class="cell small-6">
-            <label for="to">To date (included):</label>
+            <label for="to">To date:</label>
             <input type="date" id="to" name="to" style="color: grey;" />
           </div>
         </div>

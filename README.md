@@ -2,7 +2,7 @@
 
 ## What is it ?
 
-An opening explorer allows you to browse games move by move.
+An opening explorer allows you to browse games move by move and find out if a position is (statistically) winning or losing.
 
 ## Why is this one different ?
 
