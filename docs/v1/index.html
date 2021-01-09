@@ -46,20 +46,32 @@
     <div class="grid-x grid-margin-x">
       <div class="cell small-3">
         <label for="white">User(s) playing white:</label>
-        <input type="text"  id="white" name="white" />
+        <input type="text" id="white" name="white" />
+        <a style="display: block; text-align: center;" href="javascript:swapBlackWhiteClicked();">Swap</a>
         <label for="black">User(s) playing black:</label>
         <input type="text" id="black" name="black" />
-        <a href="javascript:swapBlackWhiteClicked();">Swap black and white</a>
-        <label for="from">From date:</label>
-        <input type="date" id="from" name="from" style="color: grey;" />
-        <label for="to">To date (included):</label>
-        <input type="date" id="to" name="to" style="color: grey;" />
+        <div class="grid-x grid-margin-x">
+          <div class="cell small-6">
+            <label for="from">From date:</label>
+            <input type="date" id="from" name="from" style="color: grey;" />
+          </div>
+          <div class="cell small-6">
+            <label for="to">To date (included):</label>
+            <input type="date" id="to" name="to" style="color: grey;" />
+          </div>
+        </div>
         <label for="site">Site(s):</label>
-        <input type="text"  id="site" name="site" />
-        <label for="minelo">From ELO:</label>
-        <input type="text"  id="minelo" name="minelo" />
-        <label for="maxelo">To ELO:</label>
-        <input type="text" id="maxelo" name="maxelo" />
+        <input type="text" id="site" name="site" />
+        <div class="grid-x grid-margin-x">
+          <div class="cell small-6">
+            <label for="minelo">From ELO:</label>
+            <input type="text" id="minelo" name="minelo" />
+          </div>
+          <div class="cell small-6">
+            <label for="maxelo">To ELO:</label>
+            <input type="text" id="maxelo" name="maxelo" />
+          </div>
+        </div>
       </div>
       <div class="cell small-5">
         <div class="grid-x grid-margin-x">
