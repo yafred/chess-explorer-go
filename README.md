@@ -23,7 +23,11 @@ You can, either authorize this program or follow the alternate procedure
     * For [Chess.com](https://chess.com), you can use the API: https://api.chess.com/pub/player/{user}/games/{year}/{month}/pgn
     * For [Lichess.org](https://lichess.org), you can use the API: http://lichess.org/api/games/user/{user} or the web interface: https://lichess.org/@/{user}
   * Download latest release of the tool chess-explorer for your platform [here](https://github.com/yafred/chess-explorer/releases)
-  * Run the command `chess-explorer pgntodb {path to your file or folder of PGN files}`
+  * Gather data:
+    * `chess-explorer chesscom {username}` to gather data from https://www.chess.com
+    * `chess-explorer lichess {username}` to gather data from https://lichess.org/
+    * `chess-explorer lichess {username} --token {your lichess.org personal API access token}` to gather data from https://lichess.org/ at a higher speed
+    * `chess-explorer pgntodb {path to your file or folder of PGN files}` to import data from PGN files you already have
   * Run the command `chess-explorer server` 
   * Browse your games on https://yafred.github.io/chess-explorer/v1/
 
@@ -32,7 +36,6 @@ You can, either authorize this program or follow the alternate procedure
   * Install [Golang](https://golang.org/doc/install) 
   * Download Source Code from https://github.com/yafred/chess-explorer/releases and unzip it
   * Open a cmd console and go to the root of the source code directory (where you can see LICENSE, README.md, main.go)
-  * Run the command `go run main.go pgntodb {path to your file or folder of PGN files}`
-  * Run the command `go run main.go server` and start browsing your games
+  * Replace the `chess-explorer` command from Quick start with `go run main.go` (for example: `go run main.go server`)
 
 
