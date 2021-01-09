@@ -1,21 +1,5 @@
 package cmd
 
-/*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 import (
 	"fmt"
 	"os"
@@ -31,9 +15,14 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "chess-explorer",
-	Short: "Computes stats from chess.com data",
-	Long: `Computes stats from https://www.chess.com downloading data using developer API https://api.chess.com/
-See https://www.chess.com/news/view/published-data-api for technical details about the API`,
+	Short: "Chess opening explorer",
+	Long: `
+A tool that:
+- gathers data from https://www.chess.com and https://lichess.org
+- imports this data or any PGN file into a local MongoDB database
+- allows to browse the game openings via a web browser
+
+https://github.com/yafred/chess-explorer`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

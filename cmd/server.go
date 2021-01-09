@@ -11,8 +11,8 @@ var startBrowser bool
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "Start a web server",
-	Long:  `Start a web server`,
+	Short: "Start a web server to access data via a web browser",
+	Long:  `Start a web server to access data via a web browser`,
 	Run: func(cmd *cobra.Command, args []string) {
 		server.Start()
 	},
