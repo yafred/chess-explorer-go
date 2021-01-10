@@ -44,12 +44,19 @@
       {{/externalLink}}
       </div>
     {{/.}}
-      </script>
+  </script>
+
+  <script id="nameListTpl" type="text/mustache">
+    {{#.}}   
+      &bull; {{ name }}
+    {{/.}}
+  </script>
+
 </head>
 
 <body>
   <div class="grid-container">
-    <div id="filter-container" class="grid-x grid-margin-x">
+    <div class="grid-x grid-margin-x">
       <div class="cell small-12" id="info">
         <div>PGN: <span id="pgn"></span></div>
         <div>FEN: <span id="fen"></span></div>
@@ -100,6 +107,13 @@
       </div>
       <div class="cell small-4">
         <div id="result"></div>
+      </div>
+    </div>
+    <div class="grid-x grid-margin-x">
+      <div class="cell small-12"">
+        <span>Sites</span><span id="siteNames"></span><br/>
+        <span>Users</span><span id="userNames"></span><br/>
+        <span>Time Controls</span><span id="timeControlNames"></span><br/>
       </div>
     </div>
   </div>

@@ -20,6 +20,7 @@ var $site = $('#site')
 var browsingGame = ""
 
 var nextMoveTpl = document.getElementById('nextMoveTpl').innerHTML;
+var nameListTpl = document.getElementById('nameListTpl').innerHTML;
 
 /* we could do some completion with this ...
 var keydownTimeout;
@@ -112,6 +113,15 @@ function getNextMove() {
         site: $site.val()
     }, function (data) {
         nextMoveToHtml(JSON.parse(data));
+    });
+}
+
+function updateReport() {
+    $.get(`http://127.0.0.1:${apiPort}/report`, function (data) {
+        ret = JSON.parse(data);
+        $("#siteNames").html(Mustache.render(nameListTpl, ret.Sites))
+        $("#userNames").html(Mustache.render(nameListTpl, ret.UsersAsWhite))
+        $("#timeControlNames").html(Mustache.render(nameListTpl, ret.TimeControls))
     });
 }
 
@@ -262,3 +272,5 @@ var config = {
 board = Chessboard('myBoard', config)
 
 updateStatus()
+
+updateReport()

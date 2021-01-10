@@ -26,6 +26,10 @@ type report struct {
 }
 
 func reportHandler(w http.ResponseWriter, r *http.Request) {
+
+	// allow cross origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	report := report{}
 
 	// Connect to DB
