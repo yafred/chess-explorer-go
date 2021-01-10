@@ -11,6 +11,7 @@ var $fen = $('#fen')
 var $pgn = $('#pgn')
 var $white = $('#white')
 var $black = $('#black')
+var $timecontrol = $('#timecontrol')
 var $from = $('#from')
 var $to = $('#to')
 var $minelo = $('#minelo')
@@ -53,6 +54,10 @@ $white.change(function () {
 });
 
 $black.change(function () {
+    resetClicked()
+});
+
+$timecontrol.change(function () {
     resetClicked()
 });
 
@@ -99,6 +104,7 @@ function getNextMove() {
         pgn: game.pgn(),
         white: $white.val(),
         black: $black.val(),
+        timecontrol: $timecontrol.val(),
         from: $from.val(),
         to: $to.val(),
         minelo: $minelo.val(),

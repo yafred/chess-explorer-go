@@ -19,14 +19,15 @@ import (
 )
 
 type filter struct {
-	pgn    string
-	white  string
-	black  string
-	from   string
-	to     string
-	minelo string
-	maxelo string
-	site   string
+	pgn         string
+	white       string
+	black       string
+	timecontrol string
+	from        string
+	to          string
+	minelo      string
+	maxelo      string
+	site        string
 }
 
 func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,6 +83,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		filter.pgn = strings.TrimSpace(r.FormValue("pgn"))
 		filter.white = strings.TrimSpace(r.FormValue("white"))
 		filter.black = strings.TrimSpace(r.FormValue("black"))
+		filter.timecontrol = strings.TrimSpace(r.FormValue("timecontrol"))
 		filter.from = strings.TrimSpace(r.FormValue("from"))
 		filter.to = strings.TrimSpace(r.FormValue("to"))
 		filter.minelo = strings.TrimSpace(r.FormValue("minelo"))
@@ -138,7 +140,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 	// Distinct moves with counts
 	var andClause []bson.M
 
-	// process white and black filter
+	// create game filter
 	gameFilterBson := processGameFilter(filter)
 	andClause = append(andClause, gameFilterBson)
 
@@ -268,6 +270,15 @@ func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, mo
 func processGameFilter(filter filter) bson.M {
 	ret := bson.M{}
 
+	// Time Control filter
+	timeControlBson := make([]bson.M, 0)
+	timeControls := strings.Split(filter.timecontrol, ",")
+	for _, timeControl := range timeControls {
+		if strings.TrimSpace(timeControl) != "" {
+			timeControlBson = append(timeControlBson, bson.M{"timecontrol": strings.TrimSpace(timeControl)})
+		}
+	}
+
 	// Site filter
 	siteBson := make([]bson.M, 0)
 	sites := strings.Split(filter.site, ",")
@@ -356,6 +367,17 @@ func processGameFilter(filter filter) bson.M {
 
 	// gather all filters
 	finalBson := make([]bson.M, 0)
+
+	switch len(timeControlBson) {
+	case 0:
+		break
+	case 1:
+		finalBson = append(finalBson, timeControlBson[0])
+		break
+	default:
+		finalBson = append(finalBson, bson.M{"$or": timeControlBson})
+		break
+	}
 
 	switch len(siteBson) {
 	case 0:
