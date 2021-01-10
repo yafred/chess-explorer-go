@@ -19,6 +19,7 @@ func Start() {
 
 	http.HandleFunc("/nextmove", nextMoveHandler)
 	http.HandleFunc("/games", gamesHandler)
+	http.HandleFunc("/report", reportHandler)
 
 	port := viper.GetInt("server-port")
 	if port == 0 {
