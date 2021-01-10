@@ -15,18 +15,18 @@
     {{#.}}   
       <div style="display: flex">
       {{#internalLink}}
-        <div style="width:20%;"><a href="javascript:move('{{move}}');">{{move}}</a></div>
+        <div style="width:10%;"><a href="javascript:move('{{move}}');">{{move}}</a></div>
 
         <div style="width:20%;">{{total}}</div>
 
-        <div style="width:60%; display:flex; border: 1px solid #aaa; margin-bottom: .1rem">
+        <div style="width:70%; display:flex; border: 1px solid #aaa; margin-bottom: .1rem">
         <div style="background-color: white; width:{{winPercent}}%">{{winPercent}}%</div>
         <div style="text-align: center; background-color: #aaa; width:{{drawPercent}}%">{{drawPercentText}}</div>
         <div style="text-align: right; color: white; background-color: #595959; width:{{losePercent}}%">{{losePercent}}%</div>
         </div>
       {{/internalLink}}
       {{#externalLink}}
-        <div style="width:20%;"><a target="_blank" href="{{game.link}}">{{move}}</a></div>
+        <div style="width:10%;"><a target="_blank" href="{{game.link}}">{{move}}</a></div>
         <div style="width:10%;border: 1px solid #aaa; margin-bottom: .1rem; text-align: center;">
           {{#win}}
           <div style="background-color: white;"><span>{{game.result}}</span></div>
@@ -38,7 +38,7 @@
           <div style="background-color: #595959; color: white;"><span>{{game.result}}</span></div>
           {{/lose}}
         </div>
-        <div style="width:70%;">
+        <div style="width:80%;">
           <span>{{game.white}} ({{game.whiteelo}}) - {{game.black}} ({{game.blackelo}}) - {{game.date}} on {{game.site}}</span>
         </div>
       {{/externalLink}}
@@ -62,7 +62,7 @@
         <a style="display: block; text-align: center;" href="javascript:swapBlackWhiteClicked();">Swap</a>
         <label for="black">User(s) playing black:</label>
         <input type="text" id="black" name="black" />
-        <label for="timecontrol">Time control:</label>
+        <label for="timecontrol">Time control(s):</label>
         <input type="text" id="timecontrol" name="timecontrol" />
         <div class="grid-x grid-margin-x">
           <div class="cell small-6">

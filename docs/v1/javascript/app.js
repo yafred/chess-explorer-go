@@ -137,12 +137,12 @@ function nextMoveToHtml(dataObject) {
     dataObject.forEach(element => {
 
         winPercent = Math.round(100 * element.win / element.total)
-        drawPercent = Math.round(100 * element.draw / element.total)
+        losePercent = Math.round(100 * element.lose / element.total)
+        drawPercent = 100 - winPercent - losePercent
         drawPercentText = ""
         if (drawPercent > 12) {
             drawPercentText = "" + drawPercent + "%"
         }
-        losePercent = Math.round(100 * element.lose / element.total)
 
         internalLink = false
         externalLink = false
