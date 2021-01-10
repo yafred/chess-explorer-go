@@ -88,8 +88,9 @@ func GetLatestGame(username string, site string, game *Game) {
 	error := games.FindOne(context.TODO(), bson.M{"$and": finalBson}, &queryOptions).Decode(game)
 
 	if error != nil {
-		log.Fatal(error)
+		//log.Fatal(error)
 	}
+
 }
 
 /*
@@ -145,8 +146,9 @@ func mapToGame(gameMap map[string]string, game *Game) {
 	// Clean up data
 	if strings.Index(gameMap["Site"], "lichess.org") != -1 {
 		gameMap["Link"] = gameMap["Site"]
-		gameMap["Site"] = "Lichess.org"
+		gameMap["Site"] = "lichess.org"
 	}
+	gameMap["Site"] = strings.ToLower(gameMap["Site"])
 
 	// Create a time.Time object
 	utcDate := strings.ReplaceAll(gameMap["UTCDate"], ".", "-")

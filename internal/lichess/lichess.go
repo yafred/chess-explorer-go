@@ -14,7 +14,7 @@ import (
 	"github.com/yafred/chess-explorer/internal/pgntodb"
 )
 
-// DownloadGames ... Downloads games from Chess.com for user {user}
+// DownloadGames ... Downloads games from lichess.org for user {user}
 // https://lichess.org/api#operation/apiGamesUser
 func DownloadGames(username string) {
 
@@ -36,7 +36,7 @@ func DownloadGames(username string) {
 
 	// Get most recent game to set 'since' if possible
 	latestGame := pgntodb.Game{}
-	pgntodb.GetLatestGame(username, "Lichess.org", &latestGame)
+	pgntodb.GetLatestGame(username, "lichess.org", &latestGame)
 
 	if !latestGame.DateTime.IsZero() {
 		since := latestGame.DateTime.UnixNano() / int64(time.Millisecond)

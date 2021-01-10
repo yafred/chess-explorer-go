@@ -40,7 +40,7 @@ func DownloadGames(username string) {
 
 	// Get most recent game to set 'since' if possible
 	latestGame := pgntodb.Game{}
-	pgntodb.GetLatestGame(username, "Chess.com", &latestGame)
+	pgntodb.GetLatestGame(username, "chess.com", &latestGame)
 
 	// Download PGN files most recent first
 	// Store games in database

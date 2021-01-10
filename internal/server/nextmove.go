@@ -88,7 +88,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		filter.to = strings.TrimSpace(r.FormValue("to"))
 		filter.minelo = strings.TrimSpace(r.FormValue("minelo"))
 		filter.maxelo = strings.TrimSpace(r.FormValue("maxelo"))
-		filter.site = strings.TrimSpace(r.FormValue("site"))
+		filter.site = strings.ToLower(strings.TrimSpace(r.FormValue("site")))
 
 	default:
 		fmt.Fprintf(w, "Sorry, only POST methods is supported.")
@@ -452,10 +452,10 @@ func convertSite(shortName string) string {
 	ret := ""
 	switch shortName {
 	case "c":
-		ret = "Chess.com"
+		ret = "chess.com"
 		break
 	case "l":
-		ret = "Lichess.org"
+		ret = "lichess.org"
 		break
 	default:
 		break
