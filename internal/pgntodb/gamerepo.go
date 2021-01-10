@@ -191,7 +191,7 @@ func mapToGame(gameMap map[string]string, game *Game) {
 }
 
 func createGameID(gameMap map[string]string) string {
-	return gameMap["Site"] + ":" + gameMap["White"] + ":" + gameMap["Black"] + ":" + gameMap["UTCDate"] + ":" + gameMap["UTCTime"]
+	return strings.ToLower(gameMap["Site"]) + ":" + gameMap["White"] + ":" + gameMap["Black"] + ":" + gameMap["UTCDate"] + ":" + gameMap["UTCTime"]
 }
 
 // Reminder: last item of the pgn is "0-1" or "1-0" or "1/2-1/2" (for len(pgnElements) test)
