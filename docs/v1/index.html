@@ -48,7 +48,7 @@
 
   <script id="nameListTpl" type="text/mustache">
     {{#.}}   
-      &bull; {{ name }}
+      &bull; <a href="javascript:nameClicked('{{ type }}', '{{ name }}');">{{ name }}</a>
     {{/.}}
   </script>
 

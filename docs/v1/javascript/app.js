@@ -42,6 +42,45 @@ $black.keydown(function () {
 });
 */
 
+function nameClicked(type, name) {
+    switch (type) {
+        case "site":
+            handleNameClicked($site, name)
+            break;
+        case "username":
+            handleNameClicked($white, name)
+            break;
+        case "timecontrol":
+            handleNameClicked($timecontrol,name)
+            break;
+        default:
+            break;
+    }
+}
+
+function handleNameClicked(control, name) {
+    if(control.val().trim() == "") {
+        control.val(name)
+        resetClicked()
+    }
+    else {
+        values = control.val().trim().split(",")
+        if(values.indexOf(name) == -1) {
+            values.push(name)
+            control.val(values.join(","))
+            resetClicked()
+        }
+    }
+}
+
+function userNameClicked(name) {
+    console.log(`user ${name}`)
+}
+
+function siteNameClicked(name) {
+    console.log(`site ${name}`)
+}
+
 $from.change(function () {
     resetClicked()
 });
@@ -119,9 +158,24 @@ function getNextMove() {
 function updateReport() {
     $.get(`http://127.0.0.1:${apiPort}/report`, function (data) {
         ret = JSON.parse(data);
-        $("#siteNames").html(Mustache.render(nameListTpl, ret.Sites))
-        $("#userNames").html(Mustache.render(nameListTpl, ret.UsersAsWhite))
-        $("#timeControlNames").html(Mustache.render(nameListTpl, ret.TimeControls))
+        if (Array.isArray(ret.Sites) != false) {
+            ret.Sites.forEach(element => {
+                element.type = "site"
+            })
+            $("#siteNames").html(Mustache.render(nameListTpl, ret.Sites))
+        }
+        if (Array.isArray(ret.Sites) != false) {
+            ret.UsersAsWhite.forEach(element => {
+                element.type = "username"
+            })
+            $("#userNames").html(Mustache.render(nameListTpl, ret.UsersAsWhite))
+        }
+        if (Array.isArray(ret.Sites) != false) {
+            ret.TimeControls.forEach(element => {
+                element.type = "timecontrol"
+            })
+            $("#timeControlNames").html(Mustache.render(nameListTpl, ret.TimeControls))
+        }
     });
 }
 
