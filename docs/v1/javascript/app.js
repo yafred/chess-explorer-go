@@ -42,6 +42,7 @@ $black.keydown(function () {
 });
 */
 
+
 function nameClicked(type, name) {
     switch (type) {
         case "site":
@@ -51,7 +52,7 @@ function nameClicked(type, name) {
             handleNameClicked($white, name)
             break;
         case "timecontrol":
-            handleNameClicked($timecontrol,name)
+            handleNameClicked($timecontrol, name)
             break;
         default:
             break;
@@ -59,13 +60,18 @@ function nameClicked(type, name) {
 }
 
 function handleNameClicked(control, name) {
-    if(control.val().trim() == "") {
+    if (name == "") {
+        control.val("")
+        resetClicked()
+    }
+
+    if (control.val().trim() == "") {
         control.val(name)
         resetClicked()
     }
     else {
         values = control.val().trim().split(",")
-        if(values.indexOf(name) == -1) {
+        if (values.indexOf(name) == -1) {
             values.push(name)
             control.val(values.join(","))
             resetClicked()
