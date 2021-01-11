@@ -209,6 +209,10 @@ function nextMoveToHtml(dataObject) {
         externalLink = false
         if (element.total == 1) {
             externalLink = true
+            element.game.userlink = "https://www.chess.com/member/"
+            if (element.game.site == "lichess.org") {
+                element.game.userlink = "https://lichess.org/@/"
+            }
             // win,draw,lose
             win = false
             lose = false
