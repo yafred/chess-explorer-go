@@ -48,7 +48,7 @@
 
   <script id="nameListTpl" type="text/mustache">
     {{#.}}   
-      &bull; <a href="javascript:nameClicked('{{ type }}', '{{ name }}');">{{ name }}</a>
+      &bull; <a href="#">{{ name }}</a>
     {{/.}}
   </script>
 
@@ -111,9 +111,9 @@
     </div>
     <div class="grid-x grid-margin-x">
       <div class="cell small-12"">
-        <span>Sites (<a href="javascript:nameClicked('site', '');">clear</a>)</span><span id="siteNames"></span><br/>
-        <span>Users (<a href="javascript:nameClicked('username', '');">clear</a>)</span><span id="userNames"></span><br/>
-        <span>Time Controls (<a href="javascript:nameClicked('timecontrol', '');">clear</a>)</span><span id="timeControlNames"></span><br/>
+        <span>Sites (<a href="javascript:clearClicked('site');">clear</a>)</span><span id="siteNames"></span><br/>
+        <span>Users (<a href="javascript:clearClicked('username');">clear</a>)</span><span id="userNames"></span><br/>
+        <span>Time Controls (<a href="javascript:clearClicked('timecontrol');">clear</a>)</span><span id="timeControlNames"></span><br/>
       </div>
     </div>
   </div>

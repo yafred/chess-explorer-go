@@ -22,62 +22,16 @@ var browsingGame = ""
 var nextMoveTpl = document.getElementById('nextMoveTpl').innerHTML;
 var nameListTpl = document.getElementById('nameListTpl').innerHTML;
 
-/* we could do some completion with this ...
-var keydownTimeout;
-var keydownTimeoutValue = 1500; // millisecs
 
-$white.keydown(function () {
-    clearTimeout(keydownTimeout);
-    keydownTimeout = setTimeout(function () {
-        // do stuff when user has been idle for 1.5 second
-        resetClicked()
-    }, keydownTimeoutValue);
+$(document).keydown(function (event) {
+    if (event.which == "17") {
+        cntrlIsPressed = true;
+    }
 });
-$black.keydown(function () {
-    clearTimeout(keydownTimeout);
-    keydownTimeout = setTimeout(function () {
-        // do stuff when user has been idle for 1.5 second
-        resetClicked()
-    }, keydownTimeoutValue);
+$(document).keyup(function () {
+    cntrlIsPressed = false;
 });
-*/
-
-
-function nameClicked(type, name) {
-    switch (type) {
-        case "site":
-            handleNameClicked($site, name)
-            break;
-        case "username":
-            handleNameClicked($white, name)
-            break;
-        case "timecontrol":
-            handleNameClicked($timecontrol, name)
-            break;
-        default:
-            break;
-    }
-}
-
-function handleNameClicked(control, name) {
-    if (name == "") {
-        control.val("")
-        resetClicked()
-    }
-
-    if (control.val().trim() == "") {
-        control.val(name)
-        resetClicked()
-    }
-    else {
-        values = control.val().trim().split(",")
-        if (values.indexOf(name) == -1) {
-            values.push(name)
-            control.val(values.join(","))
-            resetClicked()
-        }
-    }
-}
+var cntrlIsPressed = false;
 
 function userNameClicked(name) {
     console.log(`user ${name}`)
@@ -144,6 +98,40 @@ function resetClicked(e) {
     updateStatus()
 }
 
+function clearClicked(type) {
+    switch (type) {
+        case "site":
+            $site.val("")
+            break;
+        case "username":
+            $white.val("")
+            $black.val("")
+            break;
+        case "timecontrol":
+            $timecontrol.val("")
+            break;
+        default:
+            break;
+    }
+    resetClicked()
+}
+
+function handleNameClicked(control, name) {
+    if (control.val().trim() == "" || !cntrlIsPressed) {
+        control.val(name)
+        resetClicked()
+    }
+    else {
+        values = control.val().trim().split(",")
+        if (values.indexOf(name) == -1) {
+            values.push(name)
+            control.val(values.join(","))
+            resetClicked()
+        }
+    }
+}
+
+
 function getNextMove() {
     $("#result").html("");
     $.post(`http://127.0.0.1:${apiPort}/nextmove`, {
@@ -165,22 +153,25 @@ function updateReport() {
     $.get(`http://127.0.0.1:${apiPort}/report`, function (data) {
         ret = JSON.parse(data);
         if (Array.isArray(ret.Sites) != false) {
-            ret.Sites.forEach(element => {
-                element.type = "site"
-            })
             $("#siteNames").html(Mustache.render(nameListTpl, ret.Sites))
+            $("#siteNames a").bind("click", function (e) {
+                e.preventDefault();
+                handleNameClicked($site, $(this).html())
+            });
         }
-        if (Array.isArray(ret.Sites) != false) {
-            ret.UsersAsWhite.forEach(element => {
-                element.type = "username"
-            })
+        if (Array.isArray(ret.UsersAsWhite) != false) {
             $("#userNames").html(Mustache.render(nameListTpl, ret.UsersAsWhite))
+            $("#userNames a").bind("click", function (e) {
+                e.preventDefault();
+                handleNameClicked($white, $(this).html())
+            });
         }
-        if (Array.isArray(ret.Sites) != false) {
-            ret.TimeControls.forEach(element => {
-                element.type = "timecontrol"
-            })
+        if (Array.isArray(ret.TimeControls) != false) {
             $("#timeControlNames").html(Mustache.render(nameListTpl, ret.TimeControls))
+            $("#timeControlNames a").bind("click", function (e) {
+                e.preventDefault();
+                handleNameClicked($timecontrol, $(this).html())
+            });
         }
     });
 }
