@@ -39,7 +39,9 @@ func pgnToDB(scanner *bufio.Scanner, db *mongo.Client, latestGame Game) bool {
 			break
 		case '0':
 		case '1':
-			if !latestGame.DateTime.IsZero() && latestGame.ID == createGameID(keyValues) {
+			if !latestGame.DateTime.IsZero() &&
+				(latestGame.DateTime.Equal(createDateTime(keyValues)) ||
+					latestGame.DateTime.After(createDateTime(keyValues))) {
 				flushGames(db)
 				return false
 			}

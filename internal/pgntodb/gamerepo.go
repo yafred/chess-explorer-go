@@ -150,17 +150,9 @@ func mapToGame(gameMap map[string]string, game *Game) {
 	}
 	gameMap["Site"] = strings.ToLower(gameMap["Site"])
 
-	// Create a time.Time object
-	utcDate := strings.ReplaceAll(gameMap["UTCDate"], ".", "-")
-	dateTimeAsUTCString := utcDate + "T" + gameMap["UTCTime"] + "+00:00"
-
-	dateTime, error := time.Parse(time.RFC3339, dateTimeAsUTCString)
-	if error != nil {
-		log.Fatal("Not a valid date: " + dateTimeAsUTCString)
-	}
-
 	whiteelo := 0
 	blackelo := 0
+	var error error
 	if gameMap["WhiteElo"] != "" && strings.Index(gameMap["WhiteElo"], "?") == -1 {
 		whiteelo, error = strconv.Atoi(gameMap["WhiteElo"])
 		if error != nil {
@@ -178,7 +170,7 @@ func mapToGame(gameMap map[string]string, game *Game) {
 	game.Site = gameMap["Site"]
 	game.White = gameMap["White"]
 	game.Black = gameMap["Black"]
-	game.DateTime = dateTime
+	game.DateTime = createDateTime(gameMap)
 	game.Result = gameMap["Result"]
 	game.WhiteElo = uint16(whiteelo)
 	game.BlackElo = uint16(blackelo)
@@ -188,6 +180,18 @@ func mapToGame(gameMap map[string]string, game *Game) {
 
 	// Itemize first moves of the pgn
 	itemizePgn(game)
+}
+
+func createDateTime(gameMap map[string]string) time.Time {
+	// Create a time.Time object
+	utcDate := strings.ReplaceAll(gameMap["UTCDate"], ".", "-")
+	dateTimeAsUTCString := utcDate + "T" + gameMap["UTCTime"] + "+00:00"
+
+	dateTime, error := time.Parse(time.RFC3339, dateTimeAsUTCString)
+	if error != nil {
+		log.Fatal("Not a valid date: " + dateTimeAsUTCString)
+	}
+	return dateTime
 }
 
 func createGameID(gameMap map[string]string) string {
