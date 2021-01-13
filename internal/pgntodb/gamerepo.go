@@ -91,6 +91,29 @@ func GetLatestGame(username string, site string, game *Game) {
 		//log.Fatal(error)
 	}
 
+	// Log
+	{
+		queryOptions := options.FindOptions{}
+		queryOptions.SetSort(bson.M{"datetime": -1})
+		queryOptions.SetLimit(3)
+
+		cursor, err := games.Find(context.TODO(), bson.M{"$and": finalBson}, &queryOptions)
+		defer cursor.Close(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var resultGames []Game
+		err = cursor.All(ctx, &resultGames)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Println("Recent games in database:")
+		for _, aGame := range resultGames {
+			log.Println(aGame.ID)
+		}
+	}
 }
 
 /*
