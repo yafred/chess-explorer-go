@@ -8,6 +8,7 @@ import (
 	"path"
 	"time"
 
+	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -18,7 +19,7 @@ func Process(filepath string, lastGame *LastGame) bool {
 	goOn := true
 
 	// Connect to DB
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
+	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("mongo-url")))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -79,7 +80,7 @@ func processFile(filepath string, client *mongo.Client, lastGame *LastGame) bool
 // FindLastGame ... find last game (allowing prevention of duplicates)
 func FindLastGame(username string, site string) *LastGame {
 	// Connect to DB
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
+	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("mongo-url")))
 	if err != nil {
 		log.Fatal(err)
 	}

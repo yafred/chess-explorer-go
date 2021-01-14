@@ -11,6 +11,7 @@ import (
 )
 
 var cfgFile string
+var mongoURL string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -42,6 +43,10 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.chess-explorer.yaml)")
+	rootCmd.PersistentFlags().StringVar(&mongoURL, "mongo-url", "mongodb://127.0.0.1:27017", "MongoDB connection URL")
+
+	viper.BindPFlag("mongo-url", rootCmd.PersistentFlags().Lookup("mongo-url"))
+
 }
 
 // initConfig reads in config file and ENV variables if set.
