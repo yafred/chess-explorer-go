@@ -14,7 +14,7 @@ import (
 )
 
 // Process ... process a single file or all the files of a folder
-func Process(filepath string, latestGame Game) bool {
+func Process(filepath string, lastGame *LastGame) bool {
 	goOn := true
 
 	// Connect to DB
@@ -48,21 +48,21 @@ func Process(filepath string, latestGame Game) bool {
 		for _, info := range fileinfos {
 			if !info.IsDir() {
 				log.Println(path.Join(filepath, info.Name()))
-				goOn = processFile(path.Join(filepath, info.Name()), client, latestGame)
+				goOn = processFile(path.Join(filepath, info.Name()), client, lastGame)
 				if goOn == false {
 					break
 				}
 			}
 		}
 	} else {
-		goOn = processFile(filepath, client, latestGame)
+		goOn = processFile(filepath, client, lastGame)
 	}
 
 	return goOn
 }
 
 // ProcessFile ... does everything
-func processFile(filepath string, client *mongo.Client, latestGame Game) bool {
+func processFile(filepath string, client *mongo.Client, lastGame *LastGame) bool {
 
 	// Open file
 	file, err := os.Open(filepath)
@@ -73,5 +73,28 @@ func processFile(filepath string, client *mongo.Client, latestGame Game) bool {
 	}
 
 	// Do the work
-	return pgnFileToDB(file, client, latestGame)
+	return pgnFileToDB(file, client, lastGame)
+}
+
+// FindLastGame ... find last game (allowing prevention of duplicates)
+func FindLastGame(username string, site string) *LastGame {
+	// Connect to DB
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	// Ping MongoDB
+	if err = client.Ping(ctx, readpref.Primary()); err != nil {
+		log.Fatal("Cannot connect to DB")
+	}
+
+	return findLastGame(username, site, client)
 }

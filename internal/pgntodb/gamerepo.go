@@ -10,8 +10,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
+
+// LastGame ... last game (in this database) for a player
+type LastGame struct {
+	Username string    `json:"username" bson:"username"`
+	Site     string    `json:"site" bson:"site"`
+	DateTime time.Time `json:"datetime" bson:"datetime"`
+	GameID   string    `json:"gameid" bson:"gameid"`
+	Logged   string    `json:"logged,omitempty" bson:"logged,omitempty"` // not going to database
+}
 
 // Game ... for the database
 type Game struct {
@@ -52,104 +60,59 @@ var client *mongo.Client
 
 var queue []interface{} // queue for insert many
 
-// GetLatestGame ... Get the most recent game played by {username} on {site}
-func GetLatestGame(username string, site string, game *Game) {
-	// Connect to DB
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer client.Disconnect(ctx)
-
-	// Ping MongoDB
-	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		log.Fatal("Cannot connect to DB")
+// FindLastGame ... find last game (allowing prevention of duplicates)
+func findLastGame(username string, site string, client *mongo.Client) *LastGame {
+	lastGame := LastGame{
+		Site:     site,
+		Username: username,
 	}
 
-	games := client.Database("chess-explorer").Collection("games")
+	lastgames := client.Database("chess-explorer").Collection("lastgames")
+	filter := bson.M{"site": site, "username": username}
 
-	siteBson := bson.M{"site": site}
-	userBson := make([]bson.M, 0)
-	userBson = append(userBson, bson.M{"white": username})
-	userBson = append(userBson, bson.M{"black": username})
-	finalBson := make([]bson.M, 0)
-	finalBson = append(finalBson, siteBson)
-	finalBson = append(finalBson, bson.M{"$or": userBson})
+	result := lastgames.FindOne(context.TODO(), filter)
 
-	queryOptions := options.FindOneOptions{}
-	queryOptions.SetSort(bson.M{"datetime": -1})
-
-	error := games.FindOne(context.TODO(), bson.M{"$and": finalBson}, &queryOptions).Decode(game)
-
-	if error != nil {
-		//log.Fatal(error)
+	if result != nil {
+		result.Decode(&lastGame)
 	}
 
-	// Log
-	{
-		queryOptions := options.FindOptions{}
-		queryOptions.SetSort(bson.M{"datetime": -1})
-		queryOptions.SetLimit(3)
-
-		cursor, err := games.Find(context.TODO(), bson.M{"$and": finalBson}, &queryOptions)
-		defer cursor.Close(ctx)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		var resultGames []Game
-		err = cursor.All(ctx, &resultGames)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		log.Println("Recent games in database:")
-		for _, aGame := range resultGames {
-			log.Println(aGame.ID)
-		}
-	}
+	return &lastGame
 }
 
-/*
-The returned bool is a hint for the caller:
-- true: you can go on
-- false: stop
-*/
-func insertGame(gameMap map[string]string, client *mongo.Client) bool {
+func logLastGame(username string, game Game, client *mongo.Client) {
+	lastGame := LastGame{
+		Username: username,
+		Site:     game.Site,
+		DateTime: game.DateTime,
+		GameID:   game.ID,
+	}
 
-	game := Game{}
-
-	mapToGame(gameMap, &game)
-
-	// Look for a duplicate before inserting
-	games := client.Database("chess-explorer").Collection("games")
+	lastgames := client.Database("chess-explorer").Collection("lastgames")
+	filter := bson.M{"site": game.Site, "username": username}
+	updateOptions := options.Update().SetUpsert(true)
+	update := bson.M{
+		"$set": lastGame,
+	}
 
 	// Insert
-	_, error := games.InsertOne(context.TODO(), game)
+	_, error := lastgames.UpdateOne(context.TODO(), filter, update, updateOptions)
 
 	if error != nil {
-		return false
+		log.Fatal(error)
 	}
-	return true
 }
 
-func pushGame(gameMap map[string]string, client *mongo.Client) bool {
+func pushGame(gameMap map[string]string, client *mongo.Client, lastGame *LastGame) bool {
 	game := Game{}
 	mapToGame(gameMap, &game)
 	queue = append(queue, game)
 	if len(queue) > 10000 {
-		return flushGames(client)
+		return flushGames(client, lastGame)
 	}
 	return true
 }
 
-func flushGames(client *mongo.Client) bool {
+func flushGames(client *mongo.Client, lastGame *LastGame) bool {
 	log.Println("Flushing " + strconv.Itoa(len(queue)) + " games to DB")
 	if len(queue) > 0 {
 		games := client.Database("chess-explorer").Collection("games")
@@ -158,6 +121,10 @@ func flushGames(client *mongo.Client) bool {
 		if error != nil {
 			log.Println(error)
 			return false
+		}
+		if lastGame.Logged == "" {
+			logLastGame(lastGame.Username, queue[0].(Game), client)
+			lastGame.Logged = "Done"
 		}
 	}
 

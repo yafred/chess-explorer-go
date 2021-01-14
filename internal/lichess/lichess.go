@@ -35,11 +35,10 @@ func DownloadGames(username string) {
 	q := req.URL.Query()
 
 	// Get most recent game to set 'since' if possible
-	latestGame := pgntodb.Game{}
-	pgntodb.GetLatestGame(username, "lichess.org", &latestGame)
+	lastGame := pgntodb.FindLastGame(username, "lichess.org")
 
-	if !latestGame.DateTime.IsZero() {
-		since := latestGame.DateTime.UnixNano() / int64(time.Millisecond)
+	if !lastGame.DateTime.IsZero() {
+		since := lastGame.DateTime.UnixNano() / int64(time.Millisecond)
 		since += 1000 // add 1 sec to avoid downloading the last game we have
 		q.Add("since", strconv.FormatInt(since, 10))
 	}
@@ -75,5 +74,5 @@ func DownloadGames(username string) {
 		log.Fatal(err)
 	}
 
-	pgntodb.Process(tmpfile.Name(), latestGame)
+	pgntodb.Process(tmpfile.Name(), lastGame)
 }

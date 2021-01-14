@@ -39,22 +39,21 @@ func DownloadGames(username string) {
 	defer resp.Body.Close()
 
 	// Get most recent game to set 'since' if possible
-	latestGame := pgntodb.Game{}
-	pgntodb.GetLatestGame(username, "chess.com", &latestGame)
+	lastGame := pgntodb.FindLastGame(username, "chess.com")
 
 	// Download PGN files most recent first
 	// Store games in database
 	// Stop on first duplicate
 	for i := len(archivesContainer.Archives) - 1; i > -1; i-- {
 		log.Println("GET " + archivesContainer.Archives[i] + "/pgn")
-		goOn := downloadArchive(chessClient, archivesContainer.Archives[i]+"/pgn", latestGame)
+		goOn := downloadArchive(chessClient, archivesContainer.Archives[i]+"/pgn", lastGame)
 		if goOn == false {
 			break
 		}
 	}
 }
 
-func downloadArchive(chessClient *http.Client, url string, latestGame pgntodb.Game) bool {
+func downloadArchive(chessClient *http.Client, url string, lastGame *pgntodb.LastGame) bool {
 
 	// Get data
 	resp, err := chessClient.Get(url)
@@ -83,5 +82,5 @@ func downloadArchive(chessClient *http.Client, url string, latestGame pgntodb.Ga
 		log.Fatal(err)
 	}
 
-	return pgntodb.Process(tmpfile.Name(), latestGame)
+	return pgntodb.Process(tmpfile.Name(), lastGame)
 }
