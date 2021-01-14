@@ -119,8 +119,8 @@ func flushGames(client *mongo.Client, lastGame *LastGame) bool {
 		_, error := games.InsertMany(context.TODO(), queue)
 
 		if error != nil {
+			log.Println("It is possible to have duplicate key errors when importing games for a user who has played again a user we already have games for).")
 			log.Println(error)
-			return false
 		}
 		if lastGame.Logged == "" {
 			logLastGame(lastGame.Username, queue[0].(Game), client)
