@@ -56,13 +56,13 @@
 
 <body>
   <div class="grid-container">
-    <div class="grid-x grid-margin-x">
+    <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-12" id="info">
         <div>PGN: <span id="pgn"></span></div>
         <div>FEN: <span id="fen"></span></div>
       </div>
     </div>
-    <div class="grid-x grid-margin-x">
+    <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-3">
         <label for="white">User(s) playing white:</label>
         <input type="text" id="white" name="white" />
@@ -109,11 +109,12 @@
         <div id="result"></div>
       </div>
     </div>
-    <div class="grid-x grid-margin-x">
+    <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-12"">
-        <span>Sites (<a href="javascript:clearClicked('site');">clear</a>)</span><span id="siteNames"></span><br/>
-        <span>Users (<a href="javascript:clearClicked('username');">clear</a>)</span><span id="userNames"></span><br/>
-        <span>Time Controls (<a href="javascript:clearClicked('timecontrol');">clear</a>)</span><span id="timeControlNames"></span><br/>
+        <span>Sites (<a href=" javascript:clearClicked('site');">clear</a>)</span><span id="siteNames"></span><br />
+        <span>Users (<a href="javascript:clearClicked('username');">clear</a>)</span><span id="userNames"></span><br />
+        <span>Time Controls (<a href="javascript:clearClicked('timecontrol');">clear</a>)</span><span
+          id="timeControlNames"></span><br />
       </div>
     </div>
   </div>

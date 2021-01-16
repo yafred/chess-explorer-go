@@ -2,12 +2,7 @@
 
 ## What is it ?
 
-An opening explorer allows you to browse games move by move and find out if a position is (statistically) winning or losing.
-
-## Why is this one different ?
-
-  * The database (MongoDB) is on your machine. Performances (feeding data and browsing them) are very high. 
-  * You can filter games selecting multiple users (handy if you play on different sites)
+An opening explorer allows you to browse games move by move and find out if a position is (statistically) winning or losing
 
 ## Important for windows users
 
@@ -20,13 +15,13 @@ You can, either authorize this program or follow the alternate procedure
 ## Quick start
   * Install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
   * Download latest release of the tool chess-explorer for your platform [here](https://github.com/yafred/chess-explorer/releases)
-  * Gather data:
-    * `chess-explorer chesscom {username}` to gather data from https://www.chess.com
-    * `chess-explorer lichess {username}` to gather data from https://lichess.org/
-    * `chess-explorer lichess {username} --token {your lichess.org personal API access token}` to gather data from https://lichess.org/ at a higher speed
+  * Feed your database with games:
+    * `chess-explorer chesscom {username}` to download games from https://www.chess.com
+    * `chess-explorer lichess {username}` to download games from https://lichess.org
+    * `chess-explorer lichess {username} --token {your lichess.org personal API access token}` to download games from https://lichess.org at a higher speed
     * `chess-explorer pgntodb {path to your file or folder of PGN files}` to import data from PGN files you already have
   * Run the command `chess-explorer server` 
-  * Browse your games on https://yafred.github.io/chess-explorer/v1/
+  * Browse your games on http://localhost:52825
 
 ## Alternate procedure (the one I prefer)
   * Install MongoDB and gather PGN files
