@@ -7,6 +7,7 @@ import (
 )
 
 var userToken string
+var timeout int
 
 var lichessCmd = &cobra.Command{
 	Use:   "lichess [user]",
@@ -22,7 +23,9 @@ func init() {
 	rootCmd.AddCommand(lichessCmd)
 
 	lichessCmd.Flags().StringVar(&userToken, "token", "", "your lichess.org personal API access token")
+	lichessCmd.Flags().IntVar(&timeout, "timeout", 300, "timeout value in seconds when downloading games from lichess.org")
 
 	// To be able to support the config file, we need to bind with viper (and read with viper.GetString())
 	viper.BindPFlag("lichess-token", lichessCmd.Flags().Lookup("token"))
+	viper.BindPFlag("lichess-timeout", lichessCmd.Flags().Lookup("timeout"))
 }
