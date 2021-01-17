@@ -22,7 +22,7 @@ func init() {
 	rootCmd.AddCommand(serverCmd)
 
 	serverCmd.Flags().IntVar(&serverPort, "server-port", 52825, "server http port")
-	serverCmd.Flags().BoolVar(&startBrowser, "start-browser", false, "automatically start a browser when server is started")
+	serverCmd.Flags().BoolVar(&startBrowser, "start-browser", false, "automatically start a browser (default false)")
 
 	// To be able to support the config file, we need to bind with viper (and read with viper.GetString())
 	viper.BindPFlag("server-port", serverCmd.Flags().Lookup("server-port"))

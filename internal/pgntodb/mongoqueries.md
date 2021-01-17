@@ -31,3 +31,13 @@
 }}, {$sort: {
   count: -1}}]
 ```
+
+### Delete games of a user (only when the opponent is not in lastgames)
+```
+{ $and: [ { site: "chess.com" }, 
+          { $or: [ { white: "fredo599" }, { black: "fredo599" }  ]  }  ],
+          { white: { $nin: [ "DBT1986", "SmoothBalance" ]} },
+          { black: { $nin: [ "DBT1986", "SmoothBalance" ]} },
+}
+```
+
