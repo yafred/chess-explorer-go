@@ -116,11 +116,13 @@ func flushGames(client *mongo.Client, lastGame *LastGame) bool {
 	log.Println("Flushing " + strconv.Itoa(len(queue)) + " games to DB")
 	if len(queue) > 0 {
 		games := client.Database("chess-explorer").Collection("games")
-		_, error := games.InsertMany(context.TODO(), queue)
+
+		insertManyOptions := options.InsertMany().SetOrdered(false) // continue if duplicates are found
+		_, error := games.InsertMany(context.TODO(), queue, insertManyOptions)
 
 		if error != nil {
-			log.Println("It is possible to have duplicate key errors when importing games for a user who has played again a user we already have games for).")
 			log.Println(error)
+			log.Println("It is possible to have duplicate key errors when importing games for a user who has played again a user we already have games for).")
 		}
 		if lastGame.Logged == "" {
 			logLastGame(lastGame.Username, queue[0].(Game), client)
