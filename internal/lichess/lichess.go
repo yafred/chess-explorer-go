@@ -21,8 +21,6 @@ func DownloadGames(username string) {
 	url := "https://lichess.org/api/games/user/" + username
 
 	timeout := viper.GetInt("lichess-timeout")
-	log.Println("timeout")
-	log.Println(timeout)
 	chessClient := &http.Client{Timeout: time.Duration(timeout) * time.Second}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
