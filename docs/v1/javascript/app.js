@@ -23,15 +23,6 @@ var nextMoveTpl = document.getElementById('nextMoveTpl').innerHTML;
 var nameListTpl = document.getElementById('nameListTpl').innerHTML;
 
 
-$(document).keydown(function (event) {
-    if (event.which == "17") {
-        cntrlIsPressed = true;
-    }
-});
-$(document).keyup(function () {
-    cntrlIsPressed = false;
-});
-var cntrlIsPressed = false;
 
 function userNameClicked(name) {
     console.log(`user ${name}`)
@@ -116,8 +107,8 @@ function clearClicked(type) {
     resetClicked()
 }
 
-function handleNameClicked(control, name) {
-    if (control.val().trim() == "" || !cntrlIsPressed) {
+function handleNameClicked(event, control, name) {
+    if (control.val().trim() == "" || !event.ctrlKey) {
         control.val(name)
         resetClicked()
     }
@@ -156,21 +147,21 @@ function updateReport() {
             $("#siteNames").html(Mustache.render(nameListTpl, ret.Sites))
             $("#siteNames a").bind("click", function (e) {
                 e.preventDefault();
-                handleNameClicked($site, $(this).html())
+                handleNameClicked(e, $site, $(this).html())
             });
         }
         if (Array.isArray(ret.UsersAsWhite) != false) {
             $("#userNames").html(Mustache.render(nameListTpl, ret.UsersAsWhite))
             $("#userNames a").bind("click", function (e) {
                 e.preventDefault();
-                handleNameClicked($white, $(this).html())
+                handleNameClicked(e, $white, $(this).html())
             });
         }
         if (Array.isArray(ret.TimeControls) != false) {
             $("#timeControlNames").html(Mustache.render(nameListTpl, ret.TimeControls))
             $("#timeControlNames a").bind("click", function (e) {
                 e.preventDefault();
-                handleNameClicked($timecontrol, $(this).html())
+                handleNameClicked(e, $timecontrol, $(this).html())
             });
         }
     });
