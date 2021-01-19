@@ -198,7 +198,7 @@ func reportTimeControls(ctx context.Context, games *mongo.Collection, report *re
 		"$project": bson.M{
 			"_id":   false,
 			"name":  "$_id.timecontrol",
-			"count": "$count",
+			"count": true,
 		},
 	}
 	pipeline = append(pipeline, projectStage)

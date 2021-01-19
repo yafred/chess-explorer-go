@@ -24,14 +24,6 @@ var nameListTpl = document.getElementById('nameListTpl').innerHTML;
 
 
 
-function userNameClicked(name) {
-    console.log(`user ${name}`)
-}
-
-function siteNameClicked(name) {
-    console.log(`site ${name}`)
-}
-
 $from.change(function () {
     resetClicked()
 });
@@ -158,6 +150,7 @@ function updateReport() {
             });
         }
         if (Array.isArray(ret.TimeControls) != false) {
+            ret.TimeControls.sort(compareTimecontrolsByName)
             $("#timeControlNames").html(Mustache.render(nameListTpl, ret.TimeControls))
             $("#timeControlNames a").bind("click", function (e) {
                 e.preventDefault();
@@ -165,6 +158,47 @@ function updateReport() {
             });
         }
     });
+}
+
+
+function isNormalInteger(str) {
+    var n = Math.floor(Number(str));
+    return n !== Infinity && String(n) === str && n >= 0;
+}
+
+function compareTimecontrolsByName(itemA, itemB) {
+    a = itemA.name;
+    b = itemB.name;
+
+    intA = Number.MAX_SAFE_INTEGER;
+    intB = Number.MAX_SAFE_INTEGER;
+
+    if (isNormalInteger(a)) {
+        intA = parseInt(a)
+    }
+    if (isNormalInteger(b)) {
+        intB = parseInt(b)
+    }
+    if (intA == Number.MAX_SAFE_INTEGER) {
+        // try the A+B form
+        if (-1 != a.indexOf("+")) {
+            splitA = a.split("+")
+            if (isNormalInteger(splitA[0]) && isNormalInteger(splitA[1])) {
+                intA = parseInt(splitA[0]) + parseInt(splitA[1])
+            }
+        }
+    }
+    if (intB == Number.MAX_SAFE_INTEGER) {
+        // try the A+B form
+        if (-1 != b.indexOf("+")) {
+            splitB = b.split("+")
+            if (isNormalInteger(splitB[0]) && isNormalInteger(splitB[1])) {
+                intB = parseInt(splitB[0]) + parseInt(splitB[1])
+            }
+        }
+    }
+
+    return intA - intB
 }
 
 function loadGame(link, aMove) {
