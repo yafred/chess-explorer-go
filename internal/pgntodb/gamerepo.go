@@ -100,6 +100,8 @@ func logLastGame(username string, game Game, client *mongo.Client) {
 	if error != nil {
 		log.Fatal(error)
 	}
+
+	log.Println("Last game is now: " + lastGame.GameID)
 }
 
 func pushGame(gameMap map[string]string, client *mongo.Client, lastGame *LastGame) bool {

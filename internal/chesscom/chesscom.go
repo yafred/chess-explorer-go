@@ -40,7 +40,11 @@ func DownloadGames(username string) {
 
 	// Get most recent game to set 'since' if possible
 	lastGame := pgntodb.FindLastGame(username, "chess.com")
-
+	if lastGame.DateTime.IsZero() {
+		log.Println("New user")
+	} else {
+		log.Println("Last game in database: " + lastGame.GameID)
+	}
 	// Download PGN files most recent first
 	// Store games in database
 	// Stop on first duplicate

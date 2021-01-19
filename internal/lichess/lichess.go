@@ -38,7 +38,10 @@ func DownloadGames(username string) {
 	// Get most recent game to set 'since' if possible
 	lastGame := pgntodb.FindLastGame(username, "lichess.org")
 
-	if !lastGame.DateTime.IsZero() {
+	if lastGame.DateTime.IsZero() {
+		log.Println("New user")
+	} else {
+		log.Println("Last game in database: " + lastGame.GameID)
 		since := lastGame.DateTime.UnixNano() / int64(time.Millisecond)
 		since += 1000 // add 1 sec to avoid downloading the last game we have
 		q.Add("since", strconv.FormatInt(since, 10))
