@@ -34,26 +34,26 @@ type Game struct {
 	TimeControl string    `json:"timecontrol,omitempty"`
 	Link        string    `json:"link,omitempty"`
 	PGN         string    `json:"pgn,omitempty"`
-	Move01      string    `json:"move01,omitempty" bson:"move01,omitempty"`
-	Move02      string    `json:"move02,omitempty" bson:"move02,omitempty"`
-	Move03      string    `json:"move03,omitempty" bson:"move03,omitempty"`
-	Move04      string    `json:"move04,omitempty" bson:"move04,omitempty"`
-	Move05      string    `json:"move05,omitempty" bson:"move05,omitempty"`
-	Move06      string    `json:"move06,omitempty" bson:"move06,omitempty"`
-	Move07      string    `json:"move07,omitempty" bson:"move07,omitempty"`
-	Move08      string    `json:"move08,omitempty" bson:"move08,omitempty"`
-	Move09      string    `json:"move09,omitempty" bson:"move09,omitempty"`
-	Move10      string    `json:"move10,omitempty" bson:"move10,omitempty"`
-	Move11      string    `json:"move11,omitempty" bson:"move11,omitempty"`
-	Move12      string    `json:"move12,omitempty" bson:"move12,omitempty"`
-	Move13      string    `json:"move13,omitempty" bson:"move13,omitempty"`
-	Move14      string    `json:"move14,omitempty" bson:"move14,omitempty"`
-	Move15      string    `json:"move15,omitempty" bson:"move15,omitempty"`
-	Move16      string    `json:"move16,omitempty" bson:"move16,omitempty"`
-	Move17      string    `json:"move17,omitempty" bson:"move17,omitempty"`
-	Move18      string    `json:"move18,omitempty" bson:"move18,omitempty"`
-	Move19      string    `json:"move19,omitempty" bson:"move19,omitempty"`
-	Move20      string    `json:"move20,omitempty" bson:"move20,omitempty"`
+	Move01      string    `json:"m01,omitempty" bson:"m01,omitempty"`
+	Move02      string    `json:"m02,omitempty" bson:"m02,omitempty"`
+	Move03      string    `json:"m03,omitempty" bson:"m03,omitempty"`
+	Move04      string    `json:"m04,omitempty" bson:"m04,omitempty"`
+	Move05      string    `json:"m05,omitempty" bson:"m05,omitempty"`
+	Move06      string    `json:"m06,omitempty" bson:"m06,omitempty"`
+	Move07      string    `json:"m07,omitempty" bson:"m07,omitempty"`
+	Move08      string    `json:"m08,omitempty" bson:"m08,omitempty"`
+	Move09      string    `json:"m09,omitempty" bson:"m09,omitempty"`
+	Move10      string    `json:"m10,omitempty" bson:"m10,omitempty"`
+	Move11      string    `json:"m11,omitempty" bson:"m11,omitempty"`
+	Move12      string    `json:"m12,omitempty" bson:"m12,omitempty"`
+	Move13      string    `json:"m13,omitempty" bson:"m13,omitempty"`
+	Move14      string    `json:"m14,omitempty" bson:"m14,omitempty"`
+	Move15      string    `json:"m15,omitempty" bson:"m15,omitempty"`
+	Move16      string    `json:"m16,omitempty" bson:"m16,omitempty"`
+	Move17      string    `json:"m17,omitempty" bson:"m17,omitempty"`
+	Move18      string    `json:"m18,omitempty" bson:"m18,omitempty"`
+	Move19      string    `json:"m19,omitempty" bson:"m19,omitempty"`
+	Move20      string    `json:"m20,omitempty" bson:"m20,omitempty"`
 }
 
 var client *mongo.Client

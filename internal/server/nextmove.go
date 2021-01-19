@@ -41,26 +41,26 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		Sum    uint32 `json:"sum,omitempty"`
 	}
 	type Exploration struct {
-		Move01  string `json:"move01,omitempty"`
-		Move02  string `json:"move02,omitempty"`
-		Move03  string `json:"move03,omitempty"`
-		Move04  string `json:"move04,omitempty"`
-		Move05  string `json:"move05,omitempty"`
-		Move06  string `json:"move06,omitempty"`
-		Move07  string `json:"move07,omitempty"`
-		Move08  string `json:"move08,omitempty"`
-		Move09  string `json:"move09,omitempty"`
-		Move10  string `json:"move10,omitempty"`
-		Move11  string `json:"move11,omitempty"`
-		Move12  string `json:"move12,omitempty"`
-		Move13  string `json:"move13,omitempty"`
-		Move14  string `json:"move14,omitempty"`
-		Move15  string `json:"move15,omitempty"`
-		Move16  string `json:"move16,omitempty"`
-		Move17  string `json:"move17,omitempty"`
-		Move18  string `json:"move18,omitempty"`
-		Move19  string `json:"move19,omitempty"`
-		Move20  string `json:"move20,omitempty"`
+		Move01  string `json:"m01,omitempty"`
+		Move02  string `json:"m02,omitempty"`
+		Move03  string `json:"m03,omitempty"`
+		Move04  string `json:"m04,omitempty"`
+		Move05  string `json:"m05,omitempty"`
+		Move06  string `json:"m06,omitempty"`
+		Move07  string `json:"m07,omitempty"`
+		Move08  string `json:"m08,omitempty"`
+		Move09  string `json:"m09,omitempty"`
+		Move10  string `json:"m10,omitempty"`
+		Move11  string `json:"m11,omitempty"`
+		Move12  string `json:"m12,omitempty"`
+		Move13  string `json:"m13,omitempty"`
+		Move14  string `json:"m14,omitempty"`
+		Move15  string `json:"m15,omitempty"`
+		Move16  string `json:"m16,omitempty"`
+		Move17  string `json:"m17,omitempty"`
+		Move18  string `json:"m18,omitempty"`
+		Move19  string `json:"m19,omitempty"`
+		Move20  string `json:"m20,omitempty"`
 		Results []Result
 		// Only the fields below go in the response
 		Move  string       `json:"move"`
@@ -231,7 +231,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func buildMoveFieldName(fieldNum int) (moveField string) {
-	moveField = "move"
+	moveField = "m"
 	if fieldNum < 10 {
 		moveField = moveField + "0"
 	}

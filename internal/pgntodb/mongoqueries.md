@@ -6,12 +6,12 @@
 ### Games sharing 6 same first moves
 ```
 [{$group: {
- _id: { move01: "$move01",
-  move02: "$move02",
-  move03: "$move03",
-  move04: "$move04",
-  move05: "$move05",
-  move06: "$move06",
+ _id: { m01: "$m01",
+  m02: "$m02",
+  m03: "$m03",
+  m04: "$m04",
+  m05: "$m05",
+  m06: "$m06",
  },
  count: { $sum: 1 }
 }}, {$sort: {
