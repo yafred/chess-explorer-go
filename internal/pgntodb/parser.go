@@ -53,7 +53,9 @@ func pgnToDB(scanner *bufio.Scanner, db *mongo.Client, lastGame *LastGame) bool 
 			break
 		default:
 			// not a valid char, skip
-			return true
+			// for example: a pgn can start with something else than '1.' if played "from position"
+			// then there is a [FEN] key value
+			continue
 		}
 	}
 

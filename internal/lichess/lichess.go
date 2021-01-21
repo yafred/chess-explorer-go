@@ -62,8 +62,7 @@ func DownloadGames(username string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(tmpfile.Name())
-	//defer os.Remove(tmpfile.Name()) // clean up
+	defer os.Remove(tmpfile.Name()) // clean up
 
 	f, err := os.OpenFile(tmpfile.Name(), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
