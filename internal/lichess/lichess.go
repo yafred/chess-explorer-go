@@ -20,8 +20,7 @@ func DownloadGames(username string) {
 
 	url := "https://lichess.org/api/games/user/" + username
 
-	timeout := viper.GetInt("lichess-timeout")
-	chessClient := &http.Client{Timeout: time.Duration(timeout) * time.Second}
+	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -52,7 +51,7 @@ func DownloadGames(username string) {
 	fmt.Println("GET " + req.URL.String())
 
 	// Get data
-	resp, err := chessClient.Do(req)
+	resp, err := client.Do(req)
 
 	if err != nil {
 		log.Fatal(err)
@@ -63,20 +62,44 @@ func DownloadGames(username string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.Remove(tmpfile.Name()) // clean up
+	log.Println(tmpfile.Name())
+	//defer os.Remove(tmpfile.Name()) // clean up
 
-	// Create the file
-	out, err := os.Create(tmpfile.Name())
+	f, err := os.OpenFile(tmpfile.Name(), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer out.Close()
+	defer f.Close()
 
-	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		log.Fatal(err)
+	// stream response
+	buf := make([]byte, 10000)
+
+	numBytesRead := 0
+	// Read the response body
+	for {
+		n, err := resp.Body.Read(buf)
+
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		numBytesRead += n
+		fmt.Print(".")
+
+		n, err = f.Write(buf[0:n])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err != nil {
+			log.Fatal("Error reading HTTP response: ", err.Error())
+		}
 	}
 
+	fmt.Println()
+
+	log.Println(numBytesRead, " bytes read")
 	pgntodb.Process(tmpfile.Name(), lastGame)
 }
