@@ -80,35 +80,37 @@ func findLastGame(username string, site string, client *mongo.Client) *LastGame 
 }
 
 func logLastGame(username string, game Game, client *mongo.Client) {
-	lastGame := LastGame{
-		Username: username,
-		Site:     game.Site,
-		DateTime: game.DateTime,
-		GameID:   game.ID,
+	if username != "" {
+		lastGame := LastGame{
+			Username: username,
+			Site:     game.Site,
+			DateTime: game.DateTime,
+			GameID:   game.ID,
+		}
+
+		lastgames := client.Database("chess-explorer").Collection("lastgames")
+		filter := bson.M{"site": game.Site, "username": username}
+		updateOptions := options.Update().SetUpsert(true)
+		update := bson.M{
+			"$set": lastGame,
+		}
+
+		// Insert
+		_, error := lastgames.UpdateOne(context.TODO(), filter, update, updateOptions)
+
+		if error != nil {
+			log.Fatal(error)
+		}
+
+		log.Println("Last game is now: " + lastGame.GameID)
 	}
-
-	lastgames := client.Database("chess-explorer").Collection("lastgames")
-	filter := bson.M{"site": game.Site, "username": username}
-	updateOptions := options.Update().SetUpsert(true)
-	update := bson.M{
-		"$set": lastGame,
-	}
-
-	// Insert
-	_, error := lastgames.UpdateOne(context.TODO(), filter, update, updateOptions)
-
-	if error != nil {
-		log.Fatal(error)
-	}
-
-	log.Println("Last game is now: " + lastGame.GameID)
 }
 
 func pushGame(gameMap map[string]string, client *mongo.Client, lastGame *LastGame) bool {
 	game := Game{}
 	mapToGame(gameMap, &game)
 	queue = append(queue, game)
-	if len(queue) > 10000 {
+	if len(queue) > 9999 {
 		return flushGames(client, lastGame)
 	}
 	return true
@@ -123,8 +125,8 @@ func flushGames(client *mongo.Client, lastGame *LastGame) bool {
 		_, error := games.InsertMany(context.TODO(), queue, insertManyOptions)
 
 		if error != nil {
-			log.Println(error)
-			log.Println("It is possible to have duplicate key errors when importing games for a user who has played again a user we already have games for).")
+			//log.Println(error)
+			//log.Println("It is possible to have duplicate key errors when importing games for a user who has played again a user we already have games for).")
 		}
 		if lastGame.Logged == "" {
 			logLastGame(lastGame.Username, queue[0].(Game), client)
