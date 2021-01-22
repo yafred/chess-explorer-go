@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
+	"github.com/yafred/chess-explorer/internal/pgntodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -19,9 +20,16 @@ type result struct {
 	Count int    `json:"count"`
 }
 
+type userResult struct {
+	SiteName string `json:"sitename"`
+	Name     string `json:"name"`
+	Count    int    `json:"count"`
+}
+
 type report struct {
 	TotalGames   int64 `json:"totalgames,omitempty"`
 	Sites        []result
+	Users        []userResult
 	UsersAsWhite []result
 	TimeControls []result
 }
@@ -52,6 +60,7 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	games := client.Database("chess-explorer").Collection("games")
+	//lastgames := client.Database("chess-explorer").Collection("lastgames")
 
 	// Total games
 	totalGames, error := games.CountDocuments(ctx, bson.M{})
@@ -62,6 +71,7 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 
 	reportGames(ctx, games, &report)
 	reportSites(ctx, games, &report)
+	//reportUsers(ctx, games, lastgames, &report)
 	reportUsersAsWhite(ctx, games, &report)
 	reportTimeControls(ctx, games, &report)
 
@@ -78,7 +88,7 @@ func reportGames(ctx context.Context, games *mongo.Collection, report *report) {
 	report.TotalGames = totalGames
 }
 
-// Distinct sites
+// Sites
 func reportSites(ctx context.Context, games *mongo.Collection, report *report) {
 	filter := bson.M{"$match": bson.M{}}
 	pipeline := make([]bson.M, 0)
@@ -123,7 +133,29 @@ func reportSites(ctx context.Context, games *mongo.Collection, report *report) {
 	report.Sites = siteResults
 }
 
-// Distinct users
+// Users
+func reportUsers(ctx context.Context, games *mongo.Collection, lastgames *mongo.Collection, report *report) {
+	cursor, err := lastgames.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var results []pgntodb.LastGame
+	if err = cursor.All(ctx, &results); err != nil {
+		log.Fatal(err)
+	}
+
+	report.Users = make([]userResult, 0)
+	for _, aUser := range results {
+		filter := bson.M{"white": aUser.Username}
+		count, err := games.CountDocuments(ctx, filter)
+		if err != nil {
+			log.Fatal(err)
+		}
+		report.Users = append(report.Users, userResult{SiteName: aUser.Site, Name: aUser.Username, Count: int(count)})
+	}
+}
+
+// Users as white
 func reportUsersAsWhite(ctx context.Context, games *mongo.Collection, report *report) {
 	filter := bson.M{"$match": bson.M{}}
 	pipeline := make([]bson.M, 0)
@@ -173,7 +205,7 @@ func reportUsersAsWhite(ctx context.Context, games *mongo.Collection, report *re
 	report.UsersAsWhite = usersAsWhiteResult
 }
 
-// Distinct users
+// Time controls
 func reportTimeControls(ctx context.Context, games *mongo.Collection, report *report) {
 	filter := bson.M{"$match": bson.M{}}
 	pipeline := make([]bson.M, 0)

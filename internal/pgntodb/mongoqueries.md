@@ -41,3 +41,10 @@
 }
 ```
 
+
+### Aggregate number of games for users in lastgames
+```
+[{$match:  {
+$and: [ { site: "lichess.org" }, { $or: [ { white: "EricRosen" }, { black: "EricRosen" }  ]  }  ]
+}}, {$count: 'count'}]
+```
