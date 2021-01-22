@@ -20,6 +20,7 @@ var $site = $('#site')
 var browsingGame = ""
 
 var nextMoveTpl = document.getElementById('nextMoveTpl').innerHTML;
+var usernameListTpl = document.getElementById('usernameListTpl').innerHTML;
 var nameListTpl = document.getElementById('nameListTpl').innerHTML;
 
 
@@ -99,6 +100,18 @@ function clearClicked(type) {
     resetClicked()
 }
 
+Array.prototype.remove = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
+
+
 function handleNameClicked(event, control, name) {
     if (control.val().trim() == "" || !event.ctrlKey) {
         control.val(name)
@@ -111,6 +124,11 @@ function handleNameClicked(event, control, name) {
             control.val(values.join(","))
             resetClicked()
         }
+        else {
+            values.remove(name)
+            control.val(values.join(","))
+            resetClicked()
+       }
     }
 }
 
@@ -142,11 +160,26 @@ function updateReport() {
                 handleNameClicked(e, $site, $(this).html())
             });
         }
-        if (Array.isArray(ret.UsersAsWhite) != false) {
-            $("#userNames").html(Mustache.render(nameListTpl, ret.UsersAsWhite))
+        if (Array.isArray(ret.Users) != false) {
+            ret.Users.forEach((element) => {
+                if(element.sitename == "lichess.org") {
+                    element.imgpath = "/img/logos/lichessorg-48.png"
+                }
+                if(element.sitename == "chess.com") {
+                    element.imgpath = "/img/logos/chesscom-48.png"
+                }
+            })
+            $("#userNames").html(Mustache.render(usernameListTpl, ret.Users))
             $("#userNames a").bind("click", function (e) {
                 e.preventDefault();
-                handleNameClicked(e, $white, $(this).html())
+                username = $(this).html()
+                 if($(this).data("sitename")=="chess.com") {
+                    username = "c:" + username
+                }
+                if($(this).data("sitename")=="lichess.org") {
+                    username = "l:" + username
+                }
+                handleNameClicked(e, $white, username)
             });
         }
         if (Array.isArray(ret.TimeControls) != false) {

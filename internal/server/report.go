@@ -60,7 +60,7 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	games := client.Database("chess-explorer").Collection("games")
-	//lastgames := client.Database("chess-explorer").Collection("lastgames")
+	lastgames := client.Database("chess-explorer").Collection("lastgames")
 
 	// Total games
 	totalGames, error := games.CountDocuments(ctx, bson.M{})
@@ -71,7 +71,7 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 
 	reportGames(ctx, games, &report)
 	reportSites(ctx, games, &report)
-	//reportUsers(ctx, games, lastgames, &report)
+	reportUsers(ctx, games, lastgames, &report)
 	reportUsersAsWhite(ctx, games, &report)
 	reportTimeControls(ctx, games, &report)
 
@@ -146,7 +146,7 @@ func reportUsers(ctx context.Context, games *mongo.Collection, lastgames *mongo.
 
 	report.Users = make([]userResult, 0)
 	for _, aUser := range results {
-		filter := bson.M{"white": aUser.Username}
+		filter := bson.M{"site": aUser.Site, "$or": []bson.M{bson.M{"white": aUser.Username}, bson.M{"black": aUser.Username}}}
 		count, err := games.CountDocuments(ctx, filter)
 		if err != nil {
 			log.Fatal(err)
