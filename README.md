@@ -3,7 +3,7 @@
 ## Installation
   * Install [Golang](https://golang.org/doc/install) 
   * Install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
-  * Download the source code from https://github.com/yafred/chess-explorer/releases and unzip it (or `git clone https://github.com/yafred/chess-explorer.git`)
+  * `git clone https://github.com/yafred/chess-explorer.git`
   * Open a cmd console and go to the root of the source code directory (where you can see LICENSE, README.md, main.go)
   * Feed your database with games:
     * `go run main.go chesscom {username}` to download games from https://www.chess.com
