@@ -52,6 +52,12 @@
     {{/.}}
   </script>
 
+  <script id="timecontrolListTpl" type="text/mustache">
+    {{#.}}   
+      &bull; <a href="#">{{ name }}</a>
+    {{/.}}
+  </script>
+
   <script id="usernameListTpl" type="text/mustache">
     {{#.}}   
       &bull; <img height="20" width="20" src="{{imgpath}}"/><a data-sitename="{{sitename}}" href="#">{{ name }}</a>
@@ -124,6 +130,11 @@
         <span>Users (<a href="javascript:clearClicked('username');">clear</a>)</span><span id="userNames"></span><br />
         <span>Time Controls (<a href="javascript:clearClicked('timecontrol');">clear</a>)</span><span
           id="timeControlNames"></span><br />
+        <span>Ultra-bullet</span><span id="ultra-bullet-timeControlNames"></span><br />
+        <span>Bullet</span><span id="bullet-timeControlNames"></span><br />
+        <span>Blitz</span><span id="blitz-timeControlNames"></span><br />
+        <span>Rapid</span><span id="rapid-timeControlNames"></span><br />
+        <span>Classic</span><span id="classic-timeControlNames"></span><br />
         <span>Sites (<a href=" javascript:clearClicked('site');">clear</a>)</span><span id="siteNames"></span><br />
       </div>
     </div>

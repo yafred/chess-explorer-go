@@ -21,6 +21,7 @@ var browsingGame = ""
 
 var nextMoveTpl = document.getElementById('nextMoveTpl').innerHTML;
 var usernameListTpl = document.getElementById('usernameListTpl').innerHTML;
+var timecontrolListTpl = document.getElementById('timecontrolListTpl').innerHTML;
 var nameListTpl = document.getElementById('nameListTpl').innerHTML;
 
 
@@ -100,7 +101,7 @@ function clearClicked(type) {
     resetClicked()
 }
 
-Array.prototype.remove = function() {
+Array.prototype.remove = function () {
     var what, a = arguments, L = a.length, ax;
     while (L && this.length) {
         what = a[--L];
@@ -128,7 +129,7 @@ function handleNameClicked(event, control, name) {
             values.remove(name)
             control.val(values.join(","))
             resetClicked()
-       }
+        }
     }
 }
 
@@ -162,10 +163,10 @@ function updateReport() {
         }
         if (Array.isArray(ret.Users) != false) {
             ret.Users.forEach((element) => {
-                if(element.sitename == "lichess.org") {
+                if (element.sitename == "lichess.org") {
                     element.imgpath = "/img/logos/lichessorg-48.png"
                 }
-                if(element.sitename == "chess.com") {
+                if (element.sitename == "chess.com") {
                     element.imgpath = "/img/logos/chesscom-48.png"
                 }
             })
@@ -173,10 +174,10 @@ function updateReport() {
             $("#userNames a").bind("click", function (e) {
                 e.preventDefault();
                 username = $(this).html()
-                 if($(this).data("sitename")=="chess.com") {
+                if ($(this).data("sitename") == "chess.com") {
                     username = "c:" + username
                 }
-                if($(this).data("sitename")=="lichess.org") {
+                if ($(this).data("sitename") == "lichess.org") {
                     username = "l:" + username
                 }
                 handleNameClicked(e, $white, username)
@@ -184,13 +185,58 @@ function updateReport() {
         }
         if (Array.isArray(ret.TimeControls) != false) {
             ret.TimeControls.sort(compareTimecontrolsByName)
-            $("#timeControlNames").html(Mustache.render(nameListTpl, ret.TimeControls))
-            $("#timeControlNames a").bind("click", function (e) {
-                e.preventDefault();
-                handleNameClicked(e, $timecontrol, $(this).html())
-            });
+            if (ret.TimeControls.length > 10) {
+                ret.TimeControls = groupTimecontrols(ret.TimeControls)
+                // groups
+                for (key in ret.TimeControls.grouped) {
+                    $("#" + key + "-timeControlNames").html(Mustache.render(timecontrolListTpl, ret.TimeControls.grouped[key]))
+                    $("#" + key + "-timeControlNames a").bind("click", function (e) {
+                        e.preventDefault();
+                        handleNameClicked(e, $timecontrol, $(this).html())
+                    });
+                }
+            }
+            else {
+                $("#timeControlNames").html(Mustache.render(timecontrolListTpl, ret.TimeControls))
+                $("#timeControlNames a").bind("click", function (e) {
+                    e.preventDefault();
+                    handleNameClicked(e, $timecontrol, $(this).html())
+                });
+            }
         }
     });
+}
+
+function groupTimecontrols(timecontrolList) {
+    timecontrolList.grouped = []
+    timecontrolList.forEach((item) => {
+        baseTimeStr = item.name.split("+")[0]
+        if (!isNormalInteger(baseTimeStr)) {
+            baseTime = Number.MAX_SAFE_INTEGER;
+        }
+        baseTime = parseInt(baseTimeStr)
+        groupName = ""
+        if (baseTime < 60) {
+            groupName = "ultra-bullet"
+        }
+        else if (baseTime < 180) {
+            groupName = "bullet"
+        }
+        else if (baseTime < 600) {
+            groupName = "blitz"
+        }
+        else if (baseTime < 3600) {
+            groupName = "rapid"
+        }
+        else {
+            groupName = "classic"
+        }
+        if (timecontrolList.grouped[groupName] == undefined) {
+            timecontrolList.grouped[groupName] = []
+        }
+        timecontrolList.grouped[groupName].push(item)
+    })
+    return timecontrolList
 }
 
 
