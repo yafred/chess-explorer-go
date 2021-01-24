@@ -81,6 +81,7 @@ function resetClicked(e) {
     game.reset()
     board.position(game.fen())
     updateStatus()
+    updateReport()
 }
 
 function clearClicked(type) {
@@ -152,7 +153,11 @@ function getNextMove() {
 }
 
 function updateReport() {
-    $.get(`http://127.0.0.1:${apiPort}/report`, function (data) {
+    console.log("update report") // make sure we don't call it unnecessarily
+    $.get(`http://127.0.0.1:${apiPort}/report`, {
+        white: $white.val(),
+        black: $black.val()
+    }, function (data) {
         ret = JSON.parse(data);
         if (Array.isArray(ret.Sites) != false) {
             $("#siteNames").html(Mustache.render(nameListTpl, ret.Sites))
@@ -185,6 +190,11 @@ function updateReport() {
         }
         if (Array.isArray(ret.TimeControls) != false) {
             ret.TimeControls.sort(compareTimecontrolsByName)
+            $("#ultra-bullet-timeControlNames").html("")
+            $("#bullet-timeControlNames").html("")
+            $("#blitz-timeControlNames").html("")
+            $("#rapid-timeControlNames").html("")
+            $("#classic-timeControlNames").html("")
             if (ret.TimeControls.length > 10) {
                 ret.TimeControls = groupTimecontrols(ret.TimeControls)
                 // groups
@@ -195,6 +205,7 @@ function updateReport() {
                         handleNameClicked(e, $timecontrol, $(this).html())
                     });
                 }
+                $(".timeControlLabel").show()
             }
             else {
                 $("#timeControlNames").html(Mustache.render(timecontrolListTpl, ret.TimeControls))
@@ -202,6 +213,7 @@ function updateReport() {
                     e.preventDefault();
                     handleNameClicked(e, $timecontrol, $(this).html())
                 });
+                $(".timeControlLabel").hide()
             }
         }
     });
@@ -430,6 +442,5 @@ var config = {
 }
 board = Chessboard('myBoard', config)
 
-updateStatus()
+resetClicked()
 
-updateReport()

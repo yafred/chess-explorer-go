@@ -19,7 +19,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-type filter struct {
+// GameFilter ... represents the filter form from the UI
+type GameFilter struct {
 	pgn         string
 	white       string
 	black       string
@@ -72,7 +73,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var explorations []Exploration
-	var filter filter
+	var filter GameFilter
 
 	switch r.Method {
 	case "POST":
@@ -268,7 +269,7 @@ func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, mo
 	return ret
 }
 
-func processGameFilter(filter filter) bson.M {
+func processGameFilter(filter GameFilter) bson.M {
 	ret := bson.M{}
 
 	// Time Control filter

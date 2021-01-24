@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -34,10 +35,14 @@ type report struct {
 	TimeControls []result
 }
 
-func reportHandler(w http.ResponseWriter, r *http.Request) {
+var filter GameFilter
 
+func reportHandler(w http.ResponseWriter, r *http.Request) {
 	// allow cross origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	filter.white = strings.TrimSpace(r.FormValue("white"))
+	filter.black = strings.TrimSpace(r.FormValue("black"))
 
 	report := report{}
 
@@ -69,11 +74,15 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	report.TotalGames = totalGames
 
-	reportGames(ctx, games, &report)
-	reportSites(ctx, games, &report)
-	reportUsers(ctx, games, lastgames, &report)
-	reportUsersAsWhite(ctx, games, &report)
-	reportTimeControls(ctx, games, &report)
+	if filter.black == "" && filter.white == "" {
+		reportGames(ctx, games, &report)
+		reportSites(ctx, games, &report)
+		reportUsers(ctx, games, lastgames, &report)
+		reportUsersAsWhite(ctx, games, &report)
+		reportTimeControls(ctx, filter, games, &report)
+	} else {
+		reportTimeControls(ctx, filter, games, &report)
+	}
 
 	// send the response
 	json.NewEncoder(w).Encode(report)
@@ -206,8 +215,8 @@ func reportUsersAsWhite(ctx context.Context, games *mongo.Collection, report *re
 }
 
 // Time controls
-func reportTimeControls(ctx context.Context, games *mongo.Collection, report *report) {
-	filter := bson.M{"$match": bson.M{}}
+func reportTimeControls(ctx context.Context, gameFilter GameFilter, games *mongo.Collection, report *report) {
+	filter := bson.M{"$match": processGameFilter(gameFilter)}
 	pipeline := make([]bson.M, 0)
 	pipeline = append(pipeline, filter)
 
