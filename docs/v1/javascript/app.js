@@ -6,9 +6,7 @@
 var apiPort = "52825"
 var board = null
 var game = new Chess()
-var $status = $('#status')
-var $fen = $('#fen')
-var $pgn = $('#pgn')
+
 var $white = $('#white')
 var $black = $('#black')
 var $timecontrol = $('#timecontrol')
@@ -58,25 +56,33 @@ $site.change(function () {
     resetClicked()
 });
 
-function swapBlackWhiteClicked(e) {
+$("#swap").click(function (e) {
+    e.preventDefault();
     var black = $black.val()
     $black.val($white.val())
     $white.val(black)
     resetClicked()
-}
+});
 
-function flipClicked() {
+$("#flip").click(function (e) {
+    e.preventDefault();
     board.flip()
-}
+});
 
-function undoClicked(e) {
+$("#undo").click(function (e) {
+    e.preventDefault();
     browsingGame = ""
     game.undo()
     board.position(game.fen())
     updateStatus()
-}
+});
 
-function resetClicked(e) {
+$("#reset").click(function (e) {
+    e.preventDefault();
+    resetClicked()
+});
+
+function resetClicked() {
     browsingGame = ""
     game.reset()
     board.position(game.fen())
@@ -84,23 +90,25 @@ function resetClicked(e) {
     updateReport()
 }
 
-function clearClicked(type) {
-    switch (type) {
-        case "site":
-            $site.val("")
-            break;
-        case "username":
-            $white.val("")
-            $black.val("")
-            break;
-        case "timecontrol":
-            $timecontrol.val("")
-            break;
-        default:
-            break;
-    }
+$("#clear-usernames").click(function (e) {
+    e.preventDefault();
+    $white.val("")
+    $black.val("")
     resetClicked()
-}
+});
+
+$("#clear-timecontrols").click(function (e) {
+    e.preventDefault();
+    $timecontrol.val("")
+    resetClicked()
+});
+
+$("#clear-sites").click(function (e) {
+    e.preventDefault();
+    $site.val("")
+    resetClicked()
+});
+
 
 Array.prototype.remove = function () {
     var what, a = arguments, L = a.length, ax;
@@ -292,6 +300,7 @@ function compareTimecontrolsByName(itemA, itemB) {
     return intA - intB
 }
 
+// Not used, we follow the link to chess.com or lichess.org for now
 function loadGame(link, aMove) {
     // set tool in browsing game mode
     $("#result").html("");
@@ -370,6 +379,10 @@ function nextMoveToHtml(dataObject) {
     });
 
     $("#result").html(Mustache.render(nextMoveTpl, moves))
+    $(".move").bind("click", function (e) {
+        e.preventDefault();
+        move($(this).html())
+    });
 }
 
 // Not used (I use game link instead)
@@ -386,7 +399,7 @@ function getPgnPlusMove(aMove) {
 }
 
 function displayPgn(pgn) {
-    $pgn.html(pgn)
+    $('#pgn').html(pgn)
 }
 
 function move(aMove) {
@@ -395,6 +408,7 @@ function move(aMove) {
     board.position(game.fen(), false)
 }
 
+// Board events
 function onDragStart(source, piece, position, orientation) {
     // do not pick up pieces if the game is over
     if (game.game_over()) return false
@@ -429,7 +443,7 @@ function onSnapEnd() {
 
 function updateStatus() {
     displayPgn(game.pgn())
-    $fen.html(game.fen())
+    $('#fen').html(game.fen())
     getNextMove()
 }
 
