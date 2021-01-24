@@ -81,6 +81,14 @@ func findLastGame(username string, site string, client *mongo.Client) *LastGame 
 
 func logLastGame(username string, game Game, client *mongo.Client) {
 	if username != "" {
+		if strings.ToLower(username) == strings.ToLower(game.White) {
+			username = game.White
+		} else if strings.ToLower(username) == strings.ToLower(game.Black) {
+			username = game.Black
+		} else {
+			log.Fatal("username "+username+"is not a player of ", game)
+		}
+
 		lastGame := LastGame{
 			Username: username,
 			Site:     game.Site,
