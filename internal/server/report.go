@@ -155,7 +155,7 @@ func reportUsers(ctx context.Context, games *mongo.Collection, lastgames *mongo.
 
 	report.Users = make([]userResult, 0)
 	for _, aUser := range results {
-		filter := bson.M{"site": aUser.Site, "$or": []bson.M{bson.M{"white": aUser.Username}, bson.M{"black": aUser.Username}}}
+		filter := bson.M{"site": aUser.Site, "$or": []bson.M{{"white": aUser.Username}, {"black": aUser.Username}}}
 		count, err := games.CountDocuments(ctx, filter)
 		if err != nil {
 			log.Fatal(err)
