@@ -2,12 +2,12 @@ package chesscom
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	http "net/http"
 	"os"
-	"time"
 
 	"github.com/yafred/chess-explorer/internal/pgntodb"
 )
@@ -27,7 +27,7 @@ type archivesContainer struct {
 func DownloadGames(username string) {
 
 	// Download archive list
-	chessClient := &http.Client{Timeout: 10 * time.Second}
+	chessClient := &http.Client{}
 	archivesURL := "https://api.chess.com/pub/player/" + username + "/games/archives"
 
 	archivesContainer := archivesContainer{}
@@ -57,10 +57,15 @@ func DownloadGames(username string) {
 	}
 }
 
-func downloadArchive(chessClient *http.Client, url string, lastGame *pgntodb.LastGame) bool {
+func downloadArchive(client *http.Client, url string, lastGame *pgntodb.LastGame) bool {
 
 	// Get data
-	resp, err := chessClient.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := client.Do(req)
 
 	if err != nil {
 		log.Fatal(err)
@@ -74,17 +79,42 @@ func downloadArchive(chessClient *http.Client, url string, lastGame *pgntodb.Las
 	defer os.Remove(tmpfile.Name()) // clean up
 
 	// Create the file
-	out, err := os.Create(tmpfile.Name())
+	f, err := os.OpenFile(tmpfile.Name(), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer out.Close()
+	defer f.Close()
 
-	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		log.Fatal(err)
+	// stream response
+	buf := make([]byte, 10000)
+
+	numBytesRead := 0
+	// Read the response body
+	for {
+		n, err := resp.Body.Read(buf)
+
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		numBytesRead += n
+		fmt.Print(".")
+
+		n, err = f.Write(buf[0:n])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err != nil {
+			log.Fatal("Error reading HTTP response: ", err.Error())
+		}
 	}
+
+	fmt.Println()
+
+	log.Println(numBytesRead, " bytes read")
 
 	return pgntodb.Process(tmpfile.Name(), lastGame)
 }
