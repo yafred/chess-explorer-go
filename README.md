@@ -9,7 +9,14 @@
     * `go run main.go chesscom {username}` to download games from https://www.chess.com
     * `go run main.go lichess {username}` to download games from https://lichess.org
     * `go run main.go lichess {username} --token {your lichess.org personal API access token}` to download games from https://lichess.org at a higher speed
-    * `go run main.go pgntodb {path to your file or folder of PGN files} --username {username}` to import data from PGN files you already have
+  * Keep your initial download (handy if you need to reinitialize your database)
+    * `go run main.go chesscom {username} --keep {path to a new file}`
+    * `go run main.go lichess {username} --keep {path to a new file}` 
+  * Reinitialize your database 
+    * `go run main.go delete {username}` 
+    * `go run main.go delete lichess.org:{username}` 
+    * `go run main.go delete chess.com:{username}` 
+    * `go run main.go pgntodb {path to your PGN file} --username {username}` 
   * Run the command `go run main.go server` 
   * Browse your games on http://localhost:52825
 
