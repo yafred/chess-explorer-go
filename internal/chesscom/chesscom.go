@@ -27,28 +27,28 @@ type archivesContainer struct {
 func DownloadGames(username string, keepPgn string) {
 
 	// Download archive list
-	chessClient := &http.Client{}
+	client := &http.Client{}
 	archivesURL := "https://api.chess.com/pub/player/" + username + "/games/archives"
 
 	archivesContainer := archivesContainer{}
-	resp, err := chessClient.Get(archivesURL)
+	resp, err := client.Get(archivesURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 	json.NewDecoder(resp.Body).Decode(&archivesContainer)
 	defer resp.Body.Close()
 
-	// Get most recent game to set 'since' if possible
+	// Get most recent game from database to avoid downloading duplicates
 	lastGame := pgntodb.FindLastGame(username, "chess.com")
 	if lastGame.DateTime.IsZero() {
 		log.Println("New user")
 	} else {
-		log.Println("Last game in database: " + lastGame.GameID)
+		log.Println("Most recent game in database: " + lastGame.GameID)
 	}
 
+	// Create the keep file if needed
 	var keepPgnFile *os.File
 	if keepPgn != "" {
-		// Create the keep file
 		keepPgnFile, err = os.OpenFile(keepPgn, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 		if err != nil {
 			log.Fatal(err)
@@ -61,7 +61,7 @@ func DownloadGames(username string, keepPgn string) {
 	// Stop on first duplicate
 	for i := len(archivesContainer.Archives) - 1; i > -1; i-- {
 		log.Println("GET " + archivesContainer.Archives[i] + "/pgn")
-		goOn := downloadArchive(chessClient, archivesContainer.Archives[i]+"/pgn", lastGame, keepPgnFile)
+		goOn := downloadArchive(client, archivesContainer.Archives[i]+"/pgn", lastGame, keepPgnFile)
 		if goOn == false {
 			break
 		}
@@ -70,7 +70,21 @@ func DownloadGames(username string, keepPgn string) {
 
 func downloadArchive(client *http.Client, url string, lastGame *pgntodb.LastGame, keepPgnFile *os.File) bool {
 
-	// Get data
+	// Random file name
+	tmpfile, err := ioutil.TempFile("", "chesscom")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name()) // clean up
+
+	// Create the temp file
+	f, err := os.OpenFile(tmpfile.Name(), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	// Send request
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -81,20 +95,6 @@ func downloadArchive(client *http.Client, url string, lastGame *pgntodb.LastGame
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Create a temp file
-	tmpfile, err := ioutil.TempFile("", "chesscom")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer os.Remove(tmpfile.Name()) // clean up
-
-	// Create the file
-	f, err := os.OpenFile(tmpfile.Name(), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
 
 	// stream response
 	buf := make([]byte, 10000)
@@ -134,5 +134,6 @@ func downloadArchive(client *http.Client, url string, lastGame *pgntodb.LastGame
 
 	log.Println(numBytesRead, " bytes read")
 
+	// parse file
 	return pgntodb.Process(tmpfile.Name(), lastGame)
 }
