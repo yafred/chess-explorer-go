@@ -43,38 +43,40 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		Sum    uint32 `json:"sum,omitempty"`
 	}
 	type Exploration struct {
-		Move01  string `json:"m01,omitempty"`
-		Move02  string `json:"m02,omitempty"`
-		Move03  string `json:"m03,omitempty"`
-		Move04  string `json:"m04,omitempty"`
-		Move05  string `json:"m05,omitempty"`
-		Move06  string `json:"m06,omitempty"`
-		Move07  string `json:"m07,omitempty"`
-		Move08  string `json:"m08,omitempty"`
-		Move09  string `json:"m09,omitempty"`
-		Move10  string `json:"m10,omitempty"`
-		Move11  string `json:"m11,omitempty"`
-		Move12  string `json:"m12,omitempty"`
-		Move13  string `json:"m13,omitempty"`
-		Move14  string `json:"m14,omitempty"`
-		Move15  string `json:"m15,omitempty"`
-		Move16  string `json:"m16,omitempty"`
-		Move17  string `json:"m17,omitempty"`
-		Move18  string `json:"m18,omitempty"`
-		Move19  string `json:"m19,omitempty"`
-		Move20  string `json:"m20,omitempty"`
-		Results []Result
+		move01  string `bson:"m01,omitempty"`
+		move02  string `bson:"m02,omitempty"`
+		move03  string `bson:"m03,omitempty"`
+		move04  string `bson:"m04,omitempty"`
+		move05  string `bson:"m05,omitempty"`
+		move06  string `bson:"m06,omitempty"`
+		move07  string `bson:"m07,omitempty"`
+		move08  string `bson:"m08,omitempty"`
+		move09  string `bson:"m09,omitempty"`
+		move10  string `bson:"m10,omitempty"`
+		move11  string `bson:"m11,omitempty"`
+		move12  string `bson:"m12,omitempty"`
+		move13  string `bson:"m13,omitempty"`
+		move14  string `bson:"m14,omitempty"`
+		move15  string `bson:"m15,omitempty"`
+		move16  string `bson:"m16,omitempty"`
+		move17  string `bson:"m17,omitempty"`
+		move18  string `bson:"m18,omitempty"`
+		move19  string `bson:"m19,omitempty"`
+		move20  string `bson:"m20,omitempty"`
+		tmpGame pgntodb.Game
 		// Only the fields below go in the response
-		Move  string       `json:"move"`
-		Win   uint32       `json:"win"`
-		Draw  uint32       `json:"draw"`
-		Lose  uint32       `json:"lose"`
-		Total uint32       `json:"total"`
-		Game  pgntodb.Game `json:"game,omitempty"` // when Total = 1
+		Results []Result     `json:"results"`
+		Move    string       `json:"move"`
+		Win     uint32       `json:"win"`
+		Draw    uint32       `json:"draw"`
+		Lose    uint32       `json:"lose"`
+		Total   uint32       `json:"total"`
+		Game    pgntodb.Game `json:"game,omitempty"` // when Total = 1
 	}
 
 	var explorations []Exploration
 	var filter GameFilter
+	mongoAggregation := true
 
 	switch r.Method {
 	case "POST":
@@ -114,6 +116,12 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	pgnMoves = pgnMoves[:i]
 
+	if len(pgnMoves) < 20 {
+		mongoAggregation = true
+	} else {
+		mongoAggregation = false
+	}
+
 	// Connect to DB
 	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("mongo-url")))
 	if err != nil {
@@ -141,7 +149,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 	gameFilterBson := processGameFilter(filter)
 	andClause = append(andClause, gameFilterBson)
 
-	if len(pgnMoves) < 20 {
+	if mongoAggregation {
 		// Our logic allows input pgn to have 0 to 19 moves
 		// filter on previous moves
 		for i := 1; i < len(pgnMoves)+1; i++ {
@@ -196,7 +204,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 	} else {
-		// algorithmic aggregation
+		// algorythmic aggregation
 		quotedPgn := regexp.QuoteMeta(filter.pgn)
 		andClause = append(andClause, bson.M{"pgn": bson.M{"$regex": quotedPgn}})
 
@@ -233,7 +241,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 				if foundExploration == -1 {
-					explorations = append(explorations, Exploration{Move: nextmove, Results: make([]Result, 0)})
+					explorations = append(explorations, Exploration{Move: nextmove, Results: make([]Result, 0), tmpGame: game})
 					foundExploration = len(explorations) - 1
 				}
 				foundResult := -1
@@ -267,11 +275,15 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		explorations[iExploration].Total = explorations[iExploration].Win + explorations[iExploration].Draw + explorations[iExploration].Lose
 
 		if explorations[iExploration].Total == 1 {
-			// get link for moves pgn + move
-			// Note: this slows down the results if there are a lot of single games (eg: EricRosen)
-			game := getGame(ctx, games, pgnMoves, explorations[iExploration].Move, gameFilterBson)
-			if game != nil {
-				explorations[iExploration].Game = *game
+			if mongoAggregation {
+				// get link for moves pgn + move
+				// Note: this slows down the results if there are a lot of single games (eg: EricRosen)
+				game := getGame(ctx, games, pgnMoves, explorations[iExploration].Move, gameFilterBson)
+				if game != nil {
+					explorations[iExploration].Game = *game
+				}
+			} else {
+				explorations[iExploration].Game = explorations[iExploration].tmpGame
 			}
 		}
 	}

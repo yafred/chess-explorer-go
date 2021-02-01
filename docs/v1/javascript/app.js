@@ -161,7 +161,6 @@ function getNextMove() {
 }
 
 function updateReport() {
-    console.log("update report") // make sure we don't call it unnecessarily
     $.get(`http://127.0.0.1:${apiPort}/report`, {
         white: $white.val(),
         black: $black.val()
