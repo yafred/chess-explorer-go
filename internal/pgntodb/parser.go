@@ -14,8 +14,8 @@ func pgnFileToDB(f *os.File, db *mongo.Client, lastGame *LastGame) bool {
 }
 
 func pgnToDB(scanner *bufio.Scanner, db *mongo.Client, lastGame *LastGame) bool {
-	inGame := false
 	keyValues := make(map[string]string)
+	isSetup := false
 	for i := 1; scanner.Scan(); i++ {
 		line := scanner.Text()
 		line = strings.Trim(line, " ")
@@ -24,16 +24,23 @@ func pgnToDB(scanner *bufio.Scanner, db *mongo.Client, lastGame *LastGame) bool 
 		}
 		switch line[0] {
 		case '[':
-			if !inGame {
-				inGame = true
-			}
 			key, value := parseKeyValue(line)
+			if key == "Event" {
+				keyValues = make(map[string]string)
+				isSetup = false
+			}
+			if key == "FEN" {
+				isSetup = true
+			}
 			if key != "" && value != "" {
 				keyValues[key] = value
 			}
 			break
 		case '0':
 		case '1':
+			if isSetup == true {
+				break
+			}
 			if !lastGame.DateTime.IsZero() &&
 				(lastGame.DateTime.Equal(createDateTime(keyValues)) ||
 					lastGame.DateTime.After(createDateTime(keyValues))) {
@@ -49,7 +56,6 @@ func pgnToDB(scanner *bufio.Scanner, db *mongo.Client, lastGame *LastGame) bool 
 					return false
 				}
 			}
-			keyValues = make(map[string]string) // for next game
 			break
 		default:
 			// not a valid char, skip
