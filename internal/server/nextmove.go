@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -113,12 +114,6 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	pgnMoves = pgnMoves[:i]
 
-	// Our logic allows input pgn to have 0 to 19 moves
-	if len(pgnMoves) > 19 {
-		json.NewEncoder(w).Encode(explorations) // empty array
-		return
-	}
-
 	// Connect to DB
 	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("mongo-url")))
 	if err != nil {
@@ -146,57 +141,116 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 	gameFilterBson := processGameFilter(filter)
 	andClause = append(andClause, gameFilterBson)
 
-	// filter on previous moves
-	for i := 1; i < len(pgnMoves)+1; i++ {
-		moveField := buildMoveFieldName(i)
-		andClause = append(andClause, bson.M{moveField: pgnMoves[i-1]})
-	}
+	if len(pgnMoves) < 0 {
+		// Our logic allows input pgn to have 0 to 19 moves
+		// Note: it is really not sure that mongodb aggregation is faster than the algorithm below
+		// filter on previous moves
+		for i := 1; i < len(pgnMoves)+1; i++ {
+			moveField := buildMoveFieldName(i)
+			andClause = append(andClause, bson.M{moveField: pgnMoves[i-1]})
+		}
 
-	// move field for aggregate
-	fieldNum := len(pgnMoves) + 1
-	moveField := buildMoveFieldName(fieldNum)
+		// move field for aggregate
+		fieldNum := len(pgnMoves) + 1
+		moveField := buildMoveFieldName(fieldNum)
 
-	// make sure next move exists
-	andClause = append(andClause, bson.M{moveField: bson.M{"$exists": true, "$ne": ""}})
+		// make sure next move exists
+		andClause = append(andClause, bson.M{moveField: bson.M{"$exists": true, "$ne": ""}})
 
-	pipeline := make([]bson.M, 0)
-	pipeline = append(pipeline, bson.M{"$match": bson.M{"$and": andClause}})
+		pipeline := make([]bson.M, 0)
+		pipeline = append(pipeline, bson.M{"$match": bson.M{"$and": andClause}})
 
-	groupStage := bson.M{
-		"$group": bson.M{
-			"_id":    bson.M{moveField: "$" + moveField, "result": "$result"},
-			"total":  bson.M{"$sum": 1},
-			"result": bson.M{"$push": "$result"},
-		},
-	}
-	pipeline = append(pipeline, groupStage)
+		groupStage := bson.M{
+			"$group": bson.M{
+				"_id":    bson.M{moveField: "$" + moveField, "result": "$result"},
+				"total":  bson.M{"$sum": 1},
+				"result": bson.M{"$push": "$result"},
+			},
+		}
+		pipeline = append(pipeline, groupStage)
 
-	subGroupStage := bson.M{
-		"$group": bson.M{
-			"_id":     bson.M{moveField: "$_id." + moveField},
-			"results": bson.M{"$addToSet": bson.M{"result": "$_id.result", "sum": "$total"}},
-		},
-	}
-	pipeline = append(pipeline, subGroupStage)
+		subGroupStage := bson.M{
+			"$group": bson.M{
+				"_id":     bson.M{moveField: "$_id." + moveField},
+				"results": bson.M{"$addToSet": bson.M{"result": "$_id.result", "sum": "$total"}},
+			},
+		}
+		pipeline = append(pipeline, subGroupStage)
 
-	projectStage := bson.M{
-		"$project": bson.M{
-			"_id":     false,
-			"move":    "$_id." + moveField,
-			"results": "$results",
-		},
-	}
-	pipeline = append(pipeline, projectStage)
+		projectStage := bson.M{
+			"$project": bson.M{
+				"_id":     false,
+				"move":    "$_id." + moveField,
+				"results": "$results",
+			},
+		}
+		pipeline = append(pipeline, projectStage)
 
-	aggregateCursor, err := games.Aggregate(ctx, pipeline)
-	if err != nil {
-		log.Fatal(err)
-	}
+		aggregateCursor, err := games.Aggregate(ctx, pipeline)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	defer aggregateCursor.Close(ctx)
+		defer aggregateCursor.Close(ctx)
 
-	if err = aggregateCursor.All(ctx, &explorations); err != nil {
-		log.Fatal(err)
+		if err = aggregateCursor.All(ctx, &explorations); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		// algorithmic aggregation
+		quotedPgn := regexp.QuoteMeta(filter.pgn)
+		andClause = append(andClause, bson.M{"pgn": bson.M{"$regex": quotedPgn}})
+
+		cursor, err := games.Find(ctx, bson.M{"$and": andClause})
+		defer cursor.Close(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var resultGames []pgntodb.Game
+		err = cursor.All(ctx, &resultGames)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		filterPgn := strings.Split(filter.pgn, " ")
+		for _, game := range resultGames {
+			gamePgn := strings.Split(game.PGN, " ")
+			gamePgn = gamePgn[0 : len(gamePgn)-1] // remove last bit which is the result
+			nextmove := ""
+			if len(gamePgn) > len(filterPgn) {
+				if strings.HasSuffix(gamePgn[len(filterPgn)], ".") {
+					nextmove = gamePgn[len(filterPgn)+1]
+				} else {
+					nextmove = gamePgn[len(filterPgn)]
+				}
+			}
+			if nextmove != "" {
+				foundExploration := -1
+				for iExploration := range explorations {
+					if explorations[iExploration].Move == nextmove {
+						foundExploration = iExploration
+						break
+					}
+				}
+				if foundExploration == -1 {
+					explorations = append(explorations, Exploration{Move: nextmove, Results: make([]Result, 0)})
+					foundExploration = len(explorations) - 1
+				}
+				foundResult := -1
+				for iResult := range explorations[foundExploration].Results {
+					if explorations[foundExploration].Results[iResult].Result == game.Result {
+						foundResult = iResult
+						explorations[foundExploration].Results[iResult].Sum = explorations[foundExploration].Results[iResult].Sum + 1
+						break
+					}
+				}
+				if foundResult == -1 {
+					explorations[foundExploration].Results = append(explorations[foundExploration].Results, Result{Result: game.Result, Sum: 1})
+				}
+			}
+		}
+
 	}
 
 	// add a total
@@ -215,6 +269,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 
 		if explorations[iExploration].Total == 1 {
 			// get link for moves pgn + move
+			// Note: this slows down the results if there are a lot of single games (eg: EricRosen)
 			game := getGame(ctx, games, pgnMoves, explorations[iExploration].Move, gameFilterBson)
 			if game != nil {
 				explorations[iExploration].Game = *game
