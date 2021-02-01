@@ -141,9 +141,8 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 	gameFilterBson := processGameFilter(filter)
 	andClause = append(andClause, gameFilterBson)
 
-	if len(pgnMoves) < 0 {
+	if len(pgnMoves) < 20 {
 		// Our logic allows input pgn to have 0 to 19 moves
-		// Note: it is really not sure that mongodb aggregation is faster than the algorithm below
 		// filter on previous moves
 		for i := 1; i < len(pgnMoves)+1; i++ {
 			moveField := buildMoveFieldName(i)

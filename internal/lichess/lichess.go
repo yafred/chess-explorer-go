@@ -16,7 +16,7 @@ import (
 
 // DownloadGames ... Downloads games from lichess.org for user {user}
 // https://lichess.org/api#operation/apiGamesUser
-func DownloadGames(username string) {
+func DownloadGames(username string, keepPgn string) {
 
 	url := "https://lichess.org/api/games/user/" + username
 
@@ -57,14 +57,19 @@ func DownloadGames(username string) {
 		log.Fatal(err)
 	}
 
-	// Create a temp file
-	tmpfile, err := ioutil.TempFile("", "lichess")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer os.Remove(tmpfile.Name()) // clean up
+	fileName := keepPgn
 
-	f, err := os.OpenFile(tmpfile.Name(), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if fileName == "" {
+		// Create a temp file
+		tmpfile, err := ioutil.TempFile("", "lichess")
+		if err != nil {
+			log.Fatal(err)
+		}
+		fileName = tmpfile.Name()
+		defer os.Remove(tmpfile.Name()) // clean up
+	}
+
+	f, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,5 +105,5 @@ func DownloadGames(username string) {
 	fmt.Println()
 
 	log.Println(numBytesRead, " bytes read")
-	pgntodb.Process(tmpfile.Name(), lastGame)
+	pgntodb.Process(fileName, lastGame)
 }

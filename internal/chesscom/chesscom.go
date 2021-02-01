@@ -24,7 +24,7 @@ type archivesContainer struct {
 }
 
 // DownloadGames ... Downloads games from Chess.com for {username}
-func DownloadGames(username string) {
+func DownloadGames(username string, keepPgn string) {
 
 	// Download archive list
 	chessClient := &http.Client{}
@@ -45,19 +45,30 @@ func DownloadGames(username string) {
 	} else {
 		log.Println("Last game in database: " + lastGame.GameID)
 	}
+
+	var keepPgnFile *os.File
+	if keepPgn != "" {
+		// Create the keep file
+		keepPgnFile, err = os.OpenFile(keepPgn, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer keepPgnFile.Close()
+	}
+
 	// Download PGN files most recent first
 	// Store games in database
 	// Stop on first duplicate
 	for i := len(archivesContainer.Archives) - 1; i > -1; i-- {
 		log.Println("GET " + archivesContainer.Archives[i] + "/pgn")
-		goOn := downloadArchive(chessClient, archivesContainer.Archives[i]+"/pgn", lastGame)
+		goOn := downloadArchive(chessClient, archivesContainer.Archives[i]+"/pgn", lastGame, keepPgnFile)
 		if goOn == false {
 			break
 		}
 	}
 }
 
-func downloadArchive(client *http.Client, url string, lastGame *pgntodb.LastGame) bool {
+func downloadArchive(client *http.Client, url string, lastGame *pgntodb.LastGame, keepPgnFile *os.File) bool {
 
 	// Get data
 	req, err := http.NewRequest("GET", url, nil)
@@ -105,6 +116,13 @@ func downloadArchive(client *http.Client, url string, lastGame *pgntodb.LastGame
 		n, err = f.Write(buf[0:n])
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		if keepPgnFile != nil {
+			n, err = keepPgnFile.Write(buf[0:n])
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 
 		if err != nil {
