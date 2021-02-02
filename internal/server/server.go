@@ -17,7 +17,7 @@ func Start() {
 	fs := http.FileServer(http.Dir("./docs/v1"))
 	http.Handle("/", fs)
 
-	http.HandleFunc("/nextmove", nextMoveHandler)
+	http.HandleFunc("/nextmoves", nextMoveHandler)
 	http.HandleFunc("/games", gamesHandler)
 	http.HandleFunc("/report", reportHandler)
 

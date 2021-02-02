@@ -17,7 +17,7 @@ var $maxelo = $('#maxelo')
 var $site = $('#site')
 var browsingGame = ""
 
-var nextMoveTpl = document.getElementById('nextMoveTpl').innerHTML;
+var nextMovesTpl = document.getElementById('nextMovesTpl').innerHTML;
 var usernameListTpl = document.getElementById('usernameListTpl').innerHTML;
 var timecontrolListTpl = document.getElementById('timecontrolListTpl').innerHTML;
 var nameListTpl = document.getElementById('nameListTpl').innerHTML;
@@ -143,9 +143,9 @@ function handleNameClicked(event, control, name) {
 }
 
 
-function getNextMove() {
+function getNextMoves() {
     $("#result").html("");
-    $.post(`http://127.0.0.1:${apiPort}/nextmove`, {
+    $.post(`http://127.0.0.1:${apiPort}/nextmoves`, {
         pgn: game.pgn(),
         white: $white.val(),
         black: $black.val(),
@@ -156,7 +156,7 @@ function getNextMove() {
         maxelo: $maxelo.val(),
         site: $site.val()
     }, function (data) {
-        nextMoveToHtml(JSON.parse(data));
+        nextMovesToHtml(JSON.parse(data));
     });
 }
 
@@ -311,7 +311,7 @@ function loadGame(link, aMove) {
     });
 }
 
-function nextMoveToHtml(dataObject) {
+function nextMovesToHtml(dataObject) {
     if (Array.isArray(dataObject) == false) {
         console.log("not an array")
         return
@@ -377,7 +377,7 @@ function nextMoveToHtml(dataObject) {
 
     });
 
-    $("#result").html(Mustache.render(nextMoveTpl, moves))
+    $("#result").html(Mustache.render(nextMovesTpl, moves))
     $(".move").bind("click", function (e) {
         e.preventDefault();
         move($(this).html())
@@ -443,7 +443,7 @@ function onSnapEnd() {
 function updateStatus() {
     displayPgn(game.pgn())
     $('#fen').html(game.fen())
-    getNextMove()
+    getNextMoves()
 }
 
 var config = {
