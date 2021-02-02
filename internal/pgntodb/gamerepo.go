@@ -69,8 +69,10 @@ func findLastGame(username string, site string, client *mongo.Client) *LastGame 
 
 	lastgames := client.Database("chess-explorer").Collection("lastgames")
 	filter := bson.M{"site": site, "username": username}
+	collation := options.Collation{Locale: "en", Strength: 2}
+	findOneOptions := options.FindOneOptions{Collation: &collation} // case insensitive search
 
-	result := lastgames.FindOne(context.TODO(), filter)
+	result := lastgames.FindOne(context.TODO(), filter, &findOneOptions)
 
 	if result != nil {
 		result.Decode(&lastGame)
@@ -110,7 +112,7 @@ func logLastGame(username string, game Game, client *mongo.Client) {
 			log.Fatal(error)
 		}
 
-		log.Println("Last game is now: " + lastGame.GameID)
+		log.Println("Most recent game is now: " + lastGame.GameID)
 	}
 }
 

@@ -78,7 +78,7 @@ func Games(username string) {
 
 	notIn := make([]string, 0)
 	for _, user := range users {
-		if user.Username != username {
+		if strings.ToLower(user.Username) != strings.ToLower(username) {
 			notIn = append(notIn, user.Username)
 		}
 	}
@@ -102,7 +102,11 @@ func Games(username string) {
 	}
 
 	gamesCollection := client.Database("chess-explorer").Collection("games")
-	_, err = gamesCollection.DeleteMany(ctx, gameFilter)
+
+	collation := options.Collation{Locale: "en", Strength: 2}
+	deleteOptions := options.DeleteOptions{Collation: &collation} // case insensitive search
+
+	_, err = gamesCollection.DeleteMany(ctx, gameFilter, &deleteOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -112,7 +116,7 @@ func Games(username string) {
 	if site != "" {
 		deleteUsersFilter = bson.M{"username": username, "site": site}
 	}
-	_, err = lastgamesCollection.DeleteMany(ctx, deleteUsersFilter)
+	_, err = lastgamesCollection.DeleteMany(ctx, deleteUsersFilter, &deleteOptions)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -40,9 +40,9 @@ func DownloadGames(username string, keepPgn string) {
 	if lastGame.DateTime.IsZero() {
 		log.Println("New user")
 	} else {
-		log.Println("Last game in database: " + lastGame.GameID)
+		log.Println("Most recent game in database: " + lastGame.GameID)
 		since := lastGame.DateTime.UnixNano() / int64(time.Millisecond)
-		since += 1000 // add 1 sec to avoid downloading the last game we have
+		since += 1000 // add 1 sec to avoid downloading the most recent game we have
 		q.Add("since", strconv.FormatInt(since, 10))
 	}
 
