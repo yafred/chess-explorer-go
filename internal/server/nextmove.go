@@ -33,7 +33,7 @@ type GameFilter struct {
 	site        string
 }
 
-func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
+func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 
 	// allow cross origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -42,7 +42,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		Result string `json:"result,omitempty"`
 		Sum    uint32 `json:"sum,omitempty"`
 	}
-	type Exploration struct {
+	type NextMove struct {
 		move01  string `bson:"m01,omitempty"`
 		move02  string `bson:"m02,omitempty"`
 		move03  string `bson:"m03,omitempty"`
@@ -74,7 +74,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 		Game    pgntodb.Game `json:"game,omitempty"` // when Total = 1
 	}
 
-	var explorations []Exploration
+	var nextmoves []NextMove
 	var filter GameFilter
 	mongoAggregation := true
 
@@ -200,7 +200,7 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 
 		defer aggregateCursor.Close(ctx)
 
-		if err = aggregateCursor.All(ctx, &explorations); err != nil {
+		if err = aggregateCursor.All(ctx, &nextmoves); err != nil {
 			log.Fatal(err)
 		}
 	} else {
@@ -233,27 +233,27 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			if nextmove != "" {
-				foundExploration := -1
-				for iExploration := range explorations {
-					if explorations[iExploration].Move == nextmove {
-						foundExploration = iExploration
+				foundNextMove := -1
+				for iNextMove := range nextmoves {
+					if nextmoves[iNextMove].Move == nextmove {
+						foundNextMove = iNextMove
 						break
 					}
 				}
-				if foundExploration == -1 {
-					explorations = append(explorations, Exploration{Move: nextmove, Results: make([]Result, 0), tmpGame: game})
-					foundExploration = len(explorations) - 1
+				if foundNextMove == -1 {
+					nextmoves = append(nextmoves, NextMove{Move: nextmove, Results: make([]Result, 0), tmpGame: game})
+					foundNextMove = len(nextmoves) - 1
 				}
 				foundResult := -1
-				for iResult := range explorations[foundExploration].Results {
-					if explorations[foundExploration].Results[iResult].Result == game.Result {
+				for iResult := range nextmoves[foundNextMove].Results {
+					if nextmoves[foundNextMove].Results[iResult].Result == game.Result {
 						foundResult = iResult
-						explorations[foundExploration].Results[iResult].Sum = explorations[foundExploration].Results[iResult].Sum + 1
+						nextmoves[foundNextMove].Results[iResult].Sum = nextmoves[foundNextMove].Results[iResult].Sum + 1
 						break
 					}
 				}
 				if foundResult == -1 {
-					explorations[foundExploration].Results = append(explorations[foundExploration].Results, Result{Result: game.Result, Sum: 1})
+					nextmoves[foundNextMove].Results = append(nextmoves[foundNextMove].Results, Result{Result: game.Result, Sum: 1})
 				}
 			}
 		}
@@ -261,40 +261,40 @@ func nextMoveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// add a total
-	for iExploration := range explorations {
-		for _, y := range explorations[iExploration].Results {
+	for iNextMove := range nextmoves {
+		for _, y := range nextmoves[iNextMove].Results {
 			if y.Result == "1-0" {
-				explorations[iExploration].Win = y.Sum
+				nextmoves[iNextMove].Win = y.Sum
 			} else if y.Result == "0-1" {
-				explorations[iExploration].Lose = y.Sum
+				nextmoves[iNextMove].Lose = y.Sum
 			} else {
-				explorations[iExploration].Draw = y.Sum
+				nextmoves[iNextMove].Draw = y.Sum
 			}
 		}
 
-		explorations[iExploration].Total = explorations[iExploration].Win + explorations[iExploration].Draw + explorations[iExploration].Lose
+		nextmoves[iNextMove].Total = nextmoves[iNextMove].Win + nextmoves[iNextMove].Draw + nextmoves[iNextMove].Lose
 
-		if explorations[iExploration].Total == 1 {
+		if nextmoves[iNextMove].Total == 1 {
 			if mongoAggregation {
 				// get link for moves pgn + move
 				// Note: this slows down the results if there are a lot of single games (eg: EricRosen)
-				game := getGame(ctx, games, pgnMoves, explorations[iExploration].Move, gameFilterBson)
+				game := getGame(ctx, games, pgnMoves, nextmoves[iNextMove].Move, gameFilterBson)
 				if game != nil {
-					explorations[iExploration].Game = *game
+					nextmoves[iNextMove].Game = *game
 				}
 			} else {
-				explorations[iExploration].Game = explorations[iExploration].tmpGame
+				nextmoves[iNextMove].Game = nextmoves[iNextMove].tmpGame
 			}
 		}
 	}
 
 	// sort by counts
-	sort.Slice(explorations, func(i, j int) bool {
-		return explorations[i].Total > explorations[j].Total
+	sort.Slice(nextmoves, func(i, j int) bool {
+		return nextmoves[i].Total > nextmoves[j].Total
 	})
 
 	// send the response
-	json.NewEncoder(w).Encode(explorations)
+	json.NewEncoder(w).Encode(nextmoves)
 }
 
 func buildMoveFieldName(fieldNum int) (moveField string) {
