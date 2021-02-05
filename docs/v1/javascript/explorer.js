@@ -15,7 +15,6 @@ var $to = $('#to')
 var $minelo = $('#minelo')
 var $maxelo = $('#maxelo')
 var $site = $('#site')
-var browsingGame = ""
 var nextMove = ""
 
 var nextMovesTpl = document.getElementById('nextMovesTpl').innerHTML;
@@ -68,7 +67,6 @@ $("#swap").click(function (e) {
 
 $("#undo").click(function (e) {
     e.preventDefault();
-    browsingGame = ""
     game.undo()
     board.position(game.fen())
     updateStatus()
@@ -87,7 +85,6 @@ $("#reset").click(function (e) {
 });
 
 function resetClicked() {
-    browsingGame = ""
     game.reset()
     board.position(game.fen())
     updateStatus()
@@ -303,18 +300,6 @@ function compareTimecontrolsByName(itemA, itemB) {
     return intA - intB
 }
 
-// Not used, we follow the link to chess.com or lichess.org for now
-function loadGame(link, aMove) {
-    // set tool in browsing game mode
-    $("#result").html("");
-    browsingGame = getPgnPlusMove(aMove)
-    move(aMove)
-    $.post(`http://127.0.0.1:${apiPort}/games`, { link: link }, function (data) {
-        ret = JSON.parse(data);
-        displayPgn(ret[0].pgn)
-    });
-}
-
 function nextMovesToHtml(dataObject) {
     nextMove = ""
     if (Array.isArray(dataObject) == false) {
@@ -392,18 +377,6 @@ function nextMovesToHtml(dataObject) {
     });
 }
 
-// Not used (I use game link instead)
-function getPgnPlusMove(aMove) {
-    pgn = game.pgn()
-    splitPgn = pgn.split(" ")
-    lineCount = Math.floor((splitPgn.length / 3))
-    if (splitPgn.length % 3 == 0) {
-        // create a new line
-        pgn = pgn + " " + (lineCount + 1) + "."
-    }
-    pgn = pgn + " " + aMove
-    return pgn
-}
 
 function displayPgn(pgn) {
     $('#pgn').html(pgn)
