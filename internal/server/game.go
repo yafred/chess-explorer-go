@@ -3,41 +3,25 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/spf13/viper"
+	"github.com/yafred/chess-explorer/internal/pgntodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-func gamesHandler(w http.ResponseWriter, r *http.Request) {
-
-	type Game struct {
-		Pgn string `json:"pgn,omitempty"`
-	}
+func gameHandler(w http.ResponseWriter, r *http.Request) {
 
 	// allow cross origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	link := ""
-	switch r.Method {
-	case "POST":
-		// Call ParseForm() to parse the raw query and update r.PostForm and r.Form.
-		if err := r.ParseForm(); err != nil {
-			fmt.Fprintf(w, "ParseForm() err: %v", err)
-			return
-		}
-		link = strings.TrimSpace(r.FormValue("link"))
-	default:
-		fmt.Fprintf(w, "Sorry, only POST methods is supported.")
-		return
-	}
+	gameID := strings.TrimSpace(r.FormValue("gameId"))
 
 	// Connect to DB
 	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("mongo-url")))
@@ -59,18 +43,14 @@ func gamesHandler(w http.ResponseWriter, r *http.Request) {
 
 	games := client.Database("chess-explorer").Collection("games")
 
-	cursor, err := games.Find(ctx, bson.M{"link": link})
-	defer cursor.Close(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
+	result := games.FindOne(ctx, bson.M{"_id": gameID})
 
-	var resultGames []Game
-	err = cursor.All(ctx, &resultGames)
-	if err != nil {
-		log.Fatal(err)
+	var game pgntodb.Game
+
+	if result != nil {
+		result.Decode(&game)
 	}
 
 	// send the response
-	json.NewEncoder(w).Encode(resultGames)
+	json.NewEncoder(w).Encode(game)
 }

@@ -18,7 +18,7 @@ func Start() {
 	http.Handle("/", fs)
 
 	http.HandleFunc("/nextmoves", nextMovesHandler)
-	http.HandleFunc("/games", gamesHandler)
+	http.HandleFunc("/game", gameHandler)
 	http.HandleFunc("/report", reportHandler)
 
 	port := viper.GetInt("server-port")
