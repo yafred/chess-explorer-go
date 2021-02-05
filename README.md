@@ -9,6 +9,7 @@
     * `go run main.go chesscom {username}` to download games from https://www.chess.com
     * `go run main.go lichess {username}` to download games from https://lichess.org
     * `go run main.go lichess {username} --token {your lichess.org personal API access token}` to download games from https://lichess.org at a higher speed
+    * `go run main.go sync` to download recent games for all users you have already downloaded games for (see commands above)
   * Keep your initial download (handy if you need to reinitialize your database)
     * `go run main.go chesscom {username} --keep {path to a new file}`
     * `go run main.go lichess {username} --keep {path to a new file}` 
