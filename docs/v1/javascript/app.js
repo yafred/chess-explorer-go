@@ -16,6 +16,7 @@ var $minelo = $('#minelo')
 var $maxelo = $('#maxelo')
 var $site = $('#site')
 var browsingGame = ""
+var nextMove = ""
 
 var nextMovesTpl = document.getElementById('nextMovesTpl').innerHTML;
 var usernameListTpl = document.getElementById('usernameListTpl').innerHTML;
@@ -62,10 +63,6 @@ $("#swap").click(function (e) {
     $black.val($white.val())
     $white.val(black)
     resetClicked()
-});
-
-$("#flip").click(function (e) {
-    e.preventDefault();
     board.flip()
 });
 
@@ -75,6 +72,13 @@ $("#undo").click(function (e) {
     game.undo()
     board.position(game.fen())
     updateStatus()
+});
+
+$("#next").click(function (e) {
+    e.preventDefault();
+    if (nextMove != "") {
+        move(nextMove)
+    }
 });
 
 $("#reset").click(function (e) {
@@ -312,6 +316,7 @@ function loadGame(link, aMove) {
 }
 
 function nextMovesToHtml(dataObject) {
+    nextMove = ""
     if (Array.isArray(dataObject) == false) {
         console.log("not an array")
         return
@@ -363,6 +368,9 @@ function nextMovesToHtml(dataObject) {
         }
         else {
             internalLink = true
+            if (nextMove == "") {
+                nextMove = element.move
+            }
             moves.push({
                 internalLink: internalLink,
                 externalLink: externalLink,
@@ -404,7 +412,7 @@ function displayPgn(pgn) {
 function move(aMove) {
     game.move(aMove)
     updateStatus()
-    board.position(game.fen(), false)
+    board.position(game.fen(), true)
 }
 
 // Board events
