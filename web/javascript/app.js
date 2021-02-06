@@ -3,7 +3,7 @@
 // https://github.com/oakmac/chessboardjs
 // https://github.com/jhlywa/chess.js
 
-var apiPort = "52825"
+var apiPort = '52825'
 var board = null
 var game = new Chess()
 
@@ -15,7 +15,7 @@ var $to = $('#to')
 var $minelo = $('#minelo')
 var $maxelo = $('#maxelo')
 var $site = $('#site')
-var nextMove = ""
+var nextMove = ''
 
 var nextMovesTpl = document.getElementById('nextMovesTpl').innerHTML;
 var usernameListTpl = document.getElementById('usernameListTpl').innerHTML;
@@ -56,7 +56,7 @@ $site.change(function () {
     resetClicked()
 });
 
-$("#swap").click(function (e) {
+$('#swap').click(function (e) {
     e.preventDefault();
     var black = $black.val()
     $black.val($white.val())
@@ -65,21 +65,21 @@ $("#swap").click(function (e) {
     board.orientation('flip')
 });
 
-$("#undo").click(function (e) {
+$('#undo').click(function (e) {
     e.preventDefault();
     game.undo()
     board.position(game.fen())
     updateStatus()
 });
 
-$("#next").click(function (e) {
+$('#next').click(function (e) {
     e.preventDefault();
-    if (nextMove != "") {
+    if (nextMove != '') {
         move(nextMove)
     }
 });
 
-$("#reset").click(function (e) {
+$('#reset').click(function (e) {
     e.preventDefault();
     resetClicked()
 });
@@ -91,23 +91,23 @@ function resetClicked() {
     updateReport()
 }
 
-$("#clear-usernames").click(function (e) {
+$('#clear-usernames').click(function (e) {
     e.preventDefault();
-    $white.val("")
-    $black.val("")
+    $white.val('')
+    $black.val('')
     resetClicked()
     board.orientation('white')
 });
 
-$("#clear-timecontrols").click(function (e) {
+$('#clear-timecontrols').click(function (e) {
     e.preventDefault();
-    $timecontrol.val("")
+    $timecontrol.val('')
     resetClicked()
 });
 
-$("#clear-sites").click(function (e) {
+$('#clear-sites').click(function (e) {
     e.preventDefault();
-    $site.val("")
+    $site.val('')
     resetClicked()
 });
 
@@ -125,20 +125,20 @@ Array.prototype.remove = function () {
 
 
 function handleNameClicked(event, control, name) {
-    if (control.val().trim() == "" || !event.ctrlKey) {
+    if (control.val().trim() == '' || !event.ctrlKey) {
         control.val(name)
         resetClicked()
     }
     else {
-        values = control.val().trim().split(",")
+        values = control.val().trim().split(',')
         if (values.indexOf(name) == -1) {
             values.push(name)
-            control.val(values.join(","))
+            control.val(values.join(','))
             resetClicked()
         }
         else {
             values.remove(name)
-            control.val(values.join(","))
+            control.val(values.join(','))
             resetClicked()
         }
     }
@@ -146,7 +146,7 @@ function handleNameClicked(event, control, name) {
 
 
 function getNextMoves() {
-    $("#nextmoves").html("");
+    $('#nextmoves').html('');
     $.post(`http://127.0.0.1:${apiPort}/nextmoves`, {
         pgn: game.pgn(),
         white: $white.val(),
@@ -169,60 +169,60 @@ function updateReport() {
     }, function (data) {
         ret = JSON.parse(data);
         if (Array.isArray(ret.Sites) != false) {
-            $("#siteNames").html(Mustache.render(nameListTpl, ret.Sites))
-            $("#siteNames a").bind("click", function (e) {
+            $('#siteNames').html(Mustache.render(nameListTpl, ret.Sites))
+            $('#siteNames a').bind('click', function (e) {
                 e.preventDefault();
                 handleNameClicked(e, $site, $(this).html())
             });
         }
         if (Array.isArray(ret.Users) != false) {
             ret.Users.forEach((element) => {
-                if (element.sitename == "lichess.org") {
-                    element.imgpath = "/img/logos/lichessorg-48.png"
+                if (element.sitename == 'lichess.org') {
+                    element.imgpath = '/img/logos/lichessorg-48.png'
                 }
-                if (element.sitename == "chess.com") {
-                    element.imgpath = "/img/logos/chesscom-48.png"
+                if (element.sitename == 'chess.com') {
+                    element.imgpath = '/img/logos/chesscom-48.png'
                 }
             })
-            $("#userNames").html(Mustache.render(usernameListTpl, ret.Users))
-            $("#userNames a").bind("click", function (e) {
+            $('#userNames').html(Mustache.render(usernameListTpl, ret.Users))
+            $('#userNames a').bind('click', function (e) {
                 e.preventDefault();
                 username = $(this).html()
-                if ($(this).data("sitename") == "chess.com") {
-                    username = "c:" + username
+                if ($(this).data('sitename') == 'chess.com') {
+                    username = 'c:' + username
                 }
-                if ($(this).data("sitename") == "lichess.org") {
-                    username = "l:" + username
+                if ($(this).data('sitename') == 'lichess.org') {
+                    username = 'l:' + username
                 }
                 handleNameClicked(e, $white, username)
             });
         }
         if (Array.isArray(ret.TimeControls) != false) {
             ret.TimeControls.sort(compareTimecontrolsByName)
-            $("#ultra-bullet-timeControlNames").html("")
-            $("#bullet-timeControlNames").html("")
-            $("#blitz-timeControlNames").html("")
-            $("#rapid-timeControlNames").html("")
-            $("#classic-timeControlNames").html("")
+            $('#ultra-bullet-timeControlNames').html('')
+            $('#bullet-timeControlNames').html('')
+            $('#blitz-timeControlNames').html('')
+            $('#rapid-timeControlNames').html('')
+            $('#classic-timeControlNames').html('')
             if (ret.TimeControls.length > 10) {
                 ret.TimeControls = groupTimecontrols(ret.TimeControls)
                 // groups
                 for (key in ret.TimeControls.grouped) {
-                    $("#" + key + "-timeControlNames").html(Mustache.render(timecontrolListTpl, ret.TimeControls.grouped[key]))
-                    $("#" + key + "-timeControlNames a").bind("click", function (e) {
+                    $('#' + key + '-timeControlNames').html(Mustache.render(timecontrolListTpl, ret.TimeControls.grouped[key]))
+                    $('#' + key + '-timeControlNames a').bind('click', function (e) {
                         e.preventDefault();
                         handleNameClicked(e, $timecontrol, $(this).html())
                     });
                 }
-                $(".timeControlLabel").show()
+                $('.timeControlLabel').show()
             }
             else {
-                $("#timeControlNames").html(Mustache.render(timecontrolListTpl, ret.TimeControls))
-                $("#timeControlNames a").bind("click", function (e) {
+                $('#timeControlNames').html(Mustache.render(timecontrolListTpl, ret.TimeControls))
+                $('#timeControlNames a').bind('click', function (e) {
                     e.preventDefault();
                     handleNameClicked(e, $timecontrol, $(this).html())
                 });
-                $(".timeControlLabel").hide()
+                $('.timeControlLabel').hide()
             }
         }
     });
@@ -231,26 +231,26 @@ function updateReport() {
 function groupTimecontrols(timecontrolList) {
     timecontrolList.grouped = []
     timecontrolList.forEach((item) => {
-        baseTimeStr = item.name.split("+")[0]
+        baseTimeStr = item.name.split('+')[0]
         if (!isNormalInteger(baseTimeStr)) {
             baseTime = Number.MAX_SAFE_INTEGER;
         }
         baseTime = parseInt(baseTimeStr)
-        groupName = ""
+        groupName = ''
         if (baseTime < 60) {
-            groupName = "ultra-bullet"
+            groupName = 'ultra-bullet'
         }
         else if (baseTime < 180) {
-            groupName = "bullet"
+            groupName = 'bullet'
         }
         else if (baseTime < 600) {
-            groupName = "blitz"
+            groupName = 'blitz'
         }
         else if (baseTime < 3600) {
-            groupName = "rapid"
+            groupName = 'rapid'
         }
         else {
-            groupName = "classic"
+            groupName = 'classic'
         }
         if (timecontrolList.grouped[groupName] == undefined) {
             timecontrolList.grouped[groupName] = []
@@ -281,8 +281,8 @@ function compareTimecontrolsByName(itemA, itemB) {
     }
     if (intA == Number.MAX_SAFE_INTEGER) {
         // try the A+B form
-        if (-1 != a.indexOf("+")) {
-            splitA = a.split("+")
+        if (-1 != a.indexOf('+')) {
+            splitA = a.split('+')
             if (isNormalInteger(splitA[0]) && isNormalInteger(splitA[1])) {
                 intA = parseInt(splitA[0]) + parseInt(splitA[1])
             }
@@ -290,8 +290,8 @@ function compareTimecontrolsByName(itemA, itemB) {
     }
     if (intB == Number.MAX_SAFE_INTEGER) {
         // try the A+B form
-        if (-1 != b.indexOf("+")) {
-            splitB = b.split("+")
+        if (-1 != b.indexOf('+')) {
+            splitB = b.split('+')
             if (isNormalInteger(splitB[0]) && isNormalInteger(splitB[1])) {
                 intB = parseInt(splitB[0]) + parseInt(splitB[1])
             }
@@ -302,9 +302,9 @@ function compareTimecontrolsByName(itemA, itemB) {
 }
 
 function nextMovesToHtml(dataObject) {
-    nextMove = ""
+    nextMove = ''
     if (Array.isArray(dataObject) == false) {
-        console.log("not an array")
+        console.log('not an array')
         return
     }
 
@@ -315,29 +315,29 @@ function nextMovesToHtml(dataObject) {
         winPercent = Math.round(100 * element.win / element.total)
         losePercent = Math.round(100 * element.lose / element.total)
         drawPercent = 100 - winPercent - losePercent
-        drawPercentText = ""
+        drawPercentText = ''
         if (drawPercent > 12) {
-            drawPercentText = "" + drawPercent + "%"
+            drawPercentText = '' + drawPercent + '%'
         }
 
         internalLink = false
         externalLink = false
         if (element.total == 1) {
             externalLink = true
-            element.game.userlink = "https://www.chess.com/member/"
-            if (element.game.site == "lichess.org") {
-                element.game.userlink = "https://lichess.org/@/"
+            element.game.userlink = 'https://www.chess.com/member/'
+            if (element.game.site == 'lichess.org') {
+                element.game.userlink = 'https://lichess.org/@/'
             }
             // win,draw,lose
             win = false
             lose = false
             draw = false
-            if (element.game.result == "1-0") {
+            if (element.game.result == '1-0') {
                 win = true
-            } else if (element.game.result == "0-1") {
+            } else if (element.game.result == '0-1') {
                 lose = true
             } else {
-                element.game.result = "1/2"
+                element.game.result = '1/2'
                 draw = true
             }
             // date
@@ -355,7 +355,7 @@ function nextMovesToHtml(dataObject) {
         }
         else {
             internalLink = true
-            if (nextMove == "") {
+            if (nextMove == '') {
                 nextMove = element.move
             }
             moves.push({
@@ -372,8 +372,8 @@ function nextMovesToHtml(dataObject) {
 
     });
 
-    $("#nextmoves").html(Mustache.render(nextMovesTpl, moves))
-    $(".move").bind("click", function (e) {
+    $('#nextmoves').html(Mustache.render(nextMovesTpl, moves))
+    $('.move').bind('click', function (e) {
         e.preventDefault();
         move($(this).html())
     });
@@ -413,7 +413,7 @@ function onDrop(source, target) {
     // illegal move
     if (move === null) return 'snapback'
 
-    browsingGame = "" // quit browsing mode
+    browsingGame = '' // quit browsing mode
     updateStatus()
 }
 
