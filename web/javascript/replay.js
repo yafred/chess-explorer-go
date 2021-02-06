@@ -7,12 +7,8 @@ var board = null
 var game = new Chess()
 
 var gameId = getParameterByName('gameId'); 
-var flip = getParameterByName('flip'); 
-var move = getParameterByName('move'); 
-
-if(gameId != null) {
-    loadGame(gameId)
-}
+var boardOrientation = getParameterByName('orientation'); 
+var skipMoves = getParameterByName('skip'); 
 
 
 // Get query parameters
@@ -28,15 +24,33 @@ function getParameterByName(name, url = window.location.href) {
 
 // Load the game we are going to replay
 function loadGame(gameId) {
-    $.get(`http://127.0.0.1:${apiPort}/game`, { gameId: gameId }, function (data) {
-        pgn = JSON.parse(data);
-        console.log(data)
+    $.get(`http://127.0.0.1:${apiPort}/game`, { gameId: gameId }, function (jsonData) {
+        data = JSON.parse(jsonData)
+
+        // slice pgn
+        splitPgn = data.pgn.split(" ")
+        splitOpening = splitPgn.slice(0, 3*Math.floor(skipMoves/2) + skipMoves%2 + 1)
+
+        game.load_pgn(splitOpening.join(' '))
+
+        var config = {
+            moveSpeed: 400,
+            draggable: false,
+            position: game.fen(),
+            orientation: boardOrientation
+        }
+        board = Chessboard('myBoard', config)  
+
+        // animate the next move
+        game.move(splitPgn[3*Math.floor(skipMoves/2) + skipMoves%2 + 1])
+        board.position(game.fen(), true)
     });
 }
 
 
-var config = {
-    draggable: false,
-    position: 'start'
+
+
+if(gameId != null) {
+    loadGame(gameId)
 }
-board = Chessboard('myBoard', config)
+

@@ -342,6 +342,7 @@ function nextMovesToHtml(dataObject) {
             }
             // date
             element.game.date = new Date(Date.parse(element.game.datetime)).toLocaleDateString()
+            element.game.link = 'replay.html?gameId=' + element.game._id + '&skip=' + (game.history().length) + '&orientation=' + board.orientation() 
             moves.push({
                 internalLink: internalLink,
                 externalLink: externalLink,
@@ -429,6 +430,7 @@ function updateStatus() {
 }
 
 var config = {
+    moveSpeed: 400,
     draggable: true,
     position: 'start',
     onDragStart: onDragStart,
