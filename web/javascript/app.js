@@ -438,6 +438,7 @@ var config = {
     onSnapEnd: onSnapEnd
 }
 board = Chessboard('myBoard', config)
+board.resize()
 
 resetClicked()
 

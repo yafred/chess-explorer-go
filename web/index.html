@@ -79,53 +79,51 @@
     </div>
     <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-3">
-        <label for="white">User(s) playing white:</label>
-        <input type="text" id="white" name="white" />
-        <label for="black">User(s) playing black:</label>
-        <input type="text" id="black" name="black" />
-        <label for="timecontrol">Time control(s):</label>
-        <input type="text" id="timecontrol" name="timecontrol" />
-        <div class="grid-x">
-          <div class="cell small-6">
-            <label for="from">From date:</label>
-            <input type="date" id="from" name="from" style="color: grey;" />
-          </div>
-          <div class="cell small-6">
-            <label for="to">To date:</label>
-            <input type="date" id="to" name="to" style="color: grey;" />
-          </div>
-        </div>
-        <label for="site">Site(s):</label>
-        <input type="text" id="site" name="site" />
-        <div class="grid-x grid-margin-x">
-          <div class="cell small-6">
-            <label for="minelo">From ELO:</label>
-            <input type="text" id="minelo" name="minelo" />
-          </div>
-          <div class="cell small-6">
-            <label for="maxelo">To ELO:</label>
-            <input type="text" id="maxelo" name="maxelo" />
+        <div class="cell-block-y">
+          <div id="filter" style="height: 600px; overflow-x: hidden;">
+            <label for="white">User(s) playing white:</label>
+            <input type="text" id="white" name="white" />
+            <label for="black">User(s) playing black:</label>
+            <input type="text" id="black" name="black" />
+            <label for="timecontrol">Time control(s):</label>
+            <input type="text" id="timecontrol" name="timecontrol" />
+            <div class="grid-x">
+              <div class="cell small-6">
+                <label for="from">From date:</label>
+                <input type="date" id="from" name="from" style="color: grey;" />
+              </div>
+              <div class="cell small-6">
+                <label for="to">To date:</label>
+                <input type="date" id="to" name="to" style="color: grey;" />
+              </div>
+            </div>
+            <label for="site">Site(s):</label>
+            <input type="text" id="site" name="site" />
+            <div class="grid-x grid-margin-x">
+              <div class="cell small-6">
+                <label for="minelo">From ELO:</label>
+                <input type="text" id="minelo" name="minelo" />
+              </div>
+              <div class="cell small-6">
+                <label for="maxelo">To ELO:</label>
+                <input type="text" id="maxelo" name="maxelo" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <div class="cell small-5">
         <div class="grid-x grid-margin-x">
           <div class="cell small-12"></div>
-          <div id="myBoard" style="width: 400px"></div>
-        <div class="grid-x grid-margin-x" style="width: 400px; font-size: 1.2rem;">
-          <div class="cell small-3 text-center"><a href="#" id="swap" class="fa fa-retweet"></a></div>
-          <div class="cell small-3 text-center"><a href="#" id="reset" class="fa fa-fast-backward"></a></div>
-          <div class="cell small-3 text-center"><a href="#" id="undo" class="fa fa-step-backward"></a></div>
-          <div class="cell small-3 text-center"><a href="#" id="next" class="fa fa-step-forward"></a></div>
-        </div>
-        <div class="grid-x grid-margin-x" style="width: 400px; color: grey;">
-          <div class="cell small-3 text-center">flip board</div>
-          <div class="cell small-3 text-center">reset</div>
-          <div class="cell small-3 text-center">back</div>
-          <div class="cell small-3 text-center">next in main line</div>
+          <div id="myBoard" style="width: 100%"></div>
+          <div class="grid-x grid-margin-x" style="width: 100%; font-size: 1.4rem;">
+            <div class="cell small-3 text-center"><a href="#" id="swap" class="fa fa-retweet"></a></div>
+            <div class="cell small-3 text-center"><a href="#" id="reset" class="fa fa-fast-backward"></a></div>
+            <div class="cell small-3 text-center"><a href="#" id="undo" class="fa fa-step-backward"></a></div>
+            <div class="cell small-3 text-center"><a href="#" id="next" class="fa fa-step-forward"></a></div>
+          </div>
         </div>
       </div>
-    </div>
       <div class="cell small-4">
         <div class="cell-block-y">
           <div id="result" style="height: 600px; overflow-x: hidden;"></div>
@@ -160,7 +158,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"
     integrity="sha384-s3XgLpvmHyscVpijnseAmye819Ee3yaGa8NxstkJVyA6nuDFjt59u1QvuEl/mecz"
     crossorigin="anonymous"></script>
-  <script src="javascript/explorer.js" type="text/javascript" crossorigin="anonymous"></script>
+  <script src="javascript/app.js" type="text/javascript" crossorigin="anonymous"></script>
 </body>
 
 </html>
