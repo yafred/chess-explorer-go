@@ -146,7 +146,7 @@ function handleNameClicked(event, control, name) {
 
 
 function getNextMoves() {
-    $("#result").html("");
+    $("#nextmoves").html("");
     $.post(`http://127.0.0.1:${apiPort}/nextmoves`, {
         pgn: game.pgn(),
         white: $white.val(),
@@ -372,7 +372,7 @@ function nextMovesToHtml(dataObject) {
 
     });
 
-    $("#result").html(Mustache.render(nextMovesTpl, moves))
+    $("#nextmoves").html(Mustache.render(nextMovesTpl, moves))
     $(".move").bind("click", function (e) {
         e.preventDefault();
         move($(this).html())

@@ -80,33 +80,35 @@
     <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-3">
         <div class="cell-block-y">
-          <div id="filter" style="height: 600px; overflow-x: hidden;">
-            <label for="white">User(s) playing white:</label>
-            <input type="text" id="white" name="white" />
-            <label for="black">User(s) playing black:</label>
-            <input type="text" id="black" name="black" />
-            <label for="timecontrol">Time control(s):</label>
-            <input type="text" id="timecontrol" name="timecontrol" />
-            <div class="grid-x">
-              <div class="cell small-6">
-                <label for="from">From date:</label>
-                <input type="date" id="from" name="from" style="color: grey;" />
+          <div style="height: 600px; overflow-x: hidden;">
+            <div id="filter">
+              <label for="white">User(s) playing white:</label>
+              <input type="text" id="white" name="white" />
+              <label for="black">User(s) playing black:</label>
+              <input type="text" id="black" name="black" />
+              <label for="timecontrol">Time control(s):</label>
+              <input type="text" id="timecontrol" name="timecontrol" />
+              <div class="grid-x">
+                <div class="cell small-6">
+                  <label for="from">From date:</label>
+                  <input type="date" id="from" name="from" style="color: grey;" />
+                </div>
+                <div class="cell small-6">
+                  <label for="to">To date:</label>
+                  <input type="date" id="to" name="to" style="color: grey;" />
+                </div>
               </div>
-              <div class="cell small-6">
-                <label for="to">To date:</label>
-                <input type="date" id="to" name="to" style="color: grey;" />
-              </div>
-            </div>
-            <label for="site">Site(s):</label>
-            <input type="text" id="site" name="site" />
-            <div class="grid-x grid-margin-x">
-              <div class="cell small-6">
-                <label for="minelo">From ELO:</label>
-                <input type="text" id="minelo" name="minelo" />
-              </div>
-              <div class="cell small-6">
-                <label for="maxelo">To ELO:</label>
-                <input type="text" id="maxelo" name="maxelo" />
+              <label for="site">Site(s):</label>
+              <input type="text" id="site" name="site" />
+              <div class="grid-x grid-margin-x">
+                <div class="cell small-6">
+                  <label for="minelo">From ELO:</label>
+                  <input type="text" id="minelo" name="minelo" />
+                </div>
+                <div class="cell small-6">
+                  <label for="maxelo">To ELO:</label>
+                  <input type="text" id="maxelo" name="maxelo" />
+                </div>
               </div>
             </div>
           </div>
@@ -126,7 +128,9 @@
       </div>
       <div class="cell small-4">
         <div class="cell-block-y">
-          <div id="result" style="height: 600px; overflow-x: hidden;"></div>
+          <div style="height: 600px; overflow-x: hidden;">
+            <div id="nextmoves"></div>
+          </div>
         </div>
       </div>
     </div>
