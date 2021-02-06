@@ -62,7 +62,7 @@ $("#swap").click(function (e) {
     $black.val($white.val())
     $white.val(black)
     resetClicked()
-    board.flip()
+    board.orientation('flip')
 });
 
 $("#undo").click(function (e) {
@@ -96,6 +96,7 @@ $("#clear-usernames").click(function (e) {
     $white.val("")
     $black.val("")
     resetClicked()
+    board.orientation('white')
 });
 
 $("#clear-timecontrols").click(function (e) {

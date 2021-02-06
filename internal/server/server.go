@@ -14,7 +14,7 @@ import (
 // Start ... start a web server
 func Start() {
 
-	fs := http.FileServer(http.Dir("./docs/v1"))
+	fs := http.FileServer(http.Dir("./web"))
 	http.Handle("/", fs)
 
 	http.HandleFunc("/nextmoves", nextMovesHandler)

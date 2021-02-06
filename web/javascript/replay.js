@@ -8,6 +8,7 @@ var game = new Chess()
 
 var gameId = getParameterByName('gameId'); 
 var flip = getParameterByName('flip'); 
+var move = getParameterByName('move'); 
 
 if(gameId != null) {
     loadGame(gameId)
