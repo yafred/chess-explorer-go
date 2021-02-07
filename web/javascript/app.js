@@ -15,7 +15,7 @@ var $to = $('#to')
 var $minelo = $('#minelo')
 var $maxelo = $('#maxelo')
 var $site = $('#site')
-var nextMove = ''
+var mostPopularMove = ''
 
 var nextMovesTpl = document.getElementById('nextMovesTpl').innerHTML;
 var usernameListTpl = document.getElementById('usernameListTpl').innerHTML;
@@ -74,8 +74,8 @@ $('#undo').click(function (e) {
 
 $('#next').click(function (e) {
     e.preventDefault();
-    if (nextMove != '') {
-        move(nextMove)
+    if (mostPopularMove != '') {
+        move(mostPopularMove)
     }
 });
 
@@ -146,7 +146,7 @@ function handleNameClicked(event, control, name) {
 
 
 function getNextMoves() {
-    $('#nextmoves').html('');
+    $('#next-moves').html('');
     $.post(`http://127.0.0.1:${apiPort}/nextmoves`, {
         pgn: game.pgn(),
         white: $white.val(),
@@ -302,7 +302,7 @@ function compareTimecontrolsByName(itemA, itemB) {
 }
 
 function nextMovesToHtml(dataObject) {
-    nextMove = ''
+    mostPopularMove = ''
     if (Array.isArray(dataObject) == false) {
         console.log('not an array')
         return
@@ -320,10 +320,10 @@ function nextMovesToHtml(dataObject) {
             drawPercentText = '' + drawPercent + '%'
         }
 
-        internalLink = false
-        externalLink = false
+        openingLink = false
+        replayLink = false
         if (element.total == 1) {
-            externalLink = true
+            replayLink = true
             element.game.userlink = 'https://www.chess.com/member/'
             if (element.game.site == 'lichess.org') {
                 element.game.userlink = 'https://lichess.org/@/'
@@ -344,8 +344,8 @@ function nextMovesToHtml(dataObject) {
             element.game.date = new Date(Date.parse(element.game.datetime)).toLocaleDateString()
             element.game.link = 'replay.html?gameId=' + element.game._id + '&skip=' + (game.history().length) + '&orientation=' + board.orientation() 
             moves.push({
-                internalLink: internalLink,
-                externalLink: externalLink,
+                openingLink: openingLink,
+                replayLink: replayLink,
                 win: win,
                 lose: lose,
                 draw: draw,
@@ -354,13 +354,13 @@ function nextMovesToHtml(dataObject) {
             })
         }
         else {
-            internalLink = true
-            if (nextMove == '') {
-                nextMove = element.move
+            openingLink = true
+            if (mostPopularMove == '') {
+                mostPopularMove = element.move
             }
             moves.push({
-                internalLink: internalLink,
-                externalLink: externalLink,
+                openingLink: openingLink,
+                replayLink: replayLink,
                 move: element.move,
                 total: element.total,
                 winPercent: winPercent,
@@ -372,10 +372,14 @@ function nextMovesToHtml(dataObject) {
 
     });
 
-    $('#nextmoves').html(Mustache.render(nextMovesTpl, moves))
-    $('.move').bind('click', function (e) {
+    $('#next-moves').html(Mustache.render(nextMovesTpl, moves))
+    $('.next-move').bind('click', function (e) {
         e.preventDefault();
         move($(this).html())
+    });
+    $('.replay-game').bind('click', function (e) {
+        e.preventDefault();
+        console.log($(this).attr('data-gameid'))
     });
 }
 

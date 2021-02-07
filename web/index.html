@@ -17,8 +17,8 @@
   <script id="nextMovesTpl" type="text/mustache">
     {{#.}}   
       <div style="display: flex">
-      {{#internalLink}}
-        <div style="width:10%;"><a href="#" class="move">{{move}}</a></div>
+      {{#openingLink}}
+        <div style="width:10%;"><a href="#" class="next-move">{{move}}</a></div>
 
         <div style="width:20%; text-align: center;">{{total}}</div>
 
@@ -27,9 +27,9 @@
         <div style="text-align: center; background-color: #aaa; width:{{drawPercent}}%">{{drawPercentText}}</div>
         <div style="text-align: right; color: white; background-color: #595959; width:{{losePercent}}%">{{losePercent}}%</div>
         </div>
-      {{/internalLink}}
-      {{#externalLink}}
-        <div style="width:10%;"><a target="_blank" href="{{game.link}}">{{move}}</a></div>
+      {{/openingLink}}
+      {{#replayLink}}
+        <div style="width:10%;"><a href="#" class="replay-game" data-gameid="{{game._id}}">{{move}}</a></div>
         <div style="width:10%; margin-bottom: .1rem; margin-right: .1rem; text-align: center;">
           {{#win}}
           <div style="background-color: white;"><span>{{game.result}}</span></div>
@@ -44,7 +44,7 @@
         <div style="width:80%;">
           <span><a target="_blank" href="{{game.userlink}}{{game.white}}">{{game.white}}</a> ({{game.whiteelo}}) - <a target="_blank" href="{{game.userlink}}{{game.black}}">{{game.black}}</a> ({{game.blackelo}}) - {{game.date}} on {{game.site}}</span>
         </div>
-      {{/externalLink}}
+      {{/replayLink}}
       </div>
     {{/.}}
   </script>
@@ -73,7 +73,7 @@
   <div class="grid-container">
     <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-12" id="info">
-        <div>PGN: <span id="pgn"></span></div>
+        <div>Opening: <span id="pgn"></span></div>
         <div>FEN: <span id="fen"></span></div>
       </div>
     </div>
@@ -111,6 +111,7 @@
                 </div>
               </div>
             </div>
+            <div id="replay"></div>
           </div>
         </div>
       </div>
@@ -129,24 +130,27 @@
       <div class="cell small-4">
         <div class="cell-block-y">
           <div style="height: 600px; overflow-x: hidden;">
-            <div id="nextmoves"></div>
+            <div id="next-moves"></div>
+            <div id="game-details"></div>
           </div>
         </div>
       </div>
     </div>
     <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-12">
-        <span style="color: grey">Click to replace filter value, control-click to add to filter
-          value.</span><br />
-        <span>Users (<a href="#" id="clear-usernames">clear</a>)</span><span id="userNames"></span><br />
-        <span>Time Controls (<a href="#" id="clear-timecontrols">clear</a>)</span><span
-          id="timeControlNames"></span><br />
-        <span class="timeControlLabel">Ultra-bullet</span><span id="ultra-bullet-timeControlNames"></span><br />
-        <span class="timeControlLabel">Bullet</span><span id="bullet-timeControlNames"></span><br />
-        <span class="timeControlLabel">Blitz</span><span id="blitz-timeControlNames"></span><br />
-        <span class="timeControlLabel">Rapid</span><span id="rapid-timeControlNames"></span><br />
-        <span class="timeControlLabel">Classic</span><span id="classic-timeControlNames"></span><br />
-        <span>Sites (<a href="#" id="clear-sites">clear</a>)</span><span id="siteNames"></span><br />
+        <div id="values">
+          <span style="color: grey">Click to replace filter value, control-click to add to filter
+            value.</span><br />
+          <span>Users (<a href="#" id="clear-usernames">clear</a>)</span><span id="userNames"></span><br />
+          <span>Time Controls (<a href="#" id="clear-timecontrols">clear</a>)</span><span
+            id="timeControlNames"></span><br />
+          <span class="timeControlLabel">Ultra-bullet</span><span id="ultra-bullet-timeControlNames"></span><br />
+          <span class="timeControlLabel">Bullet</span><span id="bullet-timeControlNames"></span><br />
+          <span class="timeControlLabel">Blitz</span><span id="blitz-timeControlNames"></span><br />
+          <span class="timeControlLabel">Rapid</span><span id="rapid-timeControlNames"></span><br />
+          <span class="timeControlLabel">Classic</span><span id="classic-timeControlNames"></span><br />
+          <span>Sites (<a href="#" id="clear-sites">clear</a>)</span><span id="siteNames"></span><br />
+        </div>
       </div>
     </div>
   </div>
