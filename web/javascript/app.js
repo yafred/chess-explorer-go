@@ -21,6 +21,7 @@ var nextMovesTpl = document.getElementById('nextMovesTpl').innerHTML;
 var usernameListTpl = document.getElementById('usernameListTpl').innerHTML;
 var timecontrolListTpl = document.getElementById('timecontrolListTpl').innerHTML;
 var nameListTpl = document.getElementById('nameListTpl').innerHTML;
+var openingBreadcrumbsTpl = document.getElementById('openingBreadcrumbsTpl').innerHTML;
 
 
 
@@ -342,7 +343,7 @@ function nextMovesToHtml(dataObject) {
             }
             // date
             element.game.date = new Date(Date.parse(element.game.datetime)).toLocaleDateString()
-            element.game.link = 'replay.html?gameId=' + element.game._id + '&skip=' + (game.history().length) + '&orientation=' + board.orientation() 
+            element.game.link = 'replay.html?gameId=' + element.game._id + '&skip=' + (game.history().length) + '&orientation=' + board.orientation()
             moves.push({
                 openingLink: openingLink,
                 replayLink: replayLink,
@@ -385,8 +386,43 @@ function nextMovesToHtml(dataObject) {
 
 
 function updateOpeningBreadcrumbs() {
-    $('#pgn').html(game.pgn())
+    splitBreadcrumbs = []
+    game.history().forEach((value, index) => {
+        round = Math.floor(index / 2)
+        if (index % 2 == 0) {
+            splitBreadcrumbs.push({
+                index: round,
+                round: (round + 1) + '.',
+                white: value,
+                black: ' ',
+                isComplete: false
+            })
+        }
+        else {
+            splitBreadcrumbs[round].black = value
+            splitBreadcrumbs[round].isComplete = true
+        }
+    })
+
+    $('#opening').html(Mustache.render(openingBreadcrumbsTpl, splitBreadcrumbs))
+
+    $('#opening a').bind('click', function (e) {
+        e.preventDefault();
+        indexInHistory = 2 * $(this).attr('data-index')
+        if ($(this).attr('data-color') == 'black') {
+            indexInHistory += 1
+        }
+        saveHistory = game.history()
+        game.reset()
+        for (i = 0; i < indexInHistory + 1; i++) {
+            game.move(saveHistory[i])
+        }
+        board.position(game.fen())
+        getNextMoves() 
+    });
 }
+
+
 
 function move(aMove) {
     game.move(aMove)

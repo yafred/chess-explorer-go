@@ -51,19 +51,28 @@
 
   <script id="nameListTpl" type="text/mustache">
     {{#.}}   
-      &bull; <a href="#">{{ name }}</a>
+      &bull; <a href="#">{{name}}</a>
     {{/.}}
   </script>
 
   <script id="timecontrolListTpl" type="text/mustache">
     {{#.}}   
-      &bull; <a href="#">{{ name }}</a>
+      &bull; <a href="#">{{name}}</a>
     {{/.}}
   </script>
 
   <script id="usernameListTpl" type="text/mustache">
     {{#.}}   
-      &bull; <img height="20" width="20" src="{{imgpath}}"/><a data-sitename="{{sitename}}" href="#">{{ name }}</a>
+      &bull; <img height="20" width="20" src="{{imgpath}}"/><a data-sitename="{{sitename}}" href="#">{{name}}</a>
+    {{/.}}
+  </script>
+
+  <script id="openingBreadcrumbsTpl" type="text/mustache">
+    {{#.}}  
+      {{round}}&nbsp;<a data-index="{{index}}" data-color="white" href="#">{{white}}</a>&nbsp;
+      {{#isComplete}}  
+      <a data-index="{{index}}" data-color="black" href="#">{{black}}</a>&nbsp;
+      {{/isComplete}}  
     {{/.}}
   </script>
 
@@ -73,7 +82,7 @@
   <div class="grid-container">
     <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-12" id="info">
-        <div>Opening: <span id="pgn"></span></div>
+        <div>Opening: <span id="opening"></span></div>
       </div>
     </div>
     <div class="grid-x grid-margin-x grid-margin-y">
