@@ -69,7 +69,7 @@ $('#undo').click(function (e) {
     e.preventDefault();
     game.undo()
     board.position(game.fen())
-    updateStatus()
+    openingUpdated()
 });
 
 $('#next').click(function (e) {
@@ -87,7 +87,7 @@ $('#reset').click(function (e) {
 function resetClicked() {
     game.reset()
     board.position(game.fen())
-    updateStatus()
+    openingUpdated()
     updateReport()
 }
 
@@ -384,13 +384,13 @@ function nextMovesToHtml(dataObject) {
 }
 
 
-function displayPgn(pgn) {
-    $('#pgn').html(pgn)
+function updateOpeningBreadcrumbs() {
+    $('#pgn').html(game.pgn())
 }
 
 function move(aMove) {
     game.move(aMove)
-    updateStatus()
+    openingUpdated()
     board.position(game.fen(), true)
 }
 
@@ -417,8 +417,7 @@ function onDrop(source, target) {
     // illegal move
     if (move === null) return 'snapback'
 
-    browsingGame = '' // quit browsing mode
-    updateStatus()
+    openingUpdated()
 }
 
 // update the board position after the piece snap
@@ -427,9 +426,8 @@ function onSnapEnd() {
     board.position(game.fen())
 }
 
-function updateStatus() {
-    displayPgn(game.pgn())
-    $('#fen').html(game.fen())
+function openingUpdated() {
+    updateOpeningBreadcrumbs()
     getNextMoves()
 }
 
