@@ -76,13 +76,25 @@
     {{/.}}
   </script>
 
+  <script id="replayBreadcrumbsTpl" type="text/mustache">
+    {{#.}}  
+      <div style="display: flex">
+        <div style="width:20%;">{{round}}</div>
+        <div style="width:30%;"><a data-index="{{index}}" data-color="white" href="#">{{white}}</a></div>
+          {{#isComplete}}  
+            <div style="width:30%;"><a data-index="{{index}}" data-color="black" href="#">{{black}}</a></div>
+          {{/isComplete}}  
+        </div>  
+    {{/.}}
+  </script>
+
 </head>
 
 <body>
   <div class="grid-container">
     <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-12" id="info">
-        <div>Opening: <span id="opening"></span></div>
+        <div><a id="reset-opening" href="#">Opening</a>: <span id="opening"></span></div>
       </div>
     </div>
     <div class="grid-x grid-margin-x grid-margin-y">
@@ -119,7 +131,7 @@
                 </div>
               </div>
             </div>
-            <div id="replay"></div>
+            <div id="game-details"></div>
           </div>
         </div>
       </div>
@@ -139,7 +151,7 @@
         <div class="cell-block-y">
           <div style="height: 600px; overflow-x: hidden;">
             <div id="next-moves"></div>
-            <div id="game-details"></div>
+            <div id="replay"></div>
           </div>
         </div>
       </div>

@@ -16,12 +16,16 @@ var $minelo = $('#minelo')
 var $maxelo = $('#maxelo')
 var $site = $('#site')
 var mostPopularMove = ''
+var uiMode = 'opening'
+
+var gameReplaying
 
 var nextMovesTpl = document.getElementById('nextMovesTpl').innerHTML;
 var usernameListTpl = document.getElementById('usernameListTpl').innerHTML;
 var timecontrolListTpl = document.getElementById('timecontrolListTpl').innerHTML;
 var nameListTpl = document.getElementById('nameListTpl').innerHTML;
 var openingBreadcrumbsTpl = document.getElementById('openingBreadcrumbsTpl').innerHTML;
+var replayBreadcrumbsTpl = document.getElementById('replayBreadcrumbsTpl').innerHTML;
 
 
 
@@ -70,13 +74,20 @@ $('#undo').click(function (e) {
     e.preventDefault();
     game.undo()
     board.position(game.fen())
-    openingUpdated()
+    if (uiMode == 'opening') {
+        openingUpdated()
+    }
 });
 
 $('#next').click(function (e) {
     e.preventDefault();
-    if (mostPopularMove != '') {
-        move(mostPopularMove)
+    if (uiMode == 'opening') {
+        if (mostPopularMove != '') {
+            move(mostPopularMove)
+        }
+    }
+    else {
+        replayNext()
     }
 });
 
@@ -85,11 +96,20 @@ $('#reset').click(function (e) {
     resetClicked()
 });
 
+$('#reset-opening').click(function (e) {
+    e.preventDefault();
+    setOpeningMode()
+    resetClicked()
+});
+
+
 function resetClicked() {
     game.reset()
     board.position(game.fen())
-    openingUpdated()
-    updateReport()
+    if (uiMode == 'opening') {
+        openingUpdated()
+        updateReport()
+    }
 }
 
 $('#clear-usernames').click(function (e) {
@@ -380,10 +400,74 @@ function nextMovesToHtml(dataObject) {
     });
     $('.replay-game').bind('click', function (e) {
         e.preventDefault();
-        console.log($(this).attr('data-gameid'))
+        replayGame($(this).attr('data-gameid'))
     });
 }
 
+function setReplayMode() {
+    uiMode = 'replay'
+    $('#filter').hide()
+    $('#next-moves').hide()
+    $('#values').hide()
+    $('#swap').hide()
+    $('#replay').show()
+    $('#game-details').show()
+}
+
+function setOpeningMode() {
+    uiMode = 'opening'
+    $('#filter').show()
+    $('#next-moves').show()
+    $('#values').show()
+    $('#swap').show()
+    $('#replay').hide()
+    $('#game-details').hide()
+}
+
+function replayGame(gameId) {
+    setReplayMode()
+    // load data
+    $.get(`http://127.0.0.1:${apiPort}/game`, { gameId: gameId }, function (jsonData) {
+        data = JSON.parse(jsonData)
+        splitPgn = data.pgn.split(' ')
+        gameReplaying = []
+        splitPgn.forEach((value, index) => {
+            round = Math.floor(index / 3)
+            if (index % 3 == 0) {
+                gameReplaying.push({
+                    index: round,
+                    round: value,
+                    white: '',
+                    black: '',
+                    isComplete: false
+                })
+            }
+            if (index % 3 == 1) {
+                gameReplaying[round].white = value
+            }
+            else {
+                gameReplaying[round].black = value
+                gameReplaying[round].isComplete = true
+            }
+        })
+        $('#replay').html(Mustache.render(replayBreadcrumbsTpl, gameReplaying))
+        $('#replay a').bind('click', function (e) {
+            e.preventDefault();
+        });
+        // replay first move after opening
+        replayNext()
+    });
+}
+
+function replayNext() {
+    round = Math.floor(game.history().length / 2)
+    if (game.history().length % 2 == 0) {
+        move(gameReplaying[round].white)
+    }
+    else {
+        move(gameReplaying[round].black)
+    }
+}
 
 function updateOpeningBreadcrumbs() {
     splitBreadcrumbs = []
@@ -394,7 +478,7 @@ function updateOpeningBreadcrumbs() {
                 index: round,
                 round: (round + 1) + '.',
                 white: value,
-                black: ' ',
+                black: '',
                 isComplete: false
             })
         }
@@ -417,8 +501,10 @@ function updateOpeningBreadcrumbs() {
         for (i = 0; i < indexInHistory + 1; i++) {
             game.move(saveHistory[i])
         }
+        setOpeningMode()
         board.position(game.fen())
-        getNextMoves() 
+        getNextMoves()
+        updateOpeningBreadcrumbs()
     });
 }
 
@@ -426,7 +512,9 @@ function updateOpeningBreadcrumbs() {
 
 function move(aMove) {
     game.move(aMove)
-    openingUpdated()
+    if (uiMode == 'opening') {
+        openingUpdated()
+    }
     board.position(game.fen(), true)
 }
 
