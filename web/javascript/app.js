@@ -453,6 +453,18 @@ function replayGame(gameId) {
         $('#replay').html(Mustache.render(replayBreadcrumbsTpl, gameReplaying))
         $('#replay a').bind('click', function (e) {
             e.preventDefault();
+            round = $(this).attr('data-index')
+            color = $(this).attr('data-color')
+            game.reset()
+            for (i = 0; i < round; i++) {
+                game.move(gameReplaying[i].white)
+                game.move(gameReplaying[i].black)
+            }
+            game.move(gameReplaying[round].white)
+            if (color == 'black') {
+                game.move(gameReplaying[round].black)
+            }
+            board.position(game.fen(), true)
         });
         // replay first move after opening
         replayNext()
