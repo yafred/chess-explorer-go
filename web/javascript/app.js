@@ -77,6 +77,9 @@ $('#undo').click(function (e) {
     if (uiMode == 'opening') {
         openingUpdated()
     }
+    if (uiMode == 'replay') {
+        highlightMove()
+    }
 });
 
 $('#next').click(function (e) {
@@ -109,6 +112,9 @@ function resetClicked() {
     if (uiMode == 'opening') {
         openingUpdated()
         updateReport()
+    }
+    if (uiMode == 'replay') {
+        highlightMove()
     }
 }
 
@@ -465,6 +471,7 @@ function replayGame(gameId) {
                 game.move(gameReplaying[round].black)
             }
             board.position(game.fen(), true)
+            highlightMove()
         });
         // replay first move after opening
         replayNext()
@@ -478,6 +485,20 @@ function replayNext() {
     }
     else {
         move(gameReplaying[round].black)
+    }
+    highlightMove()
+}
+
+
+function highlightMove() {
+    $('#replay a').parent().removeClass('highlight')
+    if (game.history().length > 0) {
+        round = Math.floor((game.history().length - 1) / 2)
+        color = 'white'
+        if ((game.history().length - 1) % 2 == 1) {
+            color = 'black'
+        }
+        $('#replay a[data-index="' + round + '"][data-color="' + color + '"]').parent().addClass('highlight')
     }
 }
 
