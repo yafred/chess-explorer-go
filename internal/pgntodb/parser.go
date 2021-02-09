@@ -41,6 +41,11 @@ func pgnToDB(scanner *bufio.Scanner, db *mongo.Client, lastGame *LastGame) bool 
 			if isSetup == true {
 				break
 			}
+			if val, ok := keyValues["Variant"]; ok {
+				if val != "Standard" {
+					break
+				}
+			}
 			if !lastGame.DateTime.IsZero() &&
 				(lastGame.DateTime.Equal(createDateTime(keyValues)) ||
 					lastGame.DateTime.After(createDateTime(keyValues))) {
