@@ -222,7 +222,12 @@ function updateReport() {
                 if ($(this).data('sitename') == 'lichess.org') {
                     username = 'l:' + username
                 }
-                handleNameClicked(e, $white, username)
+                if ($black.val() != '' && $white.val() == '') {
+                    handleNameClicked(e, $black, username)
+                }
+                else {
+                    handleNameClicked(e, $white, username)
+                }
             });
         }
         if (Array.isArray(ret.TimeControls) != false) {
