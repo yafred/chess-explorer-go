@@ -26,6 +26,7 @@ var timecontrolListTpl = document.getElementById('timecontrolListTpl').innerHTML
 var nameListTpl = document.getElementById('nameListTpl').innerHTML;
 var openingBreadcrumbsTpl = document.getElementById('openingBreadcrumbsTpl').innerHTML;
 var replayBreadcrumbsTpl = document.getElementById('replayBreadcrumbsTpl').innerHTML;
+var gameDetailsTpl = document.getElementById('gameDetailsTpl').innerHTML;
 
 
 
@@ -456,6 +457,8 @@ function replayGame(gameId) {
                 gameReplaying[round].isComplete = true
             }
         })
+        data.dateStr = new Date(data.datetime).toGMTString()
+        $('#game-details').html(Mustache.render(gameDetailsTpl, data))
         $('#replay').html(Mustache.render(replayBreadcrumbsTpl, gameReplaying))
         $('#replay a').bind('click', function (e) {
             e.preventDefault();
