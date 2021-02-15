@@ -237,26 +237,16 @@ function updateReport() {
             $('#blitz-timeControlNames').html('')
             $('#rapid-timeControlNames').html('')
             $('#classic-timeControlNames').html('')
-            if (ret.TimeControls.length > 10) {
-                ret.TimeControls = groupTimecontrols(ret.TimeControls)
-                // groups
-                for (key in ret.TimeControls.grouped) {
-                    $('#' + key + '-timeControlNames').html(Mustache.render(timecontrolListTpl, ret.TimeControls.grouped[key]))
-                    $('#' + key + '-timeControlNames a').bind('click', function (e) {
-                        e.preventDefault();
-                        handleNameClicked(e, $timecontrol, $(this).html())
-                    });
-                }
-                $('.timeControlLabel').show()
-            }
-            else {
-                $('#timeControlNames').html(Mustache.render(timecontrolListTpl, ret.TimeControls))
-                $('#timeControlNames a').bind('click', function (e) {
+            ret.TimeControls = groupTimecontrols(ret.TimeControls)
+            // groups
+            for (key in ret.TimeControls.grouped) {
+                $('#' + key + '-timeControlNames').html(Mustache.render(timecontrolListTpl, ret.TimeControls.grouped[key]))
+                $('#' + key + '-timeControlNames a').bind('click', function (e) {
                     e.preventDefault();
                     handleNameClicked(e, $timecontrol, $(this).html())
                 });
-                $('.timeControlLabel').hide()
             }
+            $('.timeControlLabel').show()
         }
     });
 }
