@@ -193,8 +193,10 @@ function getNextMoves() {
 function updateReport() {
     $.get(`http://127.0.0.1:${apiPort}/report`, {
         white: $white.val(),
-        black: $black.val()
-    }, function (data) {
+        black: $black.val(),
+        from: $from.val(),
+        to: $to.val()
+   }, function (data) {
         ret = JSON.parse(data);
         if (Array.isArray(ret.Sites) != false) {
             $('#siteNames').html(Mustache.render(nameListTpl, ret.Sites))

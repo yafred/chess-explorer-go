@@ -43,6 +43,8 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 
 	filter.white = strings.TrimSpace(r.FormValue("white"))
 	filter.black = strings.TrimSpace(r.FormValue("black"))
+	filter.from = strings.TrimSpace(r.FormValue("from"))
+	filter.to = strings.TrimSpace(r.FormValue("to"))
 
 	report := report{}
 
