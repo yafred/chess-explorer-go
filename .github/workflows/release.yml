@@ -29,11 +29,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_ARTIFACTS }}
         with:
           args: "./dist/*"
-      - name: zip assets
-        run: zip -r assets.zip docs
-      - name: Copy build-artifacts
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.PUBLISH_ARTIFACTS }}
-        with:
-          args: "assets.zip"
