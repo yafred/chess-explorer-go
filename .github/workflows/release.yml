@@ -19,7 +19,7 @@ jobs:
         uses: yafred/go-cross-build@master
         with:
             platforms: 'linux/amd64, darwin/amd64, windows/amd64'
-            package: '.'
+            package: ''
             name: 'chess-explorer'
             compress: 'true'
             dest: 'dist'
