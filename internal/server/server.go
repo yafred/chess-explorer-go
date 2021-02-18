@@ -9,12 +9,13 @@ import (
 	"strconv"
 
 	"github.com/spf13/viper"
+	"github.com/yafred/chess-explorer/internal/embed"
 )
 
 // Start ... start a web server
 func Start() {
 
-	fs := http.FileServer(http.Dir("./web"))
+	fs := http.FileServer(http.FS(embed.StaticFiles))
 	http.Handle("/", fs)
 
 	http.HandleFunc("/nextmoves", nextMovesHandler)
