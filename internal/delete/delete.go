@@ -52,7 +52,7 @@ func Games(username string) {
 	}
 
 	// Gather names of users whose games we must not delete
-	lastgamesCollection := client.Database("chess-explorer").Collection("lastgames")
+	lastgamesCollection := client.Database(viper.GetString("mongo-db-name")).Collection("lastgames")
 	findOptions := options.Find().SetProjection(bson.M{"site": 1, "username": 1})
 	cursor, err := lastgamesCollection.Find(ctx, bson.M{}, findOptions)
 	if err != nil {
@@ -101,7 +101,7 @@ func Games(username string) {
 		break
 	}
 
-	gamesCollection := client.Database("chess-explorer").Collection("games")
+	gamesCollection := client.Database(viper.GetString("mongo-db-name")).Collection("games")
 
 	collation := options.Collation{Locale: "en", Strength: 2}
 	deleteOptions := options.DeleteOptions{Collation: &collation} // case insensitive search

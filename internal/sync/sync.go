@@ -40,7 +40,7 @@ func All() {
 	}
 
 	// Gather names of users whose games we must not delete
-	lastgamesCollection := client.Database("chess-explorer").Collection("lastgames")
+	lastgamesCollection := client.Database(viper.GetString("mongo-db-name")).Collection("lastgames")
 	findOptions := options.Find().SetProjection(bson.M{"site": 1, "username": 1})
 	cursor, err := lastgamesCollection.Find(ctx, bson.M{}, findOptions)
 	if err != nil {

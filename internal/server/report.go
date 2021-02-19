@@ -66,8 +66,8 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("Cannot connect to DB")
 	}
 
-	games := client.Database("chess-explorer").Collection("games")
-	lastgames := client.Database("chess-explorer").Collection("lastgames")
+	games := client.Database(viper.GetString("mongo-db-name")).Collection("games")
+	lastgames := client.Database(viper.GetString("mongo-db-name")).Collection("lastgames")
 
 	// Total games
 	totalGames, error := games.CountDocuments(ctx, bson.M{})

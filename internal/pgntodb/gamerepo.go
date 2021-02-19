@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -67,7 +68,7 @@ func findLastGame(username string, site string, client *mongo.Client) *LastGame 
 		Username: username,
 	}
 
-	lastgames := client.Database("chess-explorer").Collection("lastgames")
+	lastgames := client.Database(viper.GetString("mongo-db-name")).Collection("lastgames")
 	filter := bson.M{"site": site, "username": username}
 	collation := options.Collation{Locale: "en", Strength: 2}
 	findOneOptions := options.FindOneOptions{Collation: &collation} // case insensitive search
@@ -98,7 +99,7 @@ func logLastGame(username string, game Game, client *mongo.Client) {
 			GameID:   game.ID,
 		}
 
-		lastgames := client.Database("chess-explorer").Collection("lastgames")
+		lastgames := client.Database(viper.GetString("mongo-db-name")).Collection("lastgames")
 		filter := bson.M{"site": game.Site, "username": username}
 		updateOptions := options.Update().SetUpsert(true)
 		update := bson.M{
@@ -129,7 +130,7 @@ func pushGame(gameMap map[string]string, client *mongo.Client, lastGame *LastGam
 func flushGames(client *mongo.Client, lastGame *LastGame) bool {
 	log.Println("Flushing " + strconv.Itoa(len(queue)) + " games to DB")
 	if len(queue) > 0 {
-		games := client.Database("chess-explorer").Collection("games")
+		games := client.Database(viper.GetString("mongo-db-name")).Collection("games")
 
 		insertManyOptions := options.InsertMany().SetOrdered(false) // continue if duplicates are found
 		_, error := games.InsertMany(context.TODO(), queue, insertManyOptions)

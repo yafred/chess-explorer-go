@@ -41,7 +41,7 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("Cannot connect to DB")
 	}
 
-	games := client.Database("chess-explorer").Collection("games")
+	games := client.Database(viper.GetString("mongo-db-name")).Collection("games")
 
 	result := games.FindOne(ctx, bson.M{"_id": gameID})
 

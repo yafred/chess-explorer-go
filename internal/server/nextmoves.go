@@ -140,7 +140,7 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("Cannot connect to DB")
 	}
 
-	games := client.Database("chess-explorer").Collection("games")
+	games := client.Database(viper.GetString("mongo-db-name")).Collection("games")
 
 	// Distinct moves with counts
 	var andClause []bson.M
