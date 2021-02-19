@@ -1,13 +1,15 @@
 # Tool to explore chess openings 
 
-## Using executable
-  * You need NOT install Golang
+## This tool needs a local database
+  * Install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
+
+## Alternative 1: using executable
+  * (You need NOT install Golang)
   * Download the executable for your platform from the [releases page](https://github.com/yafred/chess-explorer-go/releases)
   * Follow instructions below replacing `{command}` with `chess-explorer-{os}-{arch}`
 
-## Using source code
+## Alternative 2: Using source code
   * Install [Golang](https://golang.org/doc/install) 
-  * Install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
   * `git clone https://github.com/yafred/chess-explorer.git`
   * Open a cmd console and go to the root of the source code directory (where you can see LICENSE, README.md, main.go)
   * Follow instructions below replacing `{command}` with `go run main.go`
