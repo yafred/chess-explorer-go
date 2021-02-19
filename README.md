@@ -21,3 +21,7 @@
   * Run the command `go run main.go server` 
   * Browse your games on http://localhost:52825
 
+## Alternative
+  * Do NOT install Golang
+  * Download the executable for your platform from the [releases page](https://github.com/yafred/chess-explorer-go/releases)
+  * Follow instructions above replacing `go run main.go` with `chess-explorer-{os}-{arch}`
