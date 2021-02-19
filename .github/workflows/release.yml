@@ -11,18 +11,14 @@ on:
 jobs:
   generate:
     name: Generate cross-platform builds
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
       - name: Generate build files
-        uses: yafred/go-cross-build@v3
+        uses: yafred/go-build@main
         with:
-            platforms: 'linux/amd64, darwin/amd64, windows/amd64'
-            package: ''
             name: 'chess-explorer'
-            compress: 'true'
-            dest: 'dist'
       - name: Copy build-artifacts
         uses: skx/github-action-publish-binaries@master
         env:
