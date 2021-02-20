@@ -95,6 +95,40 @@ $('#next').click(function (e) {
     }
 });
 
+$('#reset-usernames').click(function (e) {
+    e.preventDefault();
+    $white.val('')
+    $black.val('')
+    resetClicked()
+    board.orientation('white')
+});
+
+$('#reset-timecontrols').click(function (e) {
+    e.preventDefault();
+    $timecontrol.val('')
+    resetClicked()
+});
+
+$('#reset-dates').click(function (e) {
+    e.preventDefault();
+    $from.val('')
+    $to.val('')
+    resetClicked()
+});
+
+$('#reset-sites').click(function (e) {
+    e.preventDefault();
+    $site.val('')
+    resetClicked()
+});
+
+$('#reset-elos').click(function (e) {
+    e.preventDefault();
+    $minelo.val('')
+    $maxelo.val('')
+    resetClicked()
+});
+
 $('#reset').click(function (e) {
     e.preventDefault();
     resetClicked()
@@ -103,6 +137,21 @@ $('#reset').click(function (e) {
 $('#reset-opening').click(function (e) {
     e.preventDefault();
     setOpeningMode()
+    resetClicked()
+});
+
+$('#reset-all').click(function (e) {
+    e.preventDefault();
+    board.orientation('white')
+    setOpeningMode()
+    $white.val('')
+    $black.val('')
+    $timecontrol.val('')
+    $from.val('')
+    $to.val('')
+    $site.val('')
+    $minelo.val('')
+    $maxelo.val('')
     resetClicked()
 });
 
@@ -118,26 +167,6 @@ function resetClicked() {
         highlightMove()
     }
 }
-
-$('#clear-usernames').click(function (e) {
-    e.preventDefault();
-    $white.val('')
-    $black.val('')
-    resetClicked()
-    board.orientation('white')
-});
-
-$('#clear-timecontrols').click(function (e) {
-    e.preventDefault();
-    $timecontrol.val('')
-    resetClicked()
-});
-
-$('#clear-sites').click(function (e) {
-    e.preventDefault();
-    $site.val('')
-    resetClicked()
-});
 
 
 Array.prototype.remove = function () {

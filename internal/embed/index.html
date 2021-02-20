@@ -103,7 +103,7 @@
   <div class="grid-container">
     <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-12" id="info">
-        <div><a id="reset-opening" href="#">Opening</a>: <span id="opening"></span></div>
+        <div><a href="#" id="reset-all" class="fa fa-times-circle" style="font-weight: 100;"></a> <a id="reset-opening" href="#">Opening</a>: <span id="opening"></span></div>
       </div>
     </div>
     <div class="grid-x grid-margin-x grid-margin-y">
@@ -111,15 +111,15 @@
         <div class="cell-block-y">
           <div style="height: 600px; overflow-x: hidden;">
             <div id="filter">
-              <label for="white">User(s) playing white:</label>
+              <label for="white"><a href="#" id="reset-usernames" class="fa fa-times-circle" style="font-weight: 100;"></a>User(s) playing white:</label>
               <input type="text" id="white" name="white" />
               <label for="black">User(s) playing black:</label>
               <input type="text" id="black" name="black" />
-              <label for="timecontrol">Time control(s):</label>
+              <label for="timecontrol"><a href="#" id="reset-timecontrols" class="fa fa-times-circle" style="font-weight: 100;"></a>Time control(s):</label>
               <input type="text" id="timecontrol" name="timecontrol" />
               <div class="grid-x">
                 <div class="cell small-6">
-                  <label for="from">From date:</label>
+                  <label for="from"><a href="#" id="reset-dates" class="fa fa-times-circle" style="font-weight: 100;"></a>From date:</label>
                   <input type="date" id="from" name="from" style="color: grey;" />
                 </div>
                 <div class="cell small-6">
@@ -127,11 +127,11 @@
                   <input type="date" id="to" name="to" style="color: grey;" />
                 </div>
               </div>
-              <label for="site">Site(s):</label>
+              <label for="site"><a href="#" id="reset-sites" class="fa fa-times-circle" style="font-weight: 100;"></a>Site(s):</label>
               <input type="text" id="site" name="site" />
               <div class="grid-x grid-margin-x">
                 <div class="cell small-6">
-                  <label for="minelo">From ELO:</label>
+                  <label for="minelo"><a href="#" id="reset-elos" class="fa fa-times-circle" style="font-weight: 100;"></a>From ELO:</label>
                   <input type="text" id="minelo" name="minelo" />
                 </div>
                 <div class="cell small-6">
@@ -170,14 +170,14 @@
         <div id="values">
           <span style="color: grey">Click to replace filter value, control-click to add to filter
             value.</span><br />
-          <span>Users (<a href="#" id="clear-usernames">clear</a>)</span><span id="userNames"></span><br />
-          <span>Time Controls (<a href="#" id="clear-timecontrols">clear</a>)</span><br />
+          <span>Users </span><span id="userNames"></span><br />
+          <span>Time Controls </span><br />
           <span class="timeControlLabel">Ultra-bullet</span><span id="ultra-bullet-timeControlNames"></span><br />
           <span class="timeControlLabel">Bullet</span><span id="bullet-timeControlNames"></span><br />
           <span class="timeControlLabel">Blitz</span><span id="blitz-timeControlNames"></span><br />
           <span class="timeControlLabel">Rapid</span><span id="rapid-timeControlNames"></span><br />
           <span class="timeControlLabel">Classic</span><span id="classic-timeControlNames"></span><br />
-          <span>Sites (<a href="#" id="clear-sites">clear</a>)</span><span id="siteNames"></span><br />
+          <span>Sites </span><span id="siteNames"></span><br />
         </div>
       </div>
     </div>
