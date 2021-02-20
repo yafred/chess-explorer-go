@@ -393,6 +393,14 @@ function nextMovesToHtml(dataObject) {
         winPercent = Math.round(100 * element.win / element.total)
         losePercent = Math.round(100 * element.lose / element.total)
         drawPercent = 100 - winPercent - losePercent
+        winPercentText = ''
+        if (winPercent > 12) {
+            winPercentText = '' + winPercent + '%'
+        }
+        losePercentText = ''
+        if (losePercent > 12) {
+            losePercentText = '' + losePercent + '%'
+        }
         drawPercentText = ''
         if (drawPercent > 12) {
             drawPercentText = '' + drawPercent + '%'
@@ -442,9 +450,11 @@ function nextMovesToHtml(dataObject) {
                 move: element.move,
                 total: element.total,
                 winPercent: winPercent,
-                drawPercent: drawPercent,
-                drawPercentText: drawPercentText,
                 losePercent: losePercent,
+                drawPercent: drawPercent,
+                winPercentText: winPercentText,
+                losePercentText: losePercentText,
+                drawPercentText: drawPercentText,
             })
         }
 
