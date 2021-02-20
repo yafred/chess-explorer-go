@@ -16,7 +16,7 @@ var $minelo = $('#minelo')
 var $maxelo = $('#maxelo')
 var $site = $('#site')
 var mostPopularMove = ''
-var uiMode = 'opening'
+var uiMode = 'opening' // opening, replay
 
 var gameReplaying
 
@@ -63,6 +63,7 @@ $maxelo.change(function () {
 $site.change(function () {
     getNextMoves()
 });
+
 
 $('#swap').click(function (e) {
     e.preventDefault();
@@ -138,10 +139,28 @@ $('#reset').click(function (e) {
     resetBoard()
 });
 
-$('#reset-opening').click(function (e) {
+$('#opening-link').click(function (e) {
     e.preventDefault();
-    setOpeningMode()
-    getNextMoves()
+    if (uiMode == 'opening') {
+        if ($('#edit-pgn').css('display') == 'none') {
+            $('#edit-pgn').val(game.pgn())
+            $('#edit-pgn').show()
+            $('#edit-pgn').change(function () {
+                $(this).hide()
+                game.load_pgn($('#edit-pgn').val())
+                board.position(game.fen())
+                updateOpeningBreadcrumbs()
+                getNextMoves()
+            });
+        }
+        else {
+            $('#edit-pgn').hide()
+        }
+    }
+    if (uiMode == 'replay') {
+        setOpeningMode()
+        resetBoard()
+    }
 });
 
 $('#reset-all').click(function (e) {
@@ -229,7 +248,7 @@ function updateReport() {
         black: $black.val(),
         from: $fromDate.val(),
         to: $toDate.val()
-   }, function (data) {
+    }, function (data) {
         ret = JSON.parse(data);
         if (Array.isArray(ret.Sites) != false) {
             $('#siteNames').html(Mustache.render(nameListTpl, ret.Sites))
