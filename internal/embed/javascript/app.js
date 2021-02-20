@@ -10,8 +10,8 @@ var game = new Chess()
 var $white = $('#white')
 var $black = $('#black')
 var $timecontrol = $('#timecontrol')
-var $from = $('#from')
-var $to = $('#to')
+var $fromDate = $('#from')
+var $toDate = $('#to')
 var $minelo = $('#minelo')
 var $maxelo = $('#maxelo')
 var $site = $('#site')
@@ -30,36 +30,38 @@ var gameDetailsTpl = document.getElementById('gameDetailsTpl').innerHTML;
 
 
 
-$from.change(function () {
-    resetClicked()
+$fromDate.change(function () {
+    getNextMoves()
+    updateReport()
 });
 
-$to.change(function () {
-    resetClicked()
+$toDate.change(function () {
+    getNextMoves()
+    updateReport()
 });
 
 $white.change(function () {
-    resetClicked()
+    getNextMoves()
 });
 
 $black.change(function () {
-    resetClicked()
+    getNextMoves()
 });
 
 $timecontrol.change(function () {
-    resetClicked()
+    getNextMoves()
 });
 
 $minelo.change(function () {
-    resetClicked()
+    getNextMoves()
 });
 
 $maxelo.change(function () {
-    resetClicked()
+    getNextMoves()
 });
 
 $site.change(function () {
-    resetClicked()
+    getNextMoves()
 });
 
 $('#swap').click(function (e) {
@@ -67,7 +69,7 @@ $('#swap').click(function (e) {
     var black = $black.val()
     $black.val($white.val())
     $white.val(black)
-    resetClicked()
+    getNextMoves()
     board.orientation('flip')
 });
 
@@ -99,45 +101,47 @@ $('#reset-usernames').click(function (e) {
     e.preventDefault();
     $white.val('')
     $black.val('')
-    resetClicked()
+    getNextMoves()
+    updateReport()
     board.orientation('white')
 });
 
 $('#reset-timecontrols').click(function (e) {
     e.preventDefault();
     $timecontrol.val('')
-    resetClicked()
+    getNextMoves()
 });
 
 $('#reset-dates').click(function (e) {
     e.preventDefault();
-    $from.val('')
-    $to.val('')
-    resetClicked()
+    $fromDate.val('')
+    $toDate.val('')
+    getNextMoves()
+    updateReport()
 });
 
 $('#reset-sites').click(function (e) {
     e.preventDefault();
     $site.val('')
-    resetClicked()
+    getNextMoves()
 });
 
 $('#reset-elos').click(function (e) {
     e.preventDefault();
     $minelo.val('')
     $maxelo.val('')
-    resetClicked()
+    getNextMoves()
 });
 
 $('#reset').click(function (e) {
     e.preventDefault();
-    resetClicked()
+    resetBoard()
 });
 
 $('#reset-opening').click(function (e) {
     e.preventDefault();
     setOpeningMode()
-    resetClicked()
+    getNextMoves()
 });
 
 $('#reset-all').click(function (e) {
@@ -147,16 +151,16 @@ $('#reset-all').click(function (e) {
     $white.val('')
     $black.val('')
     $timecontrol.val('')
-    $from.val('')
-    $to.val('')
+    $fromDate.val('')
+    $toDate.val('')
     $site.val('')
     $minelo.val('')
     $maxelo.val('')
-    resetClicked()
+    resetBoard()
 });
 
 
-function resetClicked() {
+function resetBoard() {
     game.reset()
     board.position(game.fen())
     if (uiMode == 'opening') {
@@ -184,19 +188,19 @@ Array.prototype.remove = function () {
 function handleNameClicked(event, control, name) {
     if (control.val().trim() == '' || !event.ctrlKey) {
         control.val(name)
-        resetClicked()
+        getNextMoves()
     }
     else {
         values = control.val().trim().split(',')
         if (values.indexOf(name) == -1) {
             values.push(name)
             control.val(values.join(','))
-            resetClicked()
+            getNextMoves()
         }
         else {
             values.remove(name)
             control.val(values.join(','))
-            resetClicked()
+            getNextMoves()
         }
     }
 }
@@ -209,8 +213,8 @@ function getNextMoves() {
         white: $white.val(),
         black: $black.val(),
         timecontrol: $timecontrol.val(),
-        from: $from.val(),
-        to: $to.val(),
+        from: $fromDate.val(),
+        to: $toDate.val(),
         minelo: $minelo.val(),
         maxelo: $maxelo.val(),
         site: $site.val()
@@ -223,8 +227,8 @@ function updateReport() {
     $.get(`http://127.0.0.1:${apiPort}/report`, {
         white: $white.val(),
         black: $black.val(),
-        from: $from.val(),
-        to: $to.val()
+        from: $fromDate.val(),
+        to: $toDate.val()
    }, function (data) {
         ret = JSON.parse(data);
         if (Array.isArray(ret.Sites) != false) {
@@ -259,6 +263,7 @@ function updateReport() {
                 else {
                     handleNameClicked(e, $white, username)
                 }
+                updateReport()
             });
         }
         if (Array.isArray(ret.TimeControls) != false) {
@@ -628,5 +633,5 @@ var config = {
 board = Chessboard('myBoard', config)
 board.resize()
 
-resetClicked()
+resetBoard()
 
