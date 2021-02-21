@@ -16,6 +16,7 @@ var $minelo = $('#minelo')
 var $maxelo = $('#maxelo')
 var $site = $('#site')
 var mostPopularMove = ''
+var useLooseTimecontrol = true  // make m+s equivalent to m (for example: 600 will include 600+5)
 var uiMode = 'opening' // opening, replay
 
 var gameReplaying
@@ -232,6 +233,7 @@ function getNextMoves() {
         white: $white.val(),
         black: $black.val(),
         timecontrol: $timecontrol.val(),
+        useLooseTimecontrol: useLooseTimecontrol,
         from: $fromDate.val(),
         to: $toDate.val(),
         minelo: $minelo.val(),
@@ -286,16 +288,20 @@ function updateReport() {
             });
         }
         if (Array.isArray(ret.TimeControls) != false) {
-            ret.TimeControls.sort(compareTimecontrolsByName)
+            timeControlList = ret.TimeControls
+            if (useLooseTimecontrol) {
+                timeControlList = reduceTimeControlList(timeControlList)
+            }
+            timeControlList.sort(compareTimecontrolsByName)
             $('#ultra-bullet-timeControlNames').html('')
             $('#bullet-timeControlNames').html('')
             $('#blitz-timeControlNames').html('')
             $('#rapid-timeControlNames').html('')
             $('#classic-timeControlNames').html('')
-            ret.TimeControls = groupTimecontrols(ret.TimeControls)
+            timeControlList = groupTimecontrols(timeControlList)
             // groups
-            for (key in ret.TimeControls.grouped) {
-                $('#' + key + '-timeControlNames').html(Mustache.render(timecontrolListTpl, ret.TimeControls.grouped[key]))
+            for (key in timeControlList.grouped) {
+                $('#' + key + '-timeControlNames').html(Mustache.render(timecontrolListTpl, timeControlList.grouped[key]))
                 $('#' + key + '-timeControlNames a').bind('click', function (e) {
                     e.preventDefault();
                     handleNameClicked(e, $timecontrol, $(this).html())
@@ -304,6 +310,18 @@ function updateReport() {
             $('.timeControlLabel').show()
         }
     });
+}
+
+function reduceTimeControlList(timecontrolList) {
+    reducedList = []
+    timecontrolList.forEach((item) => {
+        baseTimeStr = item.name.split('+')[0]
+        result = reducedList.find( ({ name }) => name === baseTimeStr );
+        if(result == undefined) {
+            reducedList.push({ name: baseTimeStr, count: 0 }) // we don't use count yet (we could reduce the list after sorting to be able to count)
+        }
+    })
+    return reducedList
 }
 
 function groupTimecontrols(timecontrolList) {

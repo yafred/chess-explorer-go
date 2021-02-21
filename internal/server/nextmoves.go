@@ -22,15 +22,16 @@ import (
 
 // GameFilter ... represents the filter form from the UI
 type GameFilter struct {
-	pgn         string
-	white       string
-	black       string
-	timecontrol string
-	from        string
-	to          string
-	minelo      string
-	maxelo      string
-	site        string
+	pgn                 string
+	white               string
+	black               string
+	timecontrol         string
+	useLooseTimecontrol string
+	from                string
+	to                  string
+	minelo              string
+	maxelo              string
+	site                string
 }
 
 func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
@@ -89,6 +90,7 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		filter.white = strings.TrimSpace(r.FormValue("white"))
 		filter.black = strings.TrimSpace(r.FormValue("black"))
 		filter.timecontrol = strings.TrimSpace(r.FormValue("timecontrol"))
+		filter.useLooseTimecontrol = strings.TrimSpace(r.FormValue("useLooseTimecontrol"))
 		filter.from = strings.TrimSpace(r.FormValue("from"))
 		filter.to = strings.TrimSpace(r.FormValue("to"))
 		filter.minelo = strings.TrimSpace(r.FormValue("minelo"))
@@ -343,7 +345,16 @@ func processGameFilter(filter GameFilter) bson.M {
 	timeControls := strings.Split(filter.timecontrol, ",")
 	for _, timeControl := range timeControls {
 		if strings.TrimSpace(timeControl) != "" {
-			timeControlBson = append(timeControlBson, bson.M{"timecontrol": strings.TrimSpace(timeControl)})
+			if filter.useLooseTimecontrol == "true" {
+				timecontrolParts := strings.Split(strings.TrimSpace(timeControl), "+")
+				orQuery := []bson.M{}
+				exactQuery := bson.M{"timecontrol": timecontrolParts[0]}
+				looseQuery := bson.M{"timecontrol": bson.M{"$regex": "^" + timecontrolParts[0] + "+"}}
+				orQuery = append(orQuery, exactQuery, looseQuery)
+				timeControlBson = append(timeControlBson, bson.M{"$or": orQuery})
+			} else {
+				timeControlBson = append(timeControlBson, bson.M{"timecontrol": strings.TrimSpace(timeControl)})
+			}
 		}
 	}
 

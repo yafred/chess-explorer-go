@@ -48,3 +48,6 @@
 $and: [ { site: "lichess.org" }, { $or: [ { white: "EricRosen" }, { black: "EricRosen" }  ]  }  ]
 }}, {$count: 'count'}]
 ```
+
+### timecontrols starting with
+{ timecontrol: { $regex: /^600\+/ } }
