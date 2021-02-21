@@ -350,6 +350,8 @@ function compareTimecontrolsByName(itemA, itemB) {
 
     intA = Number.MAX_SAFE_INTEGER;
     intB = Number.MAX_SAFE_INTEGER;
+    int2A = 0;
+    int2B = 0;
 
     if (isNormalInteger(a)) {
         intA = parseInt(a)
@@ -362,7 +364,8 @@ function compareTimecontrolsByName(itemA, itemB) {
         if (-1 != a.indexOf('+')) {
             splitA = a.split('+')
             if (isNormalInteger(splitA[0]) && isNormalInteger(splitA[1])) {
-                intA = parseInt(splitA[0]) + parseInt(splitA[1])
+                intA = parseInt(splitA[0])
+                int2A = parseInt(splitA[1])
             }
         }
     }
@@ -371,12 +374,18 @@ function compareTimecontrolsByName(itemA, itemB) {
         if (-1 != b.indexOf('+')) {
             splitB = b.split('+')
             if (isNormalInteger(splitB[0]) && isNormalInteger(splitB[1])) {
-                intB = parseInt(splitB[0]) + parseInt(splitB[1])
+                intB = parseInt(splitB[0])
+                int2B = parseInt(splitB[1])
             }
         }
     }
 
-    return intA - intB
+    if (intA == intB) {
+        return int2A - int2B
+    }
+    else {
+        return intA - intB
+    }
 }
 
 function nextMovesToHtml(dataObject) {
