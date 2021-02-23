@@ -36,6 +36,8 @@ type GameFilter struct {
 
 func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 
+	defer timeTrack(time.Now(), "nextMovesHandler")
+
 	// allow cross origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 

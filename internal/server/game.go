@@ -18,6 +18,8 @@ import (
 
 func gameHandler(w http.ResponseWriter, r *http.Request) {
 
+	defer timeTrack(time.Now(), "gameHandler")
+
 	// allow cross origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 

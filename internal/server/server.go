@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"time"
 
 	"github.com/spf13/viper"
 	"github.com/yafred/chess-explorer/internal/embed"
@@ -51,4 +52,9 @@ func openbrowser(url string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func timeTrack(start time.Time, name string) {
+	elapsed := time.Since(start)
+	log.Printf("%s took %s", name, elapsed)
 }

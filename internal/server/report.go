@@ -38,6 +38,9 @@ type report struct {
 var filter GameFilter
 
 func reportHandler(w http.ResponseWriter, r *http.Request) {
+
+	defer timeTrack(time.Now(), "reportHandler")
+
 	// allow cross origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
