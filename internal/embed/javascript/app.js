@@ -3,7 +3,7 @@
 // https://github.com/oakmac/chessboardjs
 // https://github.com/jhlywa/chess.js
 
-var apiPort = '52825'
+var apiPort = window.location.port
 var board = null
 var game = new Chess()
 
