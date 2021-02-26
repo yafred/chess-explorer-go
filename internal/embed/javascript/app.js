@@ -3,7 +3,7 @@
 // https://github.com/oakmac/chessboardjs
 // https://github.com/jhlywa/chess.js
 
-var apiPort = window.location.port
+var apiHost = location.protocol + '//' + location.host
 var board = null
 var game = new Chess()
 
@@ -228,7 +228,7 @@ function handleNameClicked(event, control, name) {
 
 function getNextMoves() {
     $('#next-moves').html('');
-    $.post(`http://127.0.0.1:${apiPort}/nextmoves`, {
+    $.post(`${apiHost}/nextmoves`, {
         pgn: game.pgn(),
         white: $white.val(),
         black: $black.val(),
@@ -241,85 +241,103 @@ function getNextMoves() {
         site: $site.val()
     }, function (response) {
         jsonResponse = JSON.parse(response)
-        nextMovesToHtml(jsonResponse.data);
+        if (jsonResponse.error != undefined && jsonResponse.error != '') {
+            showError(jsonResponse.error)
+        }
+        else {
+            handleNextMovesResponse(jsonResponse.data);
+        }
+    }).fail(function () {
+        showError('Error connecting to ' + apiHost)
     });
 }
 
 function updateReport() {
-    $.get(`http://127.0.0.1:${apiPort}/report`, {
+    $.get(`${apiHost}/report`, {
         white: $white.val(),
         black: $black.val(),
         from: $fromDate.val(),
         to: $toDate.val()
     }, function (response) {
         jsonResponse = JSON.parse(response);
-        data = jsonResponse.data
-        if (Array.isArray(data.Sites) != false) {
-            $('#siteNames').html(Mustache.render(nameListTpl, data.Sites))
-            $('#siteNames a').bind('click', function (e) {
-                e.preventDefault();
-                handleNameClicked(e, $site, $(this).html())
-            });
+        if (jsonResponse.error != undefined && jsonResponse.error != '') {
+            showError(jsonResponse.error)
         }
-        if (Array.isArray(data.Users) != false) {
-            data.Users.forEach((element) => {
-                if (element.sitename == 'lichess.org') {
-                    element.imgpath = '/img/logos/lichessorg-48.png'
-                }
-                if (element.sitename == 'chess.com') {
-                    element.imgpath = '/img/logos/chesscom-48.png'
-                }
-            })
-            $('#userNames').html(Mustache.render(usernameListTpl, data.Users))
-            $('#userNames a').bind('click', function (e) {
-                e.preventDefault();
-                username = $(this).html()
-                if ($(this).data('sitename') == 'chess.com') {
-                    username = 'c:' + username
-                }
-                if ($(this).data('sitename') == 'lichess.org') {
-                    username = 'l:' + username
-                }
-                if ($black.val() != '' && $white.val() == '') {
-                    handleNameClicked(e, $black, username)
-                }
-                else {
-                    handleNameClicked(e, $white, username)
-                }
-                updateReport()
-            });
+        else {
+            handleReportResponse(jsonResponse.data)
         }
-        if (Array.isArray(data.TimeControls) != false) {
-            timeControlList = data.TimeControls
-            if (useLooseTimecontrol) {
-                timeControlList = reduceTimeControlList(timeControlList)
-            }
-            timeControlList.sort(compareTimecontrolsByName)
-            $('#ultra-bullet-timeControlNames').html('')
-            $('#bullet-timeControlNames').html('')
-            $('#blitz-timeControlNames').html('')
-            $('#rapid-timeControlNames').html('')
-            $('#classic-timeControlNames').html('')
-            timeControlList = groupTimecontrols(timeControlList)
-            // groups
-            for (key in timeControlList.grouped) {
-                $('#' + key + '-timeControlNames').html(Mustache.render(timecontrolListTpl, timeControlList.grouped[key]))
-                $('#' + key + '-timeControlNames a').bind('click', function (e) {
-                    e.preventDefault();
-                    handleNameClicked(e, $timecontrol, $(this).html())
-                });
-            }
-            $('.timeControlLabel').show()
-        }
+    }).fail(function () {
+        showError('Error connecting to ' + apiHost)
     });
+}
+
+
+function handleReportResponse(data) {
+    if (Array.isArray(data.Sites) != false) {
+        $('#siteNames').html(Mustache.render(nameListTpl, data.Sites))
+        $('#siteNames a').bind('click', function (e) {
+            e.preventDefault();
+            handleNameClicked(e, $site, $(this).html())
+        });
+    }
+    if (Array.isArray(data.Users) != false) {
+        data.Users.forEach((element) => {
+            if (element.sitename == 'lichess.org') {
+                element.imgpath = '/img/logos/lichessorg-48.png'
+            }
+            if (element.sitename == 'chess.com') {
+                element.imgpath = '/img/logos/chesscom-48.png'
+            }
+        })
+        $('#userNames').html(Mustache.render(usernameListTpl, data.Users))
+        $('#userNames a').bind('click', function (e) {
+            e.preventDefault();
+            username = $(this).html()
+            if ($(this).data('sitename') == 'chess.com') {
+                username = 'c:' + username
+            }
+            if ($(this).data('sitename') == 'lichess.org') {
+                username = 'l:' + username
+            }
+            if ($black.val() != '' && $white.val() == '') {
+                handleNameClicked(e, $black, username)
+            }
+            else {
+                handleNameClicked(e, $white, username)
+            }
+            updateReport()
+        });
+    }
+    if (Array.isArray(data.TimeControls) != false) {
+        timeControlList = data.TimeControls
+        if (useLooseTimecontrol) {
+            timeControlList = reduceTimeControlList(timeControlList)
+        }
+        timeControlList.sort(compareTimecontrolsByName)
+        $('#ultra-bullet-timeControlNames').html('')
+        $('#bullet-timeControlNames').html('')
+        $('#blitz-timeControlNames').html('')
+        $('#rapid-timeControlNames').html('')
+        $('#classic-timeControlNames').html('')
+        timeControlList = groupTimecontrols(timeControlList)
+        // groups
+        for (key in timeControlList.grouped) {
+            $('#' + key + '-timeControlNames').html(Mustache.render(timecontrolListTpl, timeControlList.grouped[key]))
+            $('#' + key + '-timeControlNames a').bind('click', function (e) {
+                e.preventDefault();
+                handleNameClicked(e, $timecontrol, $(this).html())
+            });
+        }
+        $('.timeControlLabel').show()
+    }
 }
 
 function reduceTimeControlList(timecontrolList) {
     reducedList = []
     timecontrolList.forEach((item) => {
         baseTimeStr = item.name.split('+')[0]
-        result = reducedList.find( ({ name }) => name === baseTimeStr );
-        if(result == undefined) {
+        result = reducedList.find(({ name }) => name === baseTimeStr);
+        if (result == undefined) {
             reducedList.push({ name: baseTimeStr, count: 0 }) // we don't use count yet (we could reduce the list after sorting to be able to count)
         }
     })
@@ -408,7 +426,7 @@ function compareTimecontrolsByName(itemA, itemB) {
     }
 }
 
-function nextMovesToHtml(dataObject) {
+function handleNextMovesResponse(dataObject) {
     mostPopularMove = ''
     if (Array.isArray(dataObject) == false) {
         console.log('not an array')
@@ -523,52 +541,69 @@ function setOpeningMode() {
 function replayGame(gameId) {
     setReplayMode()
     // load data
-    $.get(`http://127.0.0.1:${apiPort}/game`, { gameId: gameId }, function (response) {
+    $.get(`${apiHost}/game`, { gameId: gameId }, function (response) {
         jsonResponse = JSON.parse(response)
-        data = jsonResponse.data
-        splitPgn = data.pgn.split(' ')
-        gameReplaying = []
-        splitPgn.forEach((value, index) => {
-            round = Math.floor(index / 3)
-            if (index % 3 == 0) {
-                gameReplaying.push({
-                    index: round,
-                    round: value,
-                    white: '',
-                    black: '',
-                    isComplete: false
-                })
-            }
-            if (index % 3 == 1) {
-                gameReplaying[round].white = value
-            }
-            else {
-                gameReplaying[round].black = value
-                gameReplaying[round].isComplete = true
-            }
-        })
-        data.dateStr = new Date(data.datetime).toGMTString()
-        $('#game-details').html(Mustache.render(gameDetailsTpl, data))
-        $('#replay').html(Mustache.render(replayBreadcrumbsTpl, gameReplaying))
-        $('#replay a').bind('click', function (e) {
-            e.preventDefault();
-            round = $(this).attr('data-index')
-            color = $(this).attr('data-color')
-            game.reset()
-            for (i = 0; i < round; i++) {
-                game.move(gameReplaying[i].white)
-                game.move(gameReplaying[i].black)
-            }
-            game.move(gameReplaying[round].white)
-            if (color == 'black') {
-                game.move(gameReplaying[round].black)
-            }
-            board.position(game.fen(), true)
-            highlightMove()
-        });
-        // replay first move after opening
-        replayNext()
+        if (jsonResponse.error != undefined && jsonResponse.error != '') {
+            showError(jsonResponse.error)
+        }
+        else {
+            handleGameResponse(jsonResponse.data)
+        }
+    }).fail(function () {
+        showError('Error connecting to ' + apiHost)
     });
+}
+
+function handleGameResponse(data) {
+    splitPgn = data.pgn.split(' ')
+    gameReplaying = []
+    splitPgn.forEach((value, index) => {
+        round = Math.floor(index / 3)
+        if (index % 3 == 0) {
+            gameReplaying.push({
+                index: round,
+                round: value,
+                white: '',
+                black: '',
+                isComplete: false
+            })
+        }
+        if (index % 3 == 1) {
+            gameReplaying[round].white = value
+        }
+        else {
+            gameReplaying[round].black = value
+            gameReplaying[round].isComplete = true
+        }
+    })
+    data.dateStr = new Date(data.datetime).toGMTString()
+    $('#game-details').html(Mustache.render(gameDetailsTpl, data))
+    $('#replay').html(Mustache.render(replayBreadcrumbsTpl, gameReplaying))
+    $('#replay a').bind('click', function (e) {
+        e.preventDefault();
+        round = $(this).attr('data-index')
+        color = $(this).attr('data-color')
+        game.reset()
+        for (i = 0; i < round; i++) {
+            game.move(gameReplaying[i].white)
+            game.move(gameReplaying[i].black)
+        }
+        game.move(gameReplaying[round].white)
+        if (color == 'black') {
+            game.move(gameReplaying[round].black)
+        }
+        board.position(game.fen(), true)
+        highlightMove()
+    });
+    // replay first move after opening
+    replayNext()
+}
+
+
+function showError(error) {
+    $('#values').hide()
+    $('#error').show()
+    $('#error').html('<p>' + error + '</p>')
 }
 
 function replayNext() {
