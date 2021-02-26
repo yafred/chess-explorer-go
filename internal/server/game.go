@@ -40,7 +40,7 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Ping MongoDB
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		log.Fatal("Cannot connect to DB")
+		log.Fatal("Cannot connect to DB " + viper.GetString("mongo-url"))
 	}
 
 	games := client.Database(viper.GetString("mongo-db-name")).Collection("games")

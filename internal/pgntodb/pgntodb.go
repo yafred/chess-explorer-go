@@ -33,7 +33,7 @@ func Process(filepath string, lastGame *LastGame) bool {
 
 	// Ping MongoDB
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		log.Fatal("Cannot connect to DB")
+		log.Fatal("Cannot connect to DB " + viper.GetString("mongo-url"))
 	}
 
 	info, err := os.Stat(filepath)
@@ -94,7 +94,7 @@ func FindLastGame(username string, site string) *LastGame {
 
 	// Ping MongoDB
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		log.Fatal("Cannot connect to DB")
+		log.Fatal("Cannot connect to DB " + viper.GetString("mongo-url"))
 	}
 
 	return findLastGame(username, site, client)
