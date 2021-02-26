@@ -18,6 +18,11 @@ import (
 
 func gameHandler(w http.ResponseWriter, r *http.Request) {
 
+	type gameResponse struct {
+		Error string       `json:"error"`
+		Data  pgntodb.Game `json:"data"`
+	}
+
 	defer timeTrack(time.Now(), "gameHandler")
 
 	// allow cross origin
@@ -53,6 +58,8 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 		result.Decode(&game)
 	}
 
-	// send the response
-	json.NewEncoder(w).Encode(game)
+	response := gameResponse{}
+	response.Data = game
+	json.NewEncoder(w).Encode(response)
+
 }

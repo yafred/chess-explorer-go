@@ -35,6 +35,11 @@ type report struct {
 	TimeControls []result
 }
 
+type reportResponse struct {
+	Error string `json:"error"`
+	Data  report `json:"data"`
+}
+
 var filter GameFilter
 
 func reportHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +54,7 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 	filter.from = strings.TrimSpace(r.FormValue("from"))
 	filter.to = strings.TrimSpace(r.FormValue("to"))
 
-	report := report{}
+	response := reportResponse{}
 
 	// Connect to DB
 	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("mongo-url")))
@@ -77,6 +82,7 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 	if error != nil {
 		log.Fatal(error)
 	}
+	report := report{}
 	report.TotalGames = totalGames
 
 	if filter.black == "" && filter.white == "" {
@@ -90,7 +96,8 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send the response
-	json.NewEncoder(w).Encode(report)
+	response.Data = report
+	json.NewEncoder(w).Encode(response)
 }
 
 // Games

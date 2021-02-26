@@ -239,8 +239,9 @@ function getNextMoves() {
         minelo: $minelo.val(),
         maxelo: $maxelo.val(),
         site: $site.val()
-    }, function (data) {
-        nextMovesToHtml(JSON.parse(data));
+    }, function (response) {
+        jsonResponse = JSON.parse(response)
+        nextMovesToHtml(jsonResponse.data);
     });
 }
 
@@ -250,17 +251,18 @@ function updateReport() {
         black: $black.val(),
         from: $fromDate.val(),
         to: $toDate.val()
-    }, function (data) {
-        ret = JSON.parse(data);
-        if (Array.isArray(ret.Sites) != false) {
-            $('#siteNames').html(Mustache.render(nameListTpl, ret.Sites))
+    }, function (response) {
+        jsonResponse = JSON.parse(response);
+        data = jsonResponse.data
+        if (Array.isArray(data.Sites) != false) {
+            $('#siteNames').html(Mustache.render(nameListTpl, data.Sites))
             $('#siteNames a').bind('click', function (e) {
                 e.preventDefault();
                 handleNameClicked(e, $site, $(this).html())
             });
         }
-        if (Array.isArray(ret.Users) != false) {
-            ret.Users.forEach((element) => {
+        if (Array.isArray(data.Users) != false) {
+            data.Users.forEach((element) => {
                 if (element.sitename == 'lichess.org') {
                     element.imgpath = '/img/logos/lichessorg-48.png'
                 }
@@ -268,7 +270,7 @@ function updateReport() {
                     element.imgpath = '/img/logos/chesscom-48.png'
                 }
             })
-            $('#userNames').html(Mustache.render(usernameListTpl, ret.Users))
+            $('#userNames').html(Mustache.render(usernameListTpl, data.Users))
             $('#userNames a').bind('click', function (e) {
                 e.preventDefault();
                 username = $(this).html()
@@ -287,8 +289,8 @@ function updateReport() {
                 updateReport()
             });
         }
-        if (Array.isArray(ret.TimeControls) != false) {
-            timeControlList = ret.TimeControls
+        if (Array.isArray(data.TimeControls) != false) {
+            timeControlList = data.TimeControls
             if (useLooseTimecontrol) {
                 timeControlList = reduceTimeControlList(timeControlList)
             }
@@ -521,8 +523,9 @@ function setOpeningMode() {
 function replayGame(gameId) {
     setReplayMode()
     // load data
-    $.get(`http://127.0.0.1:${apiPort}/game`, { gameId: gameId }, function (jsonData) {
-        data = JSON.parse(jsonData)
+    $.get(`http://127.0.0.1:${apiPort}/game`, { gameId: gameId }, function (response) {
+        jsonResponse = JSON.parse(response)
+        data = jsonResponse.data
         splitPgn = data.pgn.split(' ')
         gameReplaying = []
         splitPgn.forEach((value, index) => {

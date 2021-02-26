@@ -77,6 +77,11 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		Game    pgntodb.Game `json:"game,omitempty"` // when Total = 1
 	}
 
+	type nextMovesResponse struct {
+		Error string     `json:"error"`
+		Data  []NextMove `json:"data"`
+	}
+
 	var nextmoves []NextMove
 	var filter GameFilter
 	mongoAggregation := true
@@ -298,7 +303,9 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// send the response
-	json.NewEncoder(w).Encode(nextmoves)
+	response := nextMovesResponse{}
+	response.Data = nextmoves
+	json.NewEncoder(w).Encode(response)
 }
 
 func buildMoveFieldName(fieldNum int) (moveField string) {
