@@ -140,28 +140,37 @@ $('#reset').click(function (e) {
     resetBoard()
 });
 
+$('#edit-pgn-link').click(function (e) {
+    e.preventDefault();
+    if ($('#opening-pgn').css('display') == 'none') {
+        $('#opening-pgn').val(game.pgn())
+        $('#opening-pgn').show()
+        $('#opening-pgn').change(function () {
+            $(this).hide()
+            game.load_pgn($('#opening-pgn').val())
+            board.position(game.fen())
+            updateOpeningBreadcrumbs()
+            getNextMoves()
+        });
+    }
+    else {
+        $('#opening-pgn').hide()
+    }
+});
+
+$('#opening-mode-link').click(function (e) {
+    e.preventDefault();
+    setOpeningMode()
+    game.load_pgn($('#opening-pgn').val())
+    board.position(game.fen())
+    updateOpeningBreadcrumbs()
+    getNextMoves()
+});
+
 $('#opening-link').click(function (e) {
     e.preventDefault();
-    if (uiMode == 'opening') {
-        if ($('#edit-pgn').css('display') == 'none') {
-            $('#edit-pgn').val(game.pgn())
-            $('#edit-pgn').show()
-            $('#edit-pgn').change(function () {
-                $(this).hide()
-                game.load_pgn($('#edit-pgn').val())
-                board.position(game.fen())
-                updateOpeningBreadcrumbs()
-                getNextMoves()
-            });
-        }
-        else {
-            $('#edit-pgn').hide()
-        }
-    }
-    if (uiMode == 'replay') {
-        setOpeningMode()
-        resetBoard()
-    }
+    setOpeningMode()
+    resetBoard()
 });
 
 $('#reset-all').click(function (e) {
@@ -520,6 +529,8 @@ function handleNextMovesResponse(dataObject) {
 
 function setReplayMode() {
     uiMode = 'replay'
+    $('#opening-mode-link').show()
+    $('#edit-pgn-link').hide()
     $('#filter').hide()
     $('#next-moves').hide()
     $('#values').hide()
@@ -530,6 +541,8 @@ function setReplayMode() {
 
 function setOpeningMode() {
     uiMode = 'opening'
+    $('#opening-mode-link').hide()
+    $('#edit-pgn-link').show()
     $('#filter').show()
     $('#next-moves').show()
     $('#values').show()
@@ -649,6 +662,7 @@ function updateOpeningBreadcrumbs() {
         }
     })
 
+    $('#opening-pgn').val(game.pgn())
     $('#opening').html(Mustache.render(openingBreadcrumbsTpl, splitBreadcrumbs))
 
     $('#opening a').bind('click', function (e) {
