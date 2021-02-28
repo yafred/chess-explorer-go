@@ -536,6 +536,7 @@ function setReplayMode() {
     $('#next-moves').hide()
     $('#values').hide()
     $('#swap').hide()
+    $('#reset-all').hide()
     $('#replay').show()
     $('#game-details').show()
 }
@@ -548,6 +549,7 @@ function setOpeningMode() {
     $('#next-moves').show()
     $('#values').show()
     $('#swap').show()
+    $('#reset-all').show()
     $('#replay').hide()
     $('#game-details').hide()
 }
