@@ -531,6 +531,7 @@ function setReplayMode() {
     uiMode = 'replay'
     $('#opening-mode-link').show()
     $('#edit-pgn-link').hide()
+    $('#opening-pgn').hide()
     $('#filter').hide()
     $('#next-moves').hide()
     $('#values').hide()
