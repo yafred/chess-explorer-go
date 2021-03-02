@@ -396,11 +396,17 @@ func processGameFilter(filter GameFilter) bson.M {
 	for _, timeControl := range timeControls {
 		if strings.TrimSpace(timeControl) != "" {
 			if filter.useLooseTimecontrol == "true" {
-				timecontrolParts := strings.Split(strings.TrimSpace(timeControl), "+")
 				orQuery := []bson.M{}
-				exactQuery := bson.M{"timecontrol": timecontrolParts[0]}
-				looseQuery := bson.M{"timecontrol": bson.M{"$regex": "^" + timecontrolParts[0] + "+"}}
-				orQuery = append(orQuery, exactQuery, looseQuery)
+				if timeControl == "-" {
+					exactQuery := bson.M{"timecontrol": "-"}
+					looseQuery := bson.M{"timecontrol": bson.M{"$regex": "/"}}
+					orQuery = append(orQuery, exactQuery, looseQuery)
+				} else {
+					timecontrolParts := strings.Split(strings.TrimSpace(timeControl), "+")
+					exactQuery := bson.M{"timecontrol": timecontrolParts[0]}
+					looseQuery := bson.M{"timecontrol": bson.M{"$regex": "^" + timecontrolParts[0] + "+"}}
+					orQuery = append(orQuery, exactQuery, looseQuery)
+				}
 				timeControlBson = append(timeControlBson, bson.M{"$or": orQuery})
 			} else {
 				timeControlBson = append(timeControlBson, bson.M{"timecontrol": strings.TrimSpace(timeControl)})
