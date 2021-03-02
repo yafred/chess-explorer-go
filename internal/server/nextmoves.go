@@ -286,7 +286,7 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		if nextmoves[iNextMove].Total == 1 {
 			if mongoAggregation {
 				// get link for moves pgn + move
-				// Note: this slows down the results if there are a lot of single games (eg: EricRosen)
+				// Note: this slows down the results if there are a lot of single games
 				game := getGame(ctx, games, pgnMoves, nextmoves[iNextMove].Move, gameFilterBson)
 				if game != nil {
 					nextmoves[iNextMove].Game = *game
@@ -302,6 +302,23 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		return nextmoves[i].Total > nextmoves[j].Total
 	})
 
+	// look for lone games (opening == full game) and append them to response
+	loneGames := getLoneGames(ctx, games, filter.pgn, gameFilterBson)
+	for _, loneGame := range loneGames {
+		item := NextMove{Move: "End", Game: loneGame, Total: 1}
+		switch loneGame.Result {
+		case "1-0":
+			item.Win = 1
+			break
+		case "0-1":
+			item.Lose = 1
+			break
+		default:
+			item.Draw = 1
+		}
+		nextmoves = append(nextmoves, item)
+	}
+
 	// send the response
 	response := nextMovesResponse{}
 	response.Data = nextmoves
@@ -315,6 +332,30 @@ func buildMoveFieldName(fieldNum int) (moveField string) {
 	}
 	moveField = moveField + strconv.Itoa(fieldNum)
 	return moveField
+}
+
+func getLoneGames(ctx context.Context, games *mongo.Collection, pgn string, gameFilterBson bson.M) (loneGames []pgntodb.Game) {
+	var andClause []bson.M
+	andClause = append(andClause, gameFilterBson)
+	orQuery := []bson.M{}
+	orQuery = append(orQuery, bson.M{"pgn": pgn + " 1-0"})
+	orQuery = append(orQuery, bson.M{"pgn": pgn + " 0-1"})
+	orQuery = append(orQuery, bson.M{"pgn": pgn + " 1/2-1/2"})
+	andClause = append(andClause, bson.M{"$or": orQuery})
+
+	cursor, err := games.Find(ctx, bson.M{"$and": andClause})
+	defer cursor.Close(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var resultGames []pgntodb.Game
+	err = cursor.All(ctx, &resultGames)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return resultGames
 }
 
 func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, move string, gameFilterBson bson.M) (game *pgntodb.Game) {
@@ -333,15 +374,15 @@ func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, mo
 		log.Fatal(err)
 	}
 
-	var resultGame []pgntodb.Game
-	err = cursor.All(ctx, &resultGame)
+	var resultGames []pgntodb.Game
+	err = cursor.All(ctx, &resultGames)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	var ret *pgntodb.Game
-	if len(resultGame) != 0 {
-		return &resultGame[0]
+	if len(resultGames) != 0 {
+		return &resultGames[0]
 	}
 	return ret
 }
