@@ -16,7 +16,7 @@ var $minelo = $('#minelo')
 var $maxelo = $('#maxelo')
 var $site = $('#site')
 var mostPopularMove = ''
-var useLooseTimecontrol = true  // make m+s equivalent to m (for example: 600 will include 600+5)
+var useLooseTimecontrol = true  // make m+s equivalent to m (for example: 600 will include 600+5) and 1/n equivalent to -
 var uiMode = 'opening' // opening, replay
 
 var gameReplaying
@@ -345,6 +345,9 @@ function reduceTimeControlList(timecontrolList) {
     reducedList = []
     timecontrolList.forEach((item) => {
         baseTimeStr = item.name.split('+')[0]
+        if (item.name.indexOf('/') != -1) {
+            baseTimeStr = '-'
+        }
         result = reducedList.find(({ name }) => name === baseTimeStr);
         if (result == undefined) {
             reducedList.push({ name: baseTimeStr, count: 0 }) // we don't use count yet (we could reduce the list after sorting to be able to count)
@@ -356,7 +359,12 @@ function reduceTimeControlList(timecontrolList) {
 function groupTimecontrols(timecontrolList) {
     timecontrolList.grouped = []
     timecontrolList.forEach((item) => {
-        baseTimeStr = item.name.split('+')[0]
+        if (item.name.indexOf('/') != -1) {
+            baseTimeStr = '-'
+        }
+        else {
+            baseTimeStr = item.name.split('+')[0]
+        }
         if (!isNormalInteger(baseTimeStr)) {
             baseTime = Number.MAX_SAFE_INTEGER;
         }
@@ -400,33 +408,54 @@ function compareTimecontrolsByName(itemA, itemB) {
     int2A = 0;
     int2B = 0;
 
+    // Types of time control and there order
+    // 0:600 1:600+n 2:1/n 3:-
+    typeA = 3
+    typeB = 3
+
     if (isNormalInteger(a)) {
-        intA = parseInt(a)
+        typeA = 0
     }
-    if (isNormalInteger(b)) {
-        intB = parseInt(b)
-    }
-    if (intA == Number.MAX_SAFE_INTEGER) {
-        // try the A+B form
-        if (-1 != a.indexOf('+')) {
-            splitA = a.split('+')
-            if (isNormalInteger(splitA[0]) && isNormalInteger(splitA[1])) {
-                intA = parseInt(splitA[0])
-                int2A = parseInt(splitA[1])
-            }
+    else if (-1 != a.indexOf('+')) {
+        typeA = 1
+        splitA = a.split('+')
+        if (isNormalInteger(splitA[0]) && isNormalInteger(splitA[1])) {
+            intA = parseInt(splitA[0])
+            int2A = parseInt(splitA[1])
         }
     }
-    if (intB == Number.MAX_SAFE_INTEGER) {
-        // try the A+B form
-        if (-1 != b.indexOf('+')) {
-            splitB = b.split('+')
-            if (isNormalInteger(splitB[0]) && isNormalInteger(splitB[1])) {
-                intB = parseInt(splitB[0])
-                int2B = parseInt(splitB[1])
-            }
+    else if (-1 != a.indexOf('/')) {
+        typeA = 2
+        splitA = a.split('/')
+        if (isNormalInteger(splitA[0]) && isNormalInteger(splitA[1])) {
+            intA = parseInt(splitA[0])
+            int2A = parseInt(splitA[1])
         }
     }
 
+    if (isNormalInteger(b)) {
+        typeB = 0
+    }
+    else if (-1 != b.indexOf('+')) {
+        typeB = 1
+        splitB = b.split('+')
+        if (isNormalInteger(splitB[0]) && isNormalInteger(splitB[1])) {
+            intB = parseInt(splitB[0])
+            int2B = parseInt(splitB[1])
+        }
+    }
+    else if (-1 != b.indexOf('/')) {
+        typeB = 2
+        splitB = b.split('/')
+        if (isNormalInteger(splitB[0]) && isNormalInteger(splitB[1])) {
+            intB = parseInt(splitB[0])
+            int2B = parseInt(splitB[1])
+        }
+    }
+
+    if(typeA != typeB) {
+        return typeA - typeB
+    }
     if (intA == intB) {
         return int2A - int2B
     }
