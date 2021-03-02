@@ -415,6 +415,7 @@ function compareTimecontrolsByName(itemA, itemB) {
 
     if (isNormalInteger(a)) {
         typeA = 0
+        intA = a
     }
     else if (-1 != a.indexOf('+')) {
         typeA = 1
@@ -435,6 +436,7 @@ function compareTimecontrolsByName(itemA, itemB) {
 
     if (isNormalInteger(b)) {
         typeB = 0
+        intB = b
     }
     else if (-1 != b.indexOf('+')) {
         typeB = 1
@@ -453,11 +455,17 @@ function compareTimecontrolsByName(itemA, itemB) {
         }
     }
 
-    if(typeA != typeB) {
+//   console.log('a ' + a + typeA + ' ' + intA + ' ' + int2A + ' ... b ' + b + typeB + ' ' + intB + ' ' + int2B)
+    if (typeA != typeB && !(typeA == 0 && typeB == 1) && !(typeB == 0 && typeA == 1)) {
         return typeA - typeB
     }
     if (intA == intB) {
-        return int2A - int2B
+        if (typeA != typeB) {
+            return typeA - typeB  // case of n compared to n+0
+        }
+        else {
+            return int2A - int2B
+        }
     }
     else {
         return intA - intB
