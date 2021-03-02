@@ -277,6 +277,7 @@ function getNextMoves() {
 }
 
 function updateReport() {
+    clearTimeControlValues()
     $.get(`${apiHost}/report`, {
         white: $white.val(),
         black: $black.val(),
@@ -338,11 +339,6 @@ function handleReportResponse(data) {
             timeControlList = reduceTimeControlList(timeControlList)
         }
         timeControlList.sort(compareTimecontrolsByName)
-        $('#ultra-bullet-timeControlNames').html('')
-        $('#bullet-timeControlNames').html('')
-        $('#blitz-timeControlNames').html('')
-        $('#rapid-timeControlNames').html('')
-        $('#classic-timeControlNames').html('')
         timeControlList = groupTimecontrols(timeControlList)
         // groups
         for (key in timeControlList.grouped) {
@@ -354,6 +350,14 @@ function handleReportResponse(data) {
         }
         $('.timeControlLabel').show()
     }
+}
+
+function clearTimeControlValues() {
+    $('#ultra-bullet-timeControlNames').html('')
+    $('#bullet-timeControlNames').html('')
+    $('#blitz-timeControlNames').html('')
+    $('#rapid-timeControlNames').html('')
+    $('#classic-timeControlNames').html('')
 }
 
 function reduceTimeControlList(timecontrolList) {
