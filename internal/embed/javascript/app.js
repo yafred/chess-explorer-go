@@ -188,6 +188,21 @@ $('#reset-all').click(function (e) {
     resetBoard()
 });
 
+$('#loose-timecontrol-checked').click(function (e) {
+    e.preventDefault();
+    $(this).hide()
+    useLooseTimecontrol = false
+    updateReport()
+    $('#loose-timecontrol-unchecked').show()
+});
+
+$('#loose-timecontrol-unchecked').click(function (e) {
+    e.preventDefault();
+    $(this).hide()
+    useLooseTimecontrol = true
+    updateReport()
+    $('#loose-timecontrol-checked').show()
+});
 
 function resetBoard() {
     game.reset()
