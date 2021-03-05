@@ -18,6 +18,7 @@ var $site = $('#site')
 var mostPopularMove = ''
 var simplifyTimecontrol = true  // make m+s equivalent to m (for example: 600 will include 600+5) and 1/n equivalent to -
 var uiMode = 'opening' // opening, replay
+var playerInputMode = 'white' // changes when input fields are clicked
 
 var gameReplaying
 
@@ -47,6 +48,14 @@ $white.change(function () {
 
 $black.change(function () {
     getNextMoves()
+});
+
+$white.click(function (e) {
+    playerInputMode = 'white'
+});
+
+$black.click(function (e) {
+    playerInputMode = 'black'
 });
 
 $timecontrol.change(function () {
@@ -338,7 +347,7 @@ function handleReportResponse(data) {
             if ($(this).data('sitename') == 'lichess.org') {
                 username = 'l:' + username
             }
-            if ($black.val() != '' && $white.val() == '') {
+            if (playerInputMode == 'black') {
                 handleNameClicked(e, $black, username)
             }
             else {
