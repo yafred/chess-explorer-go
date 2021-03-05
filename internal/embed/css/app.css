@@ -10,11 +10,6 @@
     color: grey
 }
 
-
-#pgn, #fen {
-    height: 1.5rem;
-}
-
 .highlight {
     background-color: yellow;
 }

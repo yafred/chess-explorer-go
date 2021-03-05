@@ -204,6 +204,22 @@ $('#loose-timecontrol-unchecked').click(function (e) {
     $('#loose-timecontrol-checked').show()
 });
 
+$('#show-fen-checked').click(function (e) {
+    e.preventDefault();
+    $('#fen-container').hide()
+    $(this).hide()
+    $('#show-fen-unchecked').show()
+});
+
+$('#show-fen-unchecked').click(function (e) {
+    e.preventDefault();
+    $('#fen-container').show()
+    $(this).hide()
+    $('#show-fen-checked').show()
+});
+
+
+
 function resetBoard() {
     game.reset()
     board.position(game.fen())
@@ -474,7 +490,7 @@ function compareTimecontrolsByName(itemA, itemB) {
         }
     }
 
-//   console.log('a ' + a + typeA + ' ' + intA + ' ' + int2A + ' ... b ' + b + typeB + ' ' + intB + ' ' + int2B)
+    //   console.log('a ' + a + typeA + ' ' + intA + ' ' + int2A + ' ... b ' + b + typeB + ' ' + intB + ' ' + int2B)
     if (typeA != typeB && !(typeA == 0 && typeB == 1) && !(typeB == 0 && typeA == 1)) {
         return typeA - typeB
     }
@@ -595,6 +611,7 @@ function setReplayMode() {
     $('#reset-all').hide()
     $('#replay').show()
     $('#game-details').show()
+    $('#fen-container').hide()
 }
 
 function setOpeningMode() {
@@ -608,6 +625,10 @@ function setOpeningMode() {
     $('#reset-all').show()
     $('#replay').hide()
     $('#game-details').hide()
+    $('#fen-container').hide()
+    if ($('#show-fen-checked').is(':visible')) {
+        $('#fen-container').show()
+    }
 }
 
 function replayGame(gameId) {
@@ -787,6 +808,7 @@ function onSnapEnd() {
 function openingUpdated() {
     updateOpeningBreadcrumbs()
     getNextMoves()
+    $('#fen').html(game.fen())
 }
 
 var config = {

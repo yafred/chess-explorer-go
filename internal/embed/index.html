@@ -103,8 +103,15 @@
   <div class="grid-container">
     <div class="grid-x grid-margin-x grid-margin-y">
       <div class="cell small-12" id="info">
-        <div><a href="#" id="opening-mode-link" class="fa fa-arrow-left" style="display: none; font-weight: 600;"></a><a href="#" id="edit-pgn-link" class="fa fa-edit" style="font-weight: 600;"></a> <a id="opening-link" href="#">Opening</a>: <span id="opening"></span></div>
+        <div><a href="#" id="opening-mode-link" class="fa fa-arrow-left" style="display: none; font-weight: 600;"></a><a
+            href="#" id="edit-pgn-link" class="fa fa-edit" style="font-weight: 600;"></a> <a id="opening-link"
+            href="#">Opening</a>: <span id="opening"></span></div>
         <input type="text" id="opening-pgn" name="opening-pgn" style="display: none;" />
+        <div id="fen-container" style="display: none;">
+          <div><a href="#" id="edit-fen-link" class="fa fa-edit" style="font-weight: 600;"></a> FEN: <span
+              id="fen"></span></div>
+          <input type="text" id="edit-fen" name="edit-fen" style="display: none;" />
+        </div>
       </div>
     </div>
     <div class="grid-x grid-margin-x grid-margin-y">
@@ -112,15 +119,18 @@
         <div class="cell-block-y">
           <div style="height: 600px; overflow-x: hidden;">
             <div id="filter">
-              <label for="white"><a href="#" id="reset-usernames" class="fa fa-times-circle" style="font-weight: 100;"></a> User(s) <span style="float: right;">playing white:</span></label>
+              <label for="white"><a href="#" id="reset-usernames" class="fa fa-times-circle"
+                  style="font-weight: 100;"></a> User(s) <span style="float: right;">playing white:</span></label>
               <input type="text" id="white" name="white" />
               <label for="black"><span style="float: right;">playing black:</span></label>
               <input type="text" id="black" name="black" />
-              <label for="timecontrol"><a href="#" id="reset-timecontrols" class="fa fa-times-circle" style="font-weight: 100;"></a> Time control(s):</label>
+              <label for="timecontrol"><a href="#" id="reset-timecontrols" class="fa fa-times-circle"
+                  style="font-weight: 100;"></a> Time control(s):</label>
               <input type="text" id="timecontrol" name="timecontrol" />
               <div class="grid-x">
                 <div class="cell small-6">
-                  <label for="from"><a href="#" id="reset-dates" class="fa fa-times-circle" style="font-weight: 100;"></a> Dates <span style="float: right;">from:</span></label>
+                  <label for="from"><a href="#" id="reset-dates" class="fa fa-times-circle"
+                      style="font-weight: 100;"></a> Dates <span style="float: right;">from:</span></label>
                   <input type="date" id="from" name="from" style="color: grey;" />
                 </div>
                 <div class="cell small-6">
@@ -130,7 +140,8 @@
               </div>
               <div class="grid-x grid-margin-x">
                 <div class="cell small-6">
-                  <label for="minelo"><a href="#" id="reset-elos" class="fa fa-times-circle" style="font-weight: 100;"></a> ELO <span style="float: right;">min:</span></label>
+                  <label for="minelo"><a href="#" id="reset-elos" class="fa fa-times-circle"
+                      style="font-weight: 100;"></a> ELO <span style="float: right;">min:</span></label>
                   <input type="text" id="minelo" name="minelo" />
                 </div>
                 <div class="cell small-6">
@@ -138,7 +149,8 @@
                   <input type="text" id="maxelo" name="maxelo" />
                 </div>
               </div>
-              <label for="site"><a href="#" id="reset-sites" class="fa fa-times-circle" style="font-weight: 100;"></a> Site(s):</label>
+              <label for="site"><a href="#" id="reset-sites" class="fa fa-times-circle" style="font-weight: 100;"></a>
+                Site(s):</label>
               <input type="text" id="site" name="site" />
             </div>
             <div id="game-details"></div>
@@ -176,13 +188,20 @@
           <span style="color: grey">Click to replace filter value, control-click to add to filter
             value.</span><br />
           <span>Users </span><span id="userNames"></span><br />
-          <span>Time Controls </span><span style="color: grey">(seconds) &bull; Simplify </span><a href="#" id="loose-timecontrol-unchecked" class="fa fa-square" style="display: none; font-weight: 100;"></a><a href="#" id="loose-timecontrol-checked" class="fa fa-check-square" style="font-weight: 100;"></a><br />
+          <span>Time controls</span><br />
           <span class="timeControlLabel">Ultra-bullet</span><span id="ultra-bullet-timeControlNames"></span><br />
           <span class="timeControlLabel">Bullet</span><span id="bullet-timeControlNames"></span><br />
           <span class="timeControlLabel">Blitz</span><span id="blitz-timeControlNames"></span><br />
           <span class="timeControlLabel">Rapid</span><span id="rapid-timeControlNames"></span><br />
           <span class="timeControlLabel">Classic</span><span id="classic-timeControlNames"></span><br />
           <span>Sites </span><span id="siteNames"></span><br />
+          <hr />
+          <span>Simplify time controls </span><a href="#" id="loose-timecontrol-unchecked" class="fa fa-square"
+            style="display: none; font-weight: 100;"></a><a href="#" id="loose-timecontrol-checked"
+            class="fa fa-check-square" style="font-weight: 100;"></a> &bull;
+          <span>Show FEN </span><a href="#" id="show-fen-unchecked" class="fa fa-square"
+            style="font-weight: 100;"></a><a href="#" id="show-fen-checked" class="fa fa-check-square"
+            style="display: none; font-weight: 100;"></a>
         </div>
       </div>
     </div>
