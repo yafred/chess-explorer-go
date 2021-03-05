@@ -149,8 +149,7 @@ $('#edit-pgn-link').click(function (e) {
             $(this).hide()
             game.load_pgn($('#opening-pgn').val())
             board.position(game.fen())
-            updateOpeningBreadcrumbs()
-            getNextMoves()
+            openingUpdated()
         });
     }
     else {
@@ -163,8 +162,7 @@ $('#opening-mode-link').click(function (e) {
     setOpeningMode()
     game.load_pgn($('#opening-pgn').val())
     board.position(game.fen())
-    updateOpeningBreadcrumbs()
-    getNextMoves()
+    openingUpdated()
 });
 
 $('#opening-link').click(function (e) {
@@ -758,8 +756,7 @@ function updateOpeningBreadcrumbs() {
         }
         setOpeningMode()
         board.position(game.fen())
-        getNextMoves()
-        updateOpeningBreadcrumbs()
+        openingUpdated()
     });
 }
 
@@ -796,7 +793,9 @@ function onDrop(source, target) {
     // illegal move
     if (move === null) return 'snapback'
 
-    openingUpdated()
+    if (uiMode == 'opening') {
+        openingUpdated()
+    }
 }
 
 // update the board position after the piece snap
