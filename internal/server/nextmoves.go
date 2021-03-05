@@ -26,7 +26,7 @@ type GameFilter struct {
 	white               string
 	black               string
 	timecontrol         string
-	useLooseTimecontrol string
+	simplifyTimecontrol string
 	from                string
 	to                  string
 	minelo              string
@@ -97,7 +97,7 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		filter.white = strings.TrimSpace(r.FormValue("white"))
 		filter.black = strings.TrimSpace(r.FormValue("black"))
 		filter.timecontrol = strings.TrimSpace(r.FormValue("timecontrol"))
-		filter.useLooseTimecontrol = strings.TrimSpace(r.FormValue("useLooseTimecontrol"))
+		filter.simplifyTimecontrol = strings.TrimSpace(r.FormValue("simplifyTimecontrol"))
 		filter.from = strings.TrimSpace(r.FormValue("from"))
 		filter.to = strings.TrimSpace(r.FormValue("to"))
 		filter.minelo = strings.TrimSpace(r.FormValue("minelo"))
@@ -395,7 +395,7 @@ func processGameFilter(filter GameFilter) bson.M {
 	timeControls := strings.Split(filter.timecontrol, ",")
 	for _, timeControl := range timeControls {
 		if strings.TrimSpace(timeControl) != "" {
-			if filter.useLooseTimecontrol == "true" {
+			if filter.simplifyTimecontrol == "true" {
 				orQuery := []bson.M{}
 				if timeControl == "-" {
 					exactQuery := bson.M{"timecontrol": "-"}

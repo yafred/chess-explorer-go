@@ -16,7 +16,7 @@ var $minelo = $('#minelo')
 var $maxelo = $('#maxelo')
 var $site = $('#site')
 var mostPopularMove = ''
-var useLooseTimecontrol = true  // make m+s equivalent to m (for example: 600 will include 600+5) and 1/n equivalent to -
+var simplifyTimecontrol = true  // make m+s equivalent to m (for example: 600 will include 600+5) and 1/n equivalent to -
 var uiMode = 'opening' // opening, replay
 
 var gameReplaying
@@ -142,25 +142,25 @@ $('#reset').click(function (e) {
 
 $('#edit-pgn-link').click(function (e) {
     e.preventDefault();
-    if ($('#opening-pgn').css('display') == 'none') {
-        $('#opening-pgn').val(game.pgn())
-        $('#opening-pgn').show()
-        $('#opening-pgn').change(function () {
+    if ($('#edit-pgn').css('display') == 'none') {
+        $('#edit-pgn').val(game.pgn())
+        $('#edit-pgn').show()
+        $('#edit-pgn').change(function () {
             $(this).hide()
-            game.load_pgn($('#opening-pgn').val())
+            game.load_pgn($('#edit-pgn').val())
             board.position(game.fen())
             openingUpdated()
         });
     }
     else {
-        $('#opening-pgn').hide()
+        $('#edit-pgn').hide()
     }
 });
 
-$('#opening-mode-link').click(function (e) {
+$('#back-to-opening-link').click(function (e) {
     e.preventDefault();
     setOpeningMode()
-    game.load_pgn($('#opening-pgn').val())
+    game.load_pgn($('#edit-pgn').val())
     board.position(game.fen())
     openingUpdated()
 });
@@ -186,20 +186,20 @@ $('#reset-all').click(function (e) {
     resetBoard()
 });
 
-$('#loose-timecontrol-checked').click(function (e) {
+$('#simplify-timecontrol-checked').click(function (e) {
     e.preventDefault();
     $(this).hide()
-    useLooseTimecontrol = false
+    simplifyTimecontrol = false
     updateReport()
-    $('#loose-timecontrol-unchecked').show()
+    $('#simplify-timecontrol-unchecked').show()
 });
 
-$('#loose-timecontrol-unchecked').click(function (e) {
+$('#simplify-timecontrol-unchecked').click(function (e) {
     e.preventDefault();
     $(this).hide()
-    useLooseTimecontrol = true
+    simplifyTimecontrol = true
     updateReport()
-    $('#loose-timecontrol-checked').show()
+    $('#simplify-timecontrol-checked').show()
 });
 
 $('#show-fen-checked').click(function (e) {
@@ -271,7 +271,7 @@ function getNextMoves() {
         white: $white.val(),
         black: $black.val(),
         timecontrol: $timecontrol.val(),
-        useLooseTimecontrol: useLooseTimecontrol,
+        simplifyTimecontrol: simplifyTimecontrol,
         from: $fromDate.val(),
         to: $toDate.val(),
         minelo: $minelo.val(),
@@ -349,7 +349,7 @@ function handleReportResponse(data) {
     }
     if (Array.isArray(data.TimeControls) != false) {
         timeControlList = data.TimeControls
-        if (useLooseTimecontrol) {
+        if (simplifyTimecontrol) {
             timeControlList = reduceTimeControlList(timeControlList)
         }
         timeControlList.sort(compareTimecontrolsByName)
@@ -599,9 +599,9 @@ function handleNextMovesResponse(dataObject) {
 
 function setReplayMode() {
     uiMode = 'replay'
-    $('#opening-mode-link').show()
+    $('#back-to-opening-link').show()
     $('#edit-pgn-link').hide()
-    $('#opening-pgn').hide()
+    $('#edit-pgn').hide()
     $('#filter').hide()
     $('#next-moves').hide()
     $('#values').hide()
@@ -614,7 +614,7 @@ function setReplayMode() {
 
 function setOpeningMode() {
     uiMode = 'opening'
-    $('#opening-mode-link').hide()
+    $('#back-to-opening-link').hide()
     $('#edit-pgn-link').show()
     $('#filter').show()
     $('#next-moves').show()
@@ -740,7 +740,7 @@ function updateOpeningBreadcrumbs() {
         }
     })
 
-    $('#opening-pgn').val(game.pgn())
+    $('#edit-pgn').val(game.pgn())
     $('#opening').html(Mustache.render(openingBreadcrumbsTpl, splitBreadcrumbs))
 
     $('#opening a').bind('click', function (e) {
