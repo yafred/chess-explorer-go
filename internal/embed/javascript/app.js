@@ -7,21 +7,14 @@ var apiHost = location.protocol + '//' + location.host
 var board = null
 var game = new Chess()
 
-var $white = $('#white')
-var $black = $('#black')
-var $timecontrol = $('#timecontrol')
-var $fromDate = $('#from')
-var $toDate = $('#to')
-var $minelo = $('#minelo')
-var $maxelo = $('#maxelo')
-var $site = $('#site')
+// states
 var mostPopularMove = ''
 var simplifyTimecontrol = true  // make m+s equivalent to m (for example: 600 will include 600+5) and 1/n equivalent to -
 var uiMode = 'opening' // opening, replay
 var playerInputMode = 'white' // changes when input fields are clicked
-
 var gameReplaying
 
+// mustache templates
 var nextMovesTpl = document.getElementById('nextMovesTpl').innerHTML;
 var usernameListTpl = document.getElementById('usernameListTpl').innerHTML;
 var timecontrolListTpl = document.getElementById('timecontrolListTpl').innerHTML;
@@ -31,55 +24,54 @@ var replayBreadcrumbsTpl = document.getElementById('replayBreadcrumbsTpl').inner
 var gameDetailsTpl = document.getElementById('gameDetailsTpl').innerHTML;
 
 
-
-$fromDate.change(function () {
+// events
+$('#from').change(function () {
     getNextMoves()
     updateReport()
 });
 
-$toDate.change(function () {
+$('#to').change(function () {
     getNextMoves()
     updateReport()
 });
 
-$white.change(function () {
+$('#white').change(function () {
     getNextMoves()
 });
 
-$black.change(function () {
+$('#black').change(function () {
     getNextMoves()
 });
 
-$white.click(function (e) {
+$('#white').click(function (e) {
     playerInputMode = 'white'
 });
 
-$black.click(function (e) {
+$('#black').click(function (e) {
     playerInputMode = 'black'
 });
 
-$timecontrol.change(function () {
+$('#timecontrol').change(function () {
     getNextMoves()
 });
 
-$minelo.change(function () {
+$('#minelo').change(function () {
     getNextMoves()
 });
 
-$maxelo.change(function () {
+$('#maxelo').change(function () {
     getNextMoves()
 });
 
-$site.change(function () {
+$('#site').change(function () {
     getNextMoves()
 });
-
 
 $('#swap').click(function (e) {
     e.preventDefault();
-    var black = $black.val()
-    $black.val($white.val())
-    $white.val(black)
+    var black = $('#black').val()
+    $('#black').val($('#white').val())
+    $('#white').val(black)
     getNextMoves()
     board.orientation('flip')
 });
@@ -110,8 +102,8 @@ $('#next').click(function (e) {
 
 $('#reset-usernames').click(function (e) {
     e.preventDefault();
-    $white.val('')
-    $black.val('')
+    $('#white').val('')
+    $('#black').val('')
     getNextMoves()
     updateReport()
     board.orientation('white')
@@ -119,28 +111,28 @@ $('#reset-usernames').click(function (e) {
 
 $('#reset-timecontrols').click(function (e) {
     e.preventDefault();
-    $timecontrol.val('')
+    $('#timecontrol').val('')
     getNextMoves()
 });
 
 $('#reset-dates').click(function (e) {
     e.preventDefault();
-    $fromDate.val('')
-    $toDate.val('')
+    $('#from').val('')
+    $('#to').val('')
     getNextMoves()
     updateReport()
 });
 
 $('#reset-sites').click(function (e) {
     e.preventDefault();
-    $site.val('')
+    $('#site').val('')
     getNextMoves()
 });
 
 $('#reset-elos').click(function (e) {
     e.preventDefault();
-    $minelo.val('')
-    $maxelo.val('')
+    $('#minelo').val('')
+    $('#maxelo').val('')
     getNextMoves()
 });
 
@@ -184,14 +176,14 @@ $('#reset-all').click(function (e) {
     e.preventDefault();
     board.orientation('white')
     setOpeningMode()
-    $white.val('')
-    $black.val('')
-    $timecontrol.val('')
-    $fromDate.val('')
-    $toDate.val('')
-    $site.val('')
-    $minelo.val('')
-    $maxelo.val('')
+    $('#white').val('')
+    $('#black').val('')
+    $('#timecontrol').val('')
+    $('#from').val('')
+    $('#to').val('')
+    $('#site').val('')
+    $('#minelo').val('')
+    $('#maxelo').val('')
     resetBoard()
 });
 
@@ -226,7 +218,7 @@ $('#show-fen-unchecked').click(function (e) {
 });
 
 
-
+// functions
 function resetBoard() {
     game.reset()
     board.position(game.fen())
@@ -277,15 +269,15 @@ function getNextMoves() {
     $('#next-moves').html('');
     $.post(`${apiHost}/nextmoves`, {
         pgn: game.pgn(),
-        white: $white.val(),
-        black: $black.val(),
-        timecontrol: $timecontrol.val(),
+        white: $('#white').val(),
+        black: $('#black').val(),
+        timecontrol: $('#timecontrol').val(),
         simplifyTimecontrol: simplifyTimecontrol,
-        from: $fromDate.val(),
-        to: $toDate.val(),
-        minelo: $minelo.val(),
-        maxelo: $maxelo.val(),
-        site: $site.val()
+        from: $('#from').val(),
+        to: $('#to').val(),
+        minelo: $('#minelo').val(),
+        maxelo: $('#maxelo').val(),
+        site: $('#site').val()
     }, function (response) {
         jsonResponse = JSON.parse(response)
         if (jsonResponse.error != undefined && jsonResponse.error != '') {
@@ -302,10 +294,10 @@ function getNextMoves() {
 function updateReport() {
     clearTimeControlValues()
     $.get(`${apiHost}/report`, {
-        white: $white.val(),
-        black: $black.val(),
-        from: $fromDate.val(),
-        to: $toDate.val()
+        white: $('#white').val(),
+        black: $('#black').val(),
+        from: $('#from').val(),
+        to: $('#to').val()
     }, function (response) {
         jsonResponse = JSON.parse(response);
         if (jsonResponse.error != undefined && jsonResponse.error != '') {
@@ -325,7 +317,7 @@ function handleReportResponse(data) {
         $('#siteNames').html(Mustache.render(nameListTpl, data.Sites))
         $('#siteNames a').bind('click', function (e) {
             e.preventDefault();
-            handleNameClicked(e, $site, $(this).html())
+            handleNameClicked(e, $('#site'), $(this).html())
         });
     }
     if (Array.isArray(data.Users) != false) {
@@ -348,10 +340,10 @@ function handleReportResponse(data) {
                 username = 'l:' + username
             }
             if (playerInputMode == 'black') {
-                handleNameClicked(e, $black, username)
+                handleNameClicked(e, $('#black'), username)
             }
             else {
-                handleNameClicked(e, $white, username)
+                handleNameClicked(e, $('#white'), username)
             }
             updateReport()
         });
@@ -368,7 +360,7 @@ function handleReportResponse(data) {
             $('#' + key + '-timeControlNames').html(Mustache.render(timecontrolListTpl, timeControlList.grouped[key]))
             $('#' + key + '-timeControlNames a').bind('click', function (e) {
                 e.preventDefault();
-                handleNameClicked(e, $timecontrol, $(this).html())
+                handleNameClicked(e, $('#timecontrol'), $(this).html())
             });
         }
         $('.timeControlLabel').show()
@@ -819,6 +811,9 @@ function openingUpdated() {
     $('#fen').html(game.fen())
 }
 
+
+
+// init
 var config = {
     moveSpeed: 400,
     draggable: true,
