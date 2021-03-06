@@ -510,6 +510,7 @@ function handleNextMovesResponse(dataObject) {
     mostPopularMove = ''
     if (Array.isArray(dataObject) == false) {
         console.log('not an array')
+        $('#total-games').html(0)
         return
     }
 
