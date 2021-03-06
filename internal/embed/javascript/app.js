@@ -514,6 +514,7 @@ function handleNextMovesResponse(dataObject) {
     }
 
     var moves = []
+    var grandTotal = 0
 
     dataObject.forEach(element => {
 
@@ -584,7 +585,7 @@ function handleNextMovesResponse(dataObject) {
                 drawPercentText: drawPercentText,
             })
         }
-
+        grandTotal += element.total
     });
 
     $('#next-moves').html(Mustache.render(nextMovesTpl, moves))
@@ -596,6 +597,7 @@ function handleNextMovesResponse(dataObject) {
         e.preventDefault();
         replayGame($(this).attr('data-gameid'))
     });
+    $('#total-games').html(grandTotal)
 }
 
 function setReplayMode() {
@@ -611,6 +613,7 @@ function setReplayMode() {
     $('#replay').show()
     $('#game-details').show()
     $('#fen-container').hide()
+    $('#total-games').hide()
 }
 
 function setOpeningMode() {
@@ -628,6 +631,7 @@ function setOpeningMode() {
     if ($('#show-fen-checked').is(':visible')) {
         $('#fen-container').show()
     }
+    $('#total-games').show()
 }
 
 function replayGame(gameId) {
