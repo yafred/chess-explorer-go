@@ -404,7 +404,7 @@ func processGameFilter(filter GameFilter) bson.M {
 				} else {
 					timecontrolParts := strings.Split(strings.TrimSpace(timeControl), "+")
 					exactQuery := bson.M{"timecontrol": timecontrolParts[0]}
-					looseQuery := bson.M{"timecontrol": bson.M{"$regex": regexp.QuoteMeta("^" + timecontrolParts[0] + "+")}}
+					looseQuery := bson.M{"timecontrol": bson.M{"$regex": "^" + regexp.QuoteMeta(timecontrolParts[0]+"+")}}
 					orQuery = append(orQuery, exactQuery, looseQuery)
 				}
 				timeControlBson = append(timeControlBson, bson.M{"$or": orQuery})
