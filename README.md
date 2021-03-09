@@ -6,7 +6,7 @@
   * You can explore the openings of a group of players.
   * When you select a player, only the time controls relevant to this player are displayed.
   * You can paste your opening PGN and skip the first moves of book openings.
-  * You can download the recent games of your favourite players in one command.
+  * You can download the recent games of all your favourite players in one command.
 
 ## This tool needs a local database
   * Install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
