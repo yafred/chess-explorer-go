@@ -1,4 +1,12 @@
-# Tool to explore chess openings 
+# Tool to explore your chess openings 
+
+## Highlights
+  * You download all your games only the first time. Next time, you will only download the recent ones.
+  * There is no special processing step: going from black to white, or from one player to the other is instant.
+  * You can explore the openings of a group of players.
+  * When you select a player, only the time controls relevant to this player are displayed.
+  * You can paste your opening PGN and skip the first moves of book openings.
+  * You can download the recent games of your favourite players in one command.
 
 ## This tool needs a local database
   * Install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
