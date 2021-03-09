@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/yafred/chess-explorer/internal/cache"
 	pgntodb "github.com/yafred/chess-explorer/internal/pgntodb"
 )
 
@@ -15,6 +16,7 @@ var pgnToDbCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		lastGame := pgntodb.LastGame{Username: username}
 		pgntodb.Process(args[0], &lastGame)
+		cache.UpdateInitialValues()
 	},
 }
 

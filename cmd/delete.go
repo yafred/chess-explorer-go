@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/yafred/chess-explorer/internal/cache"
 	"github.com/yafred/chess-explorer/internal/delete"
 )
 
@@ -16,6 +17,7 @@ Username can have 3 forms:
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		delete.Games(args[0])
+		cache.UpdateInitialValues()
 	},
 }
 

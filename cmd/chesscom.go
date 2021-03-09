@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/yafred/chess-explorer/internal/cache"
 	chesscom "github.com/yafred/chess-explorer/internal/chesscom"
 )
 
@@ -14,6 +15,7 @@ var chesscomCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		chesscom.DownloadGames(args[0], chesscomPgn)
+		cache.UpdateInitialValues()
 	},
 }
 

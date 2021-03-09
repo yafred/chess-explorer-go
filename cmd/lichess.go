@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/yafred/chess-explorer/internal/cache"
 	"github.com/yafred/chess-explorer/internal/lichess"
 )
 
@@ -17,6 +18,7 @@ var lichessCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		lichess.DownloadGames(args[0], lichessPgn)
+		cache.UpdateInitialValues()
 	},
 }
 
