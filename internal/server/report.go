@@ -86,10 +86,10 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 	report.TotalGames = totalGames
 
 	if filter.black == "" && filter.white == "" {
-		reportGames(ctx, games, &report)
+		//reportGames(ctx, games, &report)
 		reportSites(ctx, games, &report)
 		reportUsers(ctx, games, lastgames, &report)
-		reportUsersAsWhite(ctx, games, &report)
+		//reportUsersAsWhite(ctx, games, &report)
 		reportTimeControls(ctx, filter, games, &report)
 	} else {
 		reportTimeControls(ctx, filter, games, &report)
@@ -167,12 +167,7 @@ func reportUsers(ctx context.Context, games *mongo.Collection, lastgames *mongo.
 
 	report.Users = make([]userResult, 0)
 	for _, aUser := range results {
-		filter := bson.M{"site": aUser.Site, "$or": []bson.M{{"white": aUser.Username}, {"black": aUser.Username}}}
-		count, err := games.CountDocuments(ctx, filter)
-		if err != nil {
-			log.Fatal(err)
-		}
-		report.Users = append(report.Users, userResult{SiteName: aUser.Site, Name: aUser.Username, Count: int(count)})
+		report.Users = append(report.Users, userResult{SiteName: aUser.Site, Name: aUser.Username, Count: 0})
 	}
 }
 
