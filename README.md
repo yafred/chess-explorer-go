@@ -1,5 +1,9 @@
 # Tool to explore your chess openings 
 
+![Carlsen as white](/images/carlsen_white.png)
+![Carlsen as black](/images/carlsen_black.png)
+
+
 ## Highlights
   * You download all your games only the first time. Next time, you will only download the recent ones.
   * There is no special processing step: going from black to white, or from one player to the other is instant.
