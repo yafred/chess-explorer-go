@@ -44,26 +44,41 @@ func Something() {
 		log.Fatal(err)
 	}
 
+	concurrency := 20
+	sem := make(chan bool, concurrency)
+
 	count := 0
 	for cur.Next(context.TODO()) {
 		var gameHolder pgntodb.Game
 		err := cur.Decode(&gameHolder)
 
-		replay(gameHolder)
+		sem <- true // take a slot
+		go replay(gameHolder, sem)
 
 		if err != nil {
 			log.Fatal(err)
 		}
 		count++
-		if count%10000 == 0 {
+		if count%1000 == 0 {
 			log.Println(count)
 		}
+		if count == 10000 {
+			break
+		}
+	}
+
+	// wait for everything to be finished
+	for i := 0; i < cap(sem); i++ {
+		sem <- true
 	}
 
 	log.Println("read ", count, " records")
 }
 
-func replay(game pgntodb.Game) {
+func replay(game pgntodb.Game, sem chan bool) {
+
+	defer func() { <-sem }() // release the slot when finished
+
 	// Process game.PGN (remove "1." etc)
 	var pgnMoves []string
 	if len(game.PGN) > 0 {
@@ -86,14 +101,15 @@ func replay(game pgntodb.Game) {
 	for _, move := range pgnMoves {
 		chessGame.MoveStr(move)
 
-		// Petrov's defense
-		petrovFEN := "rnbqkb1r/pppp1ppp/5n2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+		// Compare
+		petrovFEN := "rnbqkb1r/pppp1ppp/5n2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3 petrov"
 		if chessGame.Position().String() == petrovFEN {
-			//log.Println(game.Link)
+			log.Println(game.Link)
 			break
 		}
+
 		iMove++
-		if iMove == 20 {
+		if iMove == 40 {
 			break
 		}
 	}
