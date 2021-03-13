@@ -309,10 +309,8 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		switch loneGame.Result {
 		case "1-0":
 			item.Win = 1
-			break
 		case "0-1":
 			item.Lose = 1
-			break
 		default:
 			item.Draw = 1
 		}
@@ -505,77 +503,57 @@ func processGameFilter(filter GameFilter) bson.M {
 
 	switch len(timeControlBson) {
 	case 0:
-		break
 	case 1:
 		finalBson = append(finalBson, timeControlBson[0])
-		break
 	default:
 		finalBson = append(finalBson, bson.M{"$or": timeControlBson})
-		break
 	}
 
 	switch len(siteBson) {
 	case 0:
-		break
 	case 1:
 		finalBson = append(finalBson, siteBson[0])
-		break
 	default:
 		finalBson = append(finalBson, bson.M{"$or": siteBson})
-		break
 	}
 
 	switch len(eloBson) {
 	case 0:
-		break
 	case 1:
 		finalBson = append(finalBson, eloBson[0])
-		break
 	default:
 		finalBson = append(finalBson, bson.M{"$and": eloBson})
-		break
 	}
 
 	switch len(dateBson) {
 	case 0:
-		break
 	case 1:
 		finalBson = append(finalBson, dateBson[0])
-		break
 	default:
 		finalBson = append(finalBson, bson.M{"$and": dateBson})
-		break
 	}
 
 	switch len(whiteBson) {
 	case 0:
-		break
 	case 1:
 		finalBson = append(finalBson, whiteBson[0])
-		break
 	default:
 		finalBson = append(finalBson, bson.M{"$or": whiteBson})
-		break
 	}
 
 	switch len(blackBson) {
 	case 0:
-		break
 	case 1:
 		finalBson = append(finalBson, blackBson[0])
-		break
 	default:
 		finalBson = append(finalBson, bson.M{"$or": blackBson})
-		break
 	}
 
 	// wrap up
 	switch len(finalBson) {
 	case 0:
-		break
 	case 1:
 		ret = finalBson[0]
-		break
 	default:
 		ret = bson.M{"$and": finalBson}
 	}
@@ -588,12 +566,9 @@ func convertSite(shortName string) string {
 	switch shortName {
 	case "c":
 		ret = "chess.com"
-		break
 	case "l":
 		ret = "lichess.org"
-		break
 	default:
-		break
 	}
 	return ret
 }

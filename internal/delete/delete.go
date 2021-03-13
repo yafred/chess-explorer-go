@@ -92,13 +92,10 @@ func Games(username string) {
 	switch len(andClause) {
 	case 0:
 		log.Fatal("Unexpected")
-		break
 	case 1:
 		gameFilter = andClause[0]
-		break
 	default:
 		gameFilter = bson.M{"$and": andClause}
-		break
 	}
 
 	gamesCollection := client.Database(viper.GetString("mongo-db-name")).Collection("games")

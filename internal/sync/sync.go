@@ -58,10 +58,8 @@ func All() {
 		switch user.Site {
 		case "lichess.org":
 			lichess.DownloadGames(user.Username, "")
-			break
 		case "chess.com":
 			chesscom.DownloadGames(user.Username, "")
-			break
 		default:
 			// Do nothing
 		}

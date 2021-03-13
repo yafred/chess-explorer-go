@@ -35,7 +35,6 @@ func pgnToDB(scanner *bufio.Scanner, db *mongo.Client, lastGame *LastGame) bool 
 			if key != "" && value != "" {
 				keyValues[key] = value
 			}
-			break
 		case '0':
 		case '1':
 			if isSetup == true {
@@ -61,7 +60,6 @@ func pgnToDB(scanner *bufio.Scanner, db *mongo.Client, lastGame *LastGame) bool 
 					return false
 				}
 			}
-			break
 		default:
 			// not a valid char, skip
 			// for example: a pgn can start with something else than '1.' if played "from position"

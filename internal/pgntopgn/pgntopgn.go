@@ -48,7 +48,6 @@ func processFile(filepath string) {
 			if key != "" && value != "" {
 				keyValues[key] = value
 			}
-			break
 		case '0':
 		case '1':
 			// If game was abandoned, pgn will be 0-1 or 1-0 (skip it)
@@ -65,10 +64,8 @@ func processFile(filepath string) {
 				elo1200to1300++
 			}
 			keyValues = make(map[string]string) // for next game
-			break
 		default:
 			// not a valid char, skip
-			break
 		}
 	}
 
