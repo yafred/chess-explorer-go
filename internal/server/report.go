@@ -90,9 +90,9 @@ func reportHandler(w http.ResponseWriter, r *http.Request) {
 		reportSites(ctx, games, &report)
 		reportUsers(ctx, games, lastgames, &report)
 		//reportUsersAsWhite(ctx, games, &report)
-		reportTimeControls(ctx, filter, games, &report)
+		reportTimeControls(ctx, &filter, games, &report)
 	} else {
-		reportTimeControls(ctx, filter, games, &report)
+		reportTimeControls(ctx, &filter, games, &report)
 	}
 
 	// send the response
@@ -222,8 +222,8 @@ func reportUsersAsWhite(ctx context.Context, games *mongo.Collection, report *re
 }
 
 // Time controls
-func reportTimeControls(ctx context.Context, gameFilter GameFilter, games *mongo.Collection, report *report) {
-	filter := bson.M{"$match": processGameFilter(gameFilter)}
+func reportTimeControls(ctx context.Context, gameFilter *GameFilter, games *mongo.Collection, report *report) {
+	filter := bson.M{"$match": bsonFromGameFilter(gameFilter)}
 	pipeline := make([]bson.M, 0)
 	pipeline = append(pipeline, filter)
 

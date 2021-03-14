@@ -32,6 +32,8 @@ type GameFilter struct {
 	minelo              string
 	maxelo              string
 	site                string
+	pgnMoves            []string
+	mongoAggregation    bool
 }
 
 func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
@@ -83,8 +85,6 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var nextmoves []NextMove
-	var filter GameFilter
-	mongoAggregation := true
 
 	switch r.Method {
 	case "POST":
@@ -93,42 +93,9 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
 			return
 		}
-		filter.pgn = strings.TrimSpace(r.FormValue("pgn"))
-		filter.white = strings.TrimSpace(r.FormValue("white"))
-		filter.black = strings.TrimSpace(r.FormValue("black"))
-		filter.timecontrol = strings.TrimSpace(r.FormValue("timecontrol"))
-		filter.simplifyTimecontrol = strings.TrimSpace(r.FormValue("simplifyTimecontrol"))
-		filter.from = strings.TrimSpace(r.FormValue("from"))
-		filter.to = strings.TrimSpace(r.FormValue("to"))
-		filter.minelo = strings.TrimSpace(r.FormValue("minelo"))
-		filter.maxelo = strings.TrimSpace(r.FormValue("maxelo"))
-		filter.site = strings.ToLower(strings.TrimSpace(r.FormValue("site")))
-
 	default:
 		fmt.Fprintf(w, "Sorry, only POST methods is supported.")
 		return
-	}
-
-	// Process input pgn (remove "1." etc)
-	var pgnMoves []string
-	if len(filter.pgn) > 0 {
-		pgnMoves = strings.Split(filter.pgn, " ")
-	}
-
-	i := 0 // output index
-	for _, x := range pgnMoves {
-		if !strings.HasSuffix(x, ".") {
-			// copy and increment index
-			pgnMoves[i] = x
-			i++
-		}
-	}
-	pgnMoves = pgnMoves[:i]
-
-	if len(pgnMoves) < 20 {
-		mongoAggregation = true
-	} else {
-		mongoAggregation = false
 	}
 
 	// Connect to DB
@@ -151,30 +118,17 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 
 	games := client.Database(viper.GetString("mongo-db-name")).Collection("games")
 
-	// Distinct moves with counts
-	var andClause []bson.M
-
 	// create game filter
-	gameFilterBson := processGameFilter(filter)
-	andClause = append(andClause, gameFilterBson)
+	filter := gameFilterFromRequest(r)
+	gameFilterBson := bsonFromGameFilter(filter)
 
-	if mongoAggregation {
-		// Our logic allows input pgn to have 0 to 19 moves
-		// filter on previous moves
-		for i := 1; i < len(pgnMoves)+1; i++ {
-			moveField := buildMoveFieldName(i)
-			andClause = append(andClause, bson.M{moveField: pgnMoves[i-1]})
-		}
+	if filter.mongoAggregation {
+		pipeline := make([]bson.M, 0)
+		pipeline = append(pipeline, bson.M{"$match": gameFilterBson})
 
 		// move field for aggregate
-		fieldNum := len(pgnMoves) + 1
+		fieldNum := len(filter.pgnMoves) + 1
 		moveField := buildMoveFieldName(fieldNum)
-
-		// make sure next move exists
-		andClause = append(andClause, bson.M{moveField: bson.M{"$exists": true, "$ne": ""}})
-
-		pipeline := make([]bson.M, 0)
-		pipeline = append(pipeline, bson.M{"$match": bson.M{"$and": andClause}})
 
 		groupStage := bson.M{
 			"$group": bson.M{
@@ -214,10 +168,7 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// algorythmic aggregation
-		quotedPgn := regexp.QuoteMeta(filter.pgn)
-		andClause = append(andClause, bson.M{"pgn": bson.M{"$regex": quotedPgn}})
-
-		cursor, err := games.Find(ctx, bson.M{"$and": andClause})
+		cursor, err := games.Find(ctx, gameFilterBson)
 		defer cursor.Close(ctx)
 		if err != nil {
 			log.Fatal(err)
@@ -284,10 +235,10 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		nextmoves[iNextMove].Total = nextmoves[iNextMove].Win + nextmoves[iNextMove].Draw + nextmoves[iNextMove].Lose
 
 		if nextmoves[iNextMove].Total == 1 {
-			if mongoAggregation {
+			if filter.mongoAggregation {
 				// get link for moves pgn + move
 				// Note: this slows down the results if there are a lot of single games
-				game := getGame(ctx, games, pgnMoves, nextmoves[iNextMove].Move, gameFilterBson)
+				game := getGame(ctx, games, filter.pgnMoves, nextmoves[iNextMove].Move, gameFilterBson)
 				if game != nil {
 					nextmoves[iNextMove].Game = *game
 				}
@@ -385,7 +336,7 @@ func getGame(ctx context.Context, games *mongo.Collection, pgnMoves []string, mo
 	return ret
 }
 
-func processGameFilter(filter GameFilter) bson.M {
+func bsonFromGameFilter(filter *GameFilter) bson.M {
 	ret := bson.M{}
 
 	// Time Control filter
@@ -498,6 +449,29 @@ func processGameFilter(filter GameFilter) bson.M {
 		}
 	}
 
+	movesBson := make([]bson.M, 0)
+
+	if filter.mongoAggregation {
+		// Our logic allows input pgn to have 0 to 19 moves
+		// filter on previous moves
+		for i := 1; i < len(filter.pgnMoves)+1; i++ {
+			moveField := buildMoveFieldName(i)
+			movesBson = append(movesBson, bson.M{moveField: filter.pgnMoves[i-1]})
+		}
+
+		// move field for aggregate
+		fieldNum := len(filter.pgnMoves) + 1
+		moveField := buildMoveFieldName(fieldNum)
+
+		// make sure next move exists
+		movesBson = append(movesBson, bson.M{moveField: bson.M{"$exists": true, "$ne": ""}})
+	} else {
+		if filter.pgn != "" {
+			quotedPgn := regexp.QuoteMeta(filter.pgn)
+			movesBson = append(movesBson, bson.M{"pgn": bson.M{"$regex": quotedPgn}})
+		}
+	}
+
 	// gather all filters
 	finalBson := make([]bson.M, 0)
 
@@ -549,6 +523,14 @@ func processGameFilter(filter GameFilter) bson.M {
 		finalBson = append(finalBson, bson.M{"$or": blackBson})
 	}
 
+	switch len(movesBson) {
+	case 0:
+	case 1:
+		finalBson = append(finalBson, movesBson[0])
+	default:
+		finalBson = append(finalBson, bson.M{"$and": movesBson})
+	}
+
 	// wrap up
 	switch len(finalBson) {
 	case 0:
@@ -571,4 +553,42 @@ func convertSite(shortName string) string {
 	default:
 	}
 	return ret
+}
+
+func gameFilterFromRequest(r *http.Request) *GameFilter {
+	filter := GameFilter{
+		pgn:                 strings.TrimSpace(r.FormValue("pgn")),
+		white:               strings.TrimSpace(r.FormValue("white")),
+		black:               strings.TrimSpace(r.FormValue("black")),
+		timecontrol:         strings.TrimSpace(r.FormValue("timecontrol")),
+		simplifyTimecontrol: strings.TrimSpace(r.FormValue("simplifyTimecontrol")),
+		from:                strings.TrimSpace(r.FormValue("from")),
+		to:                  strings.TrimSpace(r.FormValue("to")),
+		minelo:              strings.TrimSpace(r.FormValue("minelo")),
+		maxelo:              strings.TrimSpace(r.FormValue("maxelo")),
+		site:                strings.ToLower(strings.TrimSpace(r.FormValue("site"))),
+	}
+
+	// Process input pgn (remove "1." etc)
+	if len(filter.pgn) > 0 {
+		filter.pgnMoves = strings.Split(filter.pgn, " ")
+	}
+
+	i := 0 // output index
+	for _, x := range filter.pgnMoves {
+		if !strings.HasSuffix(x, ".") {
+			// copy and increment index
+			filter.pgnMoves[i] = x
+			i++
+		}
+	}
+	filter.pgnMoves = filter.pgnMoves[:i]
+
+	if len(filter.pgnMoves) < 20 {
+		filter.mongoAggregation = true
+	} else {
+		filter.mongoAggregation = false
+	}
+
+	return &filter
 }
