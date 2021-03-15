@@ -40,11 +40,12 @@ func searchFentHandler(w http.ResponseWriter, r *http.Request) {
 	gameFilterBson := bsonFromGameFilter(filter)
 
 	fen := strings.TrimSpace(r.FormValue("fen"))
+	maxMoves := 40
 
-	go searchFEN(fen, gameFilterBson)
+	go searchFEN(fen, maxMoves, gameFilterBson)
 }
 
-func searchFEN(fen string, gameFilterBson primitive.M) {
+func searchFEN(fen string, maxMoves int, gameFilterBson primitive.M) {
 	log.Println("Searching for FEN: " + fen)
 
 	// Connect to DB
@@ -81,7 +82,7 @@ func searchFEN(fen string, gameFilterBson primitive.M) {
 		err := cur.Decode(&gameHolder)
 
 		sem <- true // take a slot
-		go replay(gameHolder, fen, sem)
+		go replay(gameHolder, fen, maxMoves, sem)
 
 		if err != nil {
 			log.Fatal(err)
@@ -95,10 +96,9 @@ func searchFEN(fen string, gameFilterBson primitive.M) {
 	}
 
 	log.Println("replayed", count, "games")
-
 }
 
-func replay(game pgntodb.Game, fen string, sem chan bool) {
+func replay(game pgntodb.Game, fen string, maxMoves int, sem chan bool) {
 
 	defer func() { <-sem }() // release the slot when finished
 
@@ -132,7 +132,7 @@ func replay(game pgntodb.Game, fen string, sem chan bool) {
 		}
 
 		iMove++
-		if iMove == 40 { // should make that configurable
+		if iMove == maxMoves { // should make that configurable
 			break
 		}
 	}
