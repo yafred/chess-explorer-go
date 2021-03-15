@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -40,13 +41,14 @@ func searchFentHandler(w http.ResponseWriter, r *http.Request) {
 	gameFilterBson := bsonFromGameFilter(filter)
 
 	fen := strings.TrimSpace(r.FormValue("fen"))
-	maxMoves := 40
+	maxMoves, _ := strconv.Atoi(r.FormValue("maxMoves"))
 
 	go searchFEN(fen, maxMoves, gameFilterBson)
 }
 
 func searchFEN(fen string, maxMoves int, gameFilterBson primitive.M) {
 	log.Println("Searching for FEN: " + fen)
+	log.Println("Maximum", maxMoves, "moves per games")
 
 	// Connect to DB
 	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("mongo-url")))

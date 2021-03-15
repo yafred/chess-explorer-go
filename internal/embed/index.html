@@ -116,7 +116,8 @@
           <label for="fen-input"><a href="#" id="cancel-search-fen-form" class="fa fa-times-circle"
             style="font-weight: 100;"></a> Scan the games (from this selection) which have reached following position (progress and results are displayed in the server console)</label>
           <input type="text" id="fen-input" name="fen-input" placeholder="FEN" />
-          <a href="#" class="button" id="search-fen">Search</a>
+          Replay not more than <input type="text" id="search-fen-max-moves" name="search-fen-max-moves" value="40" maxlength="3" size="3" style="display: inline; width: auto;" /> moves (0 means replay complete game).
+          <br/><a href="#" class="button" id="search-fen">Search</a>
         </div>
       </div>
     </div>

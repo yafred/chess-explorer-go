@@ -232,6 +232,7 @@ $('#search-fen').click(function (e) {
     $('#search-fen-form').hide()
     $.post(`${apiHost}/searchfen`, {
         fen: $('#fen-input').val(),
+        maxMoves: $('#search-fen-max-moves').val(),
         pgn: game.pgn(),
         white: $('#white').val(),
         black: $('#black').val(),
