@@ -7,4 +7,5 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
 	go.mongodb.org/mongo-driver v1.4.4
+	github.com/notnil/chess v1.5.0 
 )

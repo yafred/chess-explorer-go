@@ -108,11 +108,15 @@
         <div><a href="#" id="back-to-opening-link" class="fa fa-arrow-left"
             style="display: none; font-weight: 600;"></a><a href="#" id="edit-pgn-link" class="fa fa-edit"
             style="font-weight: 600;"></a> <a id="opening-link" href="#">Opening</a>: <span id="opening"></span></div>
-        <input type="text" id="edit-pgn" name="edit-pgn" style="display: none;" />
+        <input type="text" id="edit-pgn" name="edit-pgn" style="display: none;" placeholder="PGN" />
         <div id="fen-container" style="display: none;">
-          <div><a href="#" id="edit-fen-link" class="fa fa-edit" style="font-weight: 600; display: none;"></a>FEN: <span
-              id="fen"></span></div>
-          <input type="text" id="edit-fen" name="edit-fen" style="display: none;" />
+          FEN: <span id="fen"></span>
+        </div>
+        <div id="search-fen-form" style="display: none;">
+          <label for="fen-input"><a href="#" id="cancel-search-fen-form" class="fa fa-times-circle"
+            style="font-weight: 100;"></a> Scan the games (from this selection) which have reached following position (progress and results are displayed in the server console)</label>
+          <input type="text" id="fen-input" name="fen-input" placeholder="FEN" />
+          <a href="#" class="button" id="search-fen">Search</a>
         </div>
       </div>
     </div>
@@ -204,7 +208,8 @@
             class="fa fa-check-square" style="font-weight: 100;"></a> &bull;
           <span>Show FEN </span><a href="#" id="show-fen-unchecked" class="fa fa-square"
             style="font-weight: 100;"></a><a href="#" id="show-fen-checked" class="fa fa-check-square"
-            style="display: none; font-weight: 100;"></a>
+            style="display: none; font-weight: 100;"></a> &bull;
+          <span><a href="#" id="show-search-fen-form">Search FEN</a></span>
         </div>
       </div>
     </div>

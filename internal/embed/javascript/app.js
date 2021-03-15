@@ -217,6 +217,37 @@ $('#show-fen-unchecked').click(function (e) {
     $('#show-fen-checked').show()
 });
 
+$('#show-search-fen-form').click(function (e) {
+    e.preventDefault();
+    $('#search-fen-form').show()
+});
+
+$('#cancel-search-fen-form').click(function (e) {
+    e.preventDefault();
+    $('#search-fen-form').hide()
+});
+
+$('#search-fen').click(function (e) {
+    e.preventDefault();
+    $('#search-fen-form').hide()
+    $.post(`${apiHost}/searchfen`, {
+        fen: $('#fen-input').val(),
+        pgn: game.pgn(),
+        white: $('#white').val(),
+        black: $('#black').val(),
+        timecontrol: $('#timecontrol').val(),
+        simplifyTimecontrol: simplifyTimecontrol,
+        from: $('#from').val(),
+        to: $('#to').val(),
+        minelo: $('#minelo').val(),
+        maxelo: $('#maxelo').val(),
+        site: $('#site').val()
+    }, function (response) {
+    }).fail(function () {
+        showError('Error connecting to ' + apiHost)
+    });
+
+});
 
 // functions
 function resetBoard() {
