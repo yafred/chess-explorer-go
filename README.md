@@ -11,6 +11,7 @@
   * When you select a player, only the time controls relevant to this player are displayed.
   * You can paste your opening PGN and skip the first moves of book openings.
   * You can download the recent games of all your favourite players in one command.
+  * Scan the selected games to know if they have reached a specific position (FEN)
 
 ## This tool needs a local database
   * Install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
