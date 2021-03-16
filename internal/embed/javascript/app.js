@@ -589,7 +589,6 @@ function handleNextMovesResponse(dataObject) {
             }
             // date
             element.game.date = new Date(Date.parse(element.game.datetime)).toLocaleDateString()
-            element.game.link = 'replay.html?gameId=' + element.game._id + '&skip=' + (game.history().length) + '&orientation=' + board.orientation()
             moves.push({
                 openingLink: openingLink,
                 replayLink: replayLink,
