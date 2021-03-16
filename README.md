@@ -12,6 +12,7 @@
   * You can paste your opening PGN and skip the first moves of book openings.
   * You can download the recent games of all your favourite players in one command.
   * Scan the selected games to know if they have reached a specific position (FEN)
+  * When there is only one result for the next move of the opening, you can replay the game locally or go to the site where the game was played.
 
 ## This tool needs a local database
   * Install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
