@@ -43,12 +43,43 @@ func searchFentHandler(w http.ResponseWriter, r *http.Request) {
 	fen := strings.TrimSpace(r.FormValue("fen"))
 	maxMoves, _ := strconv.Atoi(r.FormValue("maxMoves"))
 
-	go searchFEN(fen, maxMoves, gameFilterBson)
+	go searchFEN(fen, maxMoves, gameFilterBson) // launch background job and return immediately
 }
 
 func searchFEN(fen string, maxMoves int, gameFilterBson primitive.M) {
 	log.Println("Searching for FEN: " + fen)
 	log.Println("Maximum", maxMoves, "moves per games")
+
+	// start a ticker
+	ticker := time.NewTicker(15000 * time.Millisecond)
+	tickerChannel := make(chan bool)
+	go func() {
+		for {
+			select {
+			case <-tickerChannel:
+				return
+			case <-ticker.C:
+				log.Println("Searching for FEN ...")
+			}
+		}
+	}()
+
+	// start the log accumulator
+	logChannel := make(chan string)
+	go func() {
+		var logs []string
+		for {
+			item := <-logChannel
+			if item != "" {
+				logs = append(logs, item)
+			} else {
+				for _, line := range logs {
+					log.Println(line)
+				}
+				return
+			}
+		}
+	}()
 
 	// Connect to DB
 	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("mongo-url")))
@@ -76,15 +107,15 @@ func searchFEN(fen string, maxMoves int, gameFilterBson primitive.M) {
 	}
 
 	concurrency := 20
-	sem := make(chan bool, concurrency)
+	concurrencyChannel := make(chan bool, concurrency)
 
 	count := 0
 	for cur.Next(context.TODO()) {
 		var gameHolder pgntodb.Game
 		err := cur.Decode(&gameHolder)
 
-		sem <- true // take a slot
-		go replay(gameHolder, fen, maxMoves, sem)
+		concurrencyChannel <- true // take a slot
+		go replay(gameHolder, fen, maxMoves, concurrencyChannel, logChannel)
 
 		if err != nil {
 			log.Fatal(err)
@@ -93,16 +124,23 @@ func searchFEN(fen string, maxMoves int, gameFilterBson primitive.M) {
 	}
 
 	// wait for everything to be finished
-	for i := 0; i < cap(sem); i++ {
-		sem <- true
+	for i := 0; i < cap(concurrencyChannel); i++ {
+		concurrencyChannel <- true
 	}
 
-	log.Println("replayed", count, "games")
+	logChannel <- "replayed " + strconv.Itoa(count) + " games"
+
+	// stop the ticker
+	ticker.Stop()
+	tickerChannel <- true
+
+	// dump the logs
+	logChannel <- ""
 }
 
-func replay(game pgntodb.Game, fen string, maxMoves int, sem chan bool) {
+func replay(game pgntodb.Game, fen string, maxMoves int, concurrencyChannel chan bool, logChannel chan string) {
 
-	defer func() { <-sem }() // release the slot when finished
+	defer func() { <-concurrencyChannel }() // release the slot when finished
 
 	// Process game.PGN (remove "1." etc)
 	var pgnMoves []string
@@ -129,12 +167,12 @@ func replay(game pgntodb.Game, fen string, maxMoves int, sem chan bool) {
 		// Compare
 		if chessGame.Position().String() == fen {
 			iMove++
-			log.Println("move", iMove, "in game "+game.Link) // should synchronize results (and ouput number of hits in the end)
+			logChannel <- "move " + strconv.Itoa(iMove) + " in game " + game.Link
 			break
 		}
 
 		iMove++
-		if iMove == maxMoves { // should make that configurable
+		if iMove == maxMoves {
 			break
 		}
 	}
