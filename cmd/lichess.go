@@ -8,15 +8,16 @@ import (
 
 var userToken string
 var lichessPgn string
-var timeout int
 
 var lichessCmd = &cobra.Command{
 	Use:   "lichess [user]",
 	Short: "Download games for a given user from Lichess.org",
 	Long:  `Download games for a given user from Lichess.org`,
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		lichess.DownloadGames(args[0], lichessPgn)
+		for _, arg := range args {
+			lichess.DownloadGames(arg, lichessPgn)
+		}
 	},
 }
 

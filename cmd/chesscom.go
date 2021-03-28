@@ -11,9 +11,11 @@ var chesscomCmd = &cobra.Command{
 	Use:   "chesscom [user]",
 	Short: "Download games for a given user from Chess.com",
 	Long:  `Download games for a given user from Chess.com`,
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		chesscom.DownloadGames(args[0], chesscomPgn)
+		for _, arg := range args {
+			chesscom.DownloadGames(arg, chesscomPgn)
+		}
 	},
 }
 
