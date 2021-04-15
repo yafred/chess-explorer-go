@@ -1,3 +1,5 @@
+// 'use strict'; // turn on for test
+
 
 // NOTE: this uses chessboardjs and chess.js libraries:
 // https://github.com/oakmac/chessboardjs
@@ -311,7 +313,7 @@ function getNextMoves() {
         maxelo: $('#maxelo').val(),
         site: $('#site').val()
     }, function (response) {
-        jsonResponse = JSON.parse(response)
+        var jsonResponse = JSON.parse(response)
         if (jsonResponse.error != undefined && jsonResponse.error != '') {
             showError(jsonResponse.error)
         }
@@ -331,7 +333,7 @@ function updateReport() {
         from: $('#from').val(),
         to: $('#to').val()
     }, function (response) {
-        jsonResponse = JSON.parse(response);
+        var jsonResponse = JSON.parse(response);
         if (jsonResponse.error != undefined && jsonResponse.error != '') {
             showError(jsonResponse.error)
         }
@@ -364,7 +366,7 @@ function handleReportResponse(data) {
         $('#userNames').html(Mustache.render(usernameListTpl, data.Users))
         $('#userNames a').bind('click', function (e) {
             e.preventDefault();
-            username = $(this).html()
+            var username = $(this).html()
             if ($(this).data('sitename') == 'chess.com') {
                 username = 'c:' + username
             }
@@ -381,14 +383,14 @@ function handleReportResponse(data) {
         });
     }
     if (Array.isArray(data.TimeControls) != false) {
-        timeControlList = data.TimeControls
+        var timeControlList = data.TimeControls
         if (simplifyTimecontrol) {
             timeControlList = reduceTimeControlList(timeControlList)
         }
         timeControlList.sort(compareTimecontrolsByName)
         timeControlList = groupTimecontrols(timeControlList)
         // groups
-        for (key in timeControlList.grouped) {
+        for (var key in timeControlList.grouped) {
             $('#' + key + '-timeControlNames').html(Mustache.render(timecontrolListTpl, timeControlList.grouped[key]))
             $('#' + key + '-timeControlNames a').bind('click', function (e) {
                 e.preventDefault();
@@ -408,13 +410,13 @@ function clearTimeControlValues() {
 }
 
 function reduceTimeControlList(timecontrolList) {
-    reducedList = []
+    var reducedList = []
     timecontrolList.forEach((item) => {
-        baseTimeStr = item.name.split('+')[0]
+        var baseTimeStr = item.name.split('+')[0]
         if (item.name.indexOf('/') != -1) {
             baseTimeStr = '-'
         }
-        result = reducedList.find(({ name }) => name === baseTimeStr);
+        var result = reducedList.find(({ name }) => name === baseTimeStr);
         if (result == undefined) {
             reducedList.push({ name: baseTimeStr, count: 0 }) // we don't use count yet (we could reduce the list after sorting to be able to count)
         }
@@ -425,6 +427,7 @@ function reduceTimeControlList(timecontrolList) {
 function groupTimecontrols(timecontrolList) {
     timecontrolList.grouped = []
     timecontrolList.forEach((item) => {
+        var baseTimeStr = ''
         if (item.name.indexOf('/') != -1) {
             baseTimeStr = '-'
         }
@@ -434,8 +437,8 @@ function groupTimecontrols(timecontrolList) {
         if (!isNormalInteger(baseTimeStr)) {
             baseTime = Number.MAX_SAFE_INTEGER;
         }
-        baseTime = parseInt(baseTimeStr)
-        groupName = ''
+        var baseTime = parseInt(baseTimeStr)
+        var groupName = ''
         if (baseTime < 60) {
             groupName = 'ultra-bullet'
         }
@@ -466,18 +469,18 @@ function isNormalInteger(str) {
 }
 
 function compareTimecontrolsByName(itemA, itemB) {
-    a = itemA.name;
-    b = itemB.name;
+    var a = itemA.name;
+    var b = itemB.name;
 
-    intA = Number.MAX_SAFE_INTEGER;
-    intB = Number.MAX_SAFE_INTEGER;
-    int2A = 0;
-    int2B = 0;
+    var intA = Number.MAX_SAFE_INTEGER;
+    var intB = Number.MAX_SAFE_INTEGER;
+    var int2A = 0;
+    var int2B = 0;
 
     // Types of time control and there order
     // 0:600 1:600+n 2:1/n 3:-
-    typeA = 3
-    typeB = 3
+    var typeA = 3
+    var typeB = 3
 
     if (isNormalInteger(a)) {
         typeA = 0
@@ -485,7 +488,7 @@ function compareTimecontrolsByName(itemA, itemB) {
     }
     else if (-1 != a.indexOf('+')) {
         typeA = 1
-        splitA = a.split('+')
+        var splitA = a.split('+')
         if (isNormalInteger(splitA[0]) && isNormalInteger(splitA[1])) {
             intA = parseInt(splitA[0])
             int2A = parseInt(splitA[1])
@@ -493,7 +496,7 @@ function compareTimecontrolsByName(itemA, itemB) {
     }
     else if (-1 != a.indexOf('/')) {
         typeA = 2
-        splitA = a.split('/')
+        var splitA = a.split('/')
         if (isNormalInteger(splitA[0]) && isNormalInteger(splitA[1])) {
             intA = parseInt(splitA[0])
             int2A = parseInt(splitA[1])
@@ -506,7 +509,7 @@ function compareTimecontrolsByName(itemA, itemB) {
     }
     else if (-1 != b.indexOf('+')) {
         typeB = 1
-        splitB = b.split('+')
+        var splitB = b.split('+')
         if (isNormalInteger(splitB[0]) && isNormalInteger(splitB[1])) {
             intB = parseInt(splitB[0])
             int2B = parseInt(splitB[1])
@@ -514,7 +517,7 @@ function compareTimecontrolsByName(itemA, itemB) {
     }
     else if (-1 != b.indexOf('/')) {
         typeB = 2
-        splitB = b.split('/')
+        var splitB = b.split('/')
         if (isNormalInteger(splitB[0]) && isNormalInteger(splitB[1])) {
             intB = parseInt(splitB[0])
             int2B = parseInt(splitB[1])
@@ -551,24 +554,24 @@ function handleNextMovesResponse(dataObject) {
 
     dataObject.forEach(element => {
 
-        winPercent = Math.round(100 * element.win / element.total)
-        losePercent = Math.round(100 * element.lose / element.total)
-        drawPercent = 100 - winPercent - losePercent
-        winPercentText = ''
+        var winPercent = Math.round(100 * element.win / element.total)
+        var losePercent = Math.round(100 * element.lose / element.total)
+        var drawPercent = 100 - winPercent - losePercent
+        var winPercentText = ''
         if (winPercent > 12) {
             winPercentText = '' + winPercent + '%'
         }
-        losePercentText = ''
+        var losePercentText = ''
         if (losePercent > 12) {
             losePercentText = '' + losePercent + '%'
         }
-        drawPercentText = ''
+        var drawPercentText = ''
         if (drawPercent > 12) {
             drawPercentText = '' + drawPercent + '%'
         }
 
-        openingLink = false
-        replayLink = false
+        var openingLink = false
+        var replayLink = false
         if (element.total == 1) {
             replayLink = true
             element.game.userlink = 'https://www.chess.com/member/'
@@ -576,9 +579,9 @@ function handleNextMovesResponse(dataObject) {
                 element.game.userlink = 'https://lichess.org/@/'
             }
             // win,draw,lose
-            win = false
-            lose = false
-            draw = false
+            var win = false
+            var lose = false
+            var draw = false
             if (element.game.result == '1-0') {
                 win = true
             } else if (element.game.result == '0-1') {
@@ -670,7 +673,7 @@ function replayGame(gameId) {
     setReplayMode()
     // load data
     $.get(`${apiHost}/game`, { gameId: gameId }, function (response) {
-        jsonResponse = JSON.parse(response)
+        var jsonResponse = JSON.parse(response)
         if (jsonResponse.error != undefined && jsonResponse.error != '') {
             showError(jsonResponse.error)
         }
@@ -683,10 +686,10 @@ function replayGame(gameId) {
 }
 
 function handleGameResponse(data) {
-    splitPgn = data.pgn.split(' ')
+    var splitPgn = data.pgn.split(' ')
     gameReplaying = []
     splitPgn.forEach((value, index) => {
-        round = Math.floor(index / 3)
+        var round = Math.floor(index / 3)
         if (index % 3 == 0) {
             gameReplaying.push({
                 index: round,
@@ -709,10 +712,10 @@ function handleGameResponse(data) {
     $('#replay').html(Mustache.render(replayBreadcrumbsTpl, gameReplaying))
     $('#replay a').bind('click', function (e) {
         e.preventDefault();
-        round = $(this).attr('data-index')
-        color = $(this).attr('data-color')
+        var round = $(this).attr('data-index')
+        var color = $(this).attr('data-color')
         game.reset()
-        for (i = 0; i < round; i++) {
+        for (var i = 0; i < round; i++) {
             game.move(gameReplaying[i].white)
             game.move(gameReplaying[i].black)
         }
@@ -735,7 +738,7 @@ function showError(error) {
 }
 
 function replayNext() {
-    round = Math.floor(game.history().length / 2)
+    var round = Math.floor(game.history().length / 2)
     if (game.history().length % 2 == 0) {
         move(gameReplaying[round].white)
     }
@@ -749,8 +752,8 @@ function replayNext() {
 function highlightMove() {
     $('#replay a').parent().removeClass('highlight')
     if (game.history().length > 0) {
-        round = Math.floor((game.history().length - 1) / 2)
-        color = 'white'
+        var round = Math.floor((game.history().length - 1) / 2)
+        var color = 'white'
         if ((game.history().length - 1) % 2 == 1) {
             color = 'black'
         }
@@ -759,9 +762,9 @@ function highlightMove() {
 }
 
 function updateOpeningBreadcrumbs() {
-    splitBreadcrumbs = []
+    var splitBreadcrumbs = []
     game.history().forEach((value, index) => {
-        round = Math.floor(index / 2)
+        var round = Math.floor(index / 2)
         if (index % 2 == 0) {
             splitBreadcrumbs.push({
                 index: round,
@@ -782,13 +785,13 @@ function updateOpeningBreadcrumbs() {
 
     $('#opening a').bind('click', function (e) {
         e.preventDefault();
-        indexInHistory = 2 * $(this).attr('data-index')
+        var indexInHistory = 2 * $(this).attr('data-index')
         if ($(this).attr('data-color') == 'black') {
             indexInHistory += 1
         }
-        saveHistory = game.history()
+        var saveHistory = game.history()
         game.reset()
-        for (i = 0; i < indexInHistory + 1; i++) {
+        for (var i = 0; i < indexInHistory + 1; i++) {
             game.move(saveHistory[i])
         }
         setOpeningMode()
