@@ -11,7 +11,7 @@ var game = new Chess()
 
 // states
 var mostPopularMove = ''
-var simplifyTimecontrol = true  // make m+s equivalent to m (for example: 600 will include 600+5) and 1/n equivalent to -
+var simplifyTimecontrol = true // make m+s equivalent to m (for example: 600 will include 600+5) and 1/n equivalent to -
 var uiMode = 'opening' // opening, replay
 var playerInputMode = 'white' // changes when input fields are clicked
 var gameReplaying
@@ -27,49 +27,49 @@ var gameDetailsTpl = document.getElementById('gameDetailsTpl').innerHTML;
 
 
 // events
-$('#from').change(function () {
+$('#from').change(function() {
     getNextMoves()
     updateReport()
 });
 
-$('#to').change(function () {
+$('#to').change(function() {
     getNextMoves()
     updateReport()
 });
 
-$('#white').change(function () {
+$('#white').change(function() {
     getNextMoves()
 });
 
-$('#black').change(function () {
+$('#black').change(function() {
     getNextMoves()
 });
 
-$('#white').click(function (e) {
+$('#white').click(function(e) {
     playerInputMode = 'white'
 });
 
-$('#black').click(function (e) {
+$('#black').click(function(e) {
     playerInputMode = 'black'
 });
 
-$('#timecontrol').change(function () {
+$('#timecontrol').change(function() {
     getNextMoves()
 });
 
-$('#minelo').change(function () {
+$('#minelo').change(function() {
     getNextMoves()
 });
 
-$('#maxelo').change(function () {
+$('#maxelo').change(function() {
     getNextMoves()
 });
 
-$('#site').change(function () {
+$('#site').change(function() {
     getNextMoves()
 });
 
-$('#swap').click(function (e) {
+$('#swap').click(function(e) {
     e.preventDefault();
     var black = $('#black').val()
     $('#black').val($('#white').val())
@@ -78,7 +78,7 @@ $('#swap').click(function (e) {
     board.orientation('flip')
 });
 
-$('#undo').click(function (e) {
+$('#undo').click(function(e) {
     e.preventDefault();
     game.undo()
     board.position(game.fen())
@@ -90,19 +90,18 @@ $('#undo').click(function (e) {
     }
 });
 
-$('#next').click(function (e) {
+$('#next').click(function(e) {
     e.preventDefault();
     if (uiMode == 'opening') {
         if (mostPopularMove != '') {
             move(mostPopularMove)
         }
-    }
-    else {
+    } else {
         replayNext()
     }
 });
 
-$('#reset-usernames').click(function (e) {
+$('#reset-usernames').click(function(e) {
     e.preventDefault();
     $('#white').val('')
     $('#black').val('')
@@ -111,13 +110,13 @@ $('#reset-usernames').click(function (e) {
     board.orientation('white')
 });
 
-$('#reset-timecontrols').click(function (e) {
+$('#reset-timecontrols').click(function(e) {
     e.preventDefault();
     $('#timecontrol').val('')
     getNextMoves()
 });
 
-$('#reset-dates').click(function (e) {
+$('#reset-dates').click(function(e) {
     e.preventDefault();
     $('#from').val('')
     $('#to').val('')
@@ -125,42 +124,41 @@ $('#reset-dates').click(function (e) {
     updateReport()
 });
 
-$('#reset-sites').click(function (e) {
+$('#reset-sites').click(function(e) {
     e.preventDefault();
     $('#site').val('')
     getNextMoves()
 });
 
-$('#reset-elos').click(function (e) {
+$('#reset-elos').click(function(e) {
     e.preventDefault();
     $('#minelo').val('')
     $('#maxelo').val('')
     getNextMoves()
 });
 
-$('#reset').click(function (e) {
+$('#reset').click(function(e) {
     e.preventDefault();
     resetBoard()
 });
 
-$('#edit-pgn-link').click(function (e) {
+$('#edit-pgn-link').click(function(e) {
     e.preventDefault();
     if ($('#edit-pgn').css('display') == 'none') {
         $('#edit-pgn').val(game.pgn())
         $('#edit-pgn').show()
-        $('#edit-pgn').change(function () {
+        $('#edit-pgn').change(function() {
             $(this).hide()
             game.load_pgn($('#edit-pgn').val())
             board.position(game.fen())
             openingUpdated()
         });
-    }
-    else {
+    } else {
         $('#edit-pgn').hide()
     }
 });
 
-$('#back-to-opening-link').click(function (e) {
+$('#back-to-opening-link').click(function(e) {
     e.preventDefault();
     setOpeningMode()
     game.load_pgn($('#edit-pgn').val())
@@ -168,13 +166,13 @@ $('#back-to-opening-link').click(function (e) {
     openingUpdated()
 });
 
-$('#opening-link').click(function (e) {
+$('#opening-link').click(function(e) {
     e.preventDefault();
     setOpeningMode()
     resetBoard()
 });
 
-$('#reset-all').click(function (e) {
+$('#reset-all').click(function(e) {
     e.preventDefault();
     board.orientation('white')
     setOpeningMode()
@@ -189,7 +187,7 @@ $('#reset-all').click(function (e) {
     resetBoard()
 });
 
-$('#simplify-timecontrol-checked').click(function (e) {
+$('#simplify-timecontrol-checked').click(function(e) {
     e.preventDefault();
     $(this).hide()
     simplifyTimecontrol = false
@@ -197,7 +195,7 @@ $('#simplify-timecontrol-checked').click(function (e) {
     $('#simplify-timecontrol-unchecked').show()
 });
 
-$('#simplify-timecontrol-unchecked').click(function (e) {
+$('#simplify-timecontrol-unchecked').click(function(e) {
     e.preventDefault();
     $(this).hide()
     simplifyTimecontrol = true
@@ -205,31 +203,31 @@ $('#simplify-timecontrol-unchecked').click(function (e) {
     $('#simplify-timecontrol-checked').show()
 });
 
-$('#show-fen-checked').click(function (e) {
+$('#show-fen-checked').click(function(e) {
     e.preventDefault();
     $('#fen-container').hide()
     $(this).hide()
     $('#show-fen-unchecked').show()
 });
 
-$('#show-fen-unchecked').click(function (e) {
+$('#show-fen-unchecked').click(function(e) {
     e.preventDefault();
     $('#fen-container').show()
     $(this).hide()
     $('#show-fen-checked').show()
 });
 
-$('#show-search-fen-form').click(function (e) {
+$('#show-search-fen-form').click(function(e) {
     e.preventDefault();
     $('#search-fen-form').show()
 });
 
-$('#cancel-search-fen-form').click(function (e) {
+$('#cancel-search-fen-form').click(function(e) {
     e.preventDefault();
     $('#search-fen-form').hide()
 });
 
-$('#search-fen').click(function (e) {
+$('#search-fen').click(function(e) {
     e.preventDefault();
     $('#search-fen-form').hide()
     $.post(`${apiHost}/searchfen`, {
@@ -245,8 +243,7 @@ $('#search-fen').click(function (e) {
         minelo: $('#minelo').val(),
         maxelo: $('#maxelo').val(),
         site: $('#site').val()
-    }, function (response) {
-    }).fail(function () {
+    }, function(response) {}).fail(function() {
         showError('Error connecting to ' + apiHost)
     });
 
@@ -266,8 +263,10 @@ function resetBoard() {
 }
 
 
-Array.prototype.remove = function () {
-    var what, a = arguments, L = a.length, ax;
+Array.prototype.remove = function() {
+    var what, a = arguments,
+        L = a.length,
+        ax;
     while (L && this.length) {
         what = a[--L];
         while ((ax = this.indexOf(what)) !== -1) {
@@ -282,15 +281,13 @@ function handleNameClicked(event, control, name) {
     if (control.val().trim() == '' || !event.ctrlKey) {
         control.val(name)
         getNextMoves()
-    }
-    else {
+    } else {
         values = control.val().trim().split(',')
         if (values.indexOf(name) == -1) {
             values.push(name)
             control.val(values.join(','))
             getNextMoves()
-        }
-        else {
+        } else {
             values.remove(name)
             control.val(values.join(','))
             getNextMoves()
@@ -312,15 +309,14 @@ function getNextMoves() {
         minelo: $('#minelo').val(),
         maxelo: $('#maxelo').val(),
         site: $('#site').val()
-    }, function (response) {
+    }, function(response) {
         var jsonResponse = JSON.parse(response)
         if (jsonResponse.error != undefined && jsonResponse.error != '') {
             showError(jsonResponse.error)
-        }
-        else {
+        } else {
             handleNextMovesResponse(jsonResponse.data);
         }
-    }).fail(function () {
+    }).fail(function() {
         showError('Error connecting to ' + apiHost)
     });
 }
@@ -332,15 +328,14 @@ function updateReport() {
         black: $('#black').val(),
         from: $('#from').val(),
         to: $('#to').val()
-    }, function (response) {
+    }, function(response) {
         var jsonResponse = JSON.parse(response);
         if (jsonResponse.error != undefined && jsonResponse.error != '') {
             showError(jsonResponse.error)
-        }
-        else {
+        } else {
             handleReportResponse(jsonResponse.data)
         }
-    }).fail(function () {
+    }).fail(function() {
         showError('Error connecting to ' + apiHost)
     });
 }
@@ -349,7 +344,7 @@ function updateReport() {
 function handleReportResponse(data) {
     if (Array.isArray(data.Sites) != false) {
         $('#siteNames').html(Mustache.render(nameListTpl, data.Sites))
-        $('#siteNames a').bind('click', function (e) {
+        $('#siteNames a').bind('click', function(e) {
             e.preventDefault();
             handleNameClicked(e, $('#site'), $(this).html())
         });
@@ -364,7 +359,7 @@ function handleReportResponse(data) {
             }
         })
         $('#userNames').html(Mustache.render(usernameListTpl, data.Users))
-        $('#userNames a').bind('click', function (e) {
+        $('#userNames a').bind('click', function(e) {
             e.preventDefault();
             var username = $(this).html()
             if ($(this).data('sitename') == 'chess.com') {
@@ -375,8 +370,7 @@ function handleReportResponse(data) {
             }
             if (playerInputMode == 'black') {
                 handleNameClicked(e, $('#black'), username)
-            }
-            else {
+            } else {
                 handleNameClicked(e, $('#white'), username)
             }
             updateReport()
@@ -389,10 +383,10 @@ function handleReportResponse(data) {
         }
         timeControlList.sort(compareTimecontrolsByName)
         timeControlList = groupTimecontrols(timeControlList)
-        // groups
+            // groups
         for (var key in timeControlList.grouped) {
             $('#' + key + '-timeControlNames').html(Mustache.render(timecontrolListTpl, timeControlList.grouped[key]))
-            $('#' + key + '-timeControlNames a').bind('click', function (e) {
+            $('#' + key + '-timeControlNames a').bind('click', function(e) {
                 e.preventDefault();
                 handleNameClicked(e, $('#timecontrol'), $(this).html())
             });
@@ -430,8 +424,7 @@ function groupTimecontrols(timecontrolList) {
         var baseTimeStr = ''
         if (item.name.indexOf('/') != -1) {
             baseTimeStr = '-'
-        }
-        else {
+        } else {
             baseTimeStr = item.name.split('+')[0]
         }
         if (!isNormalInteger(baseTimeStr)) {
@@ -441,17 +434,13 @@ function groupTimecontrols(timecontrolList) {
         var groupName = ''
         if (baseTime < 60) {
             groupName = 'ultra-bullet'
-        }
-        else if (baseTime < 180) {
+        } else if (baseTime < 180) {
             groupName = 'bullet'
-        }
-        else if (baseTime < 600) {
+        } else if (baseTime < 600) {
             groupName = 'blitz'
-        }
-        else if (baseTime < 3600) {
+        } else if (baseTime < 3600) {
             groupName = 'rapid'
-        }
-        else {
+        } else {
             groupName = 'classic'
         }
         if (timecontrolList.grouped[groupName] == undefined) {
@@ -485,16 +474,14 @@ function compareTimecontrolsByName(itemA, itemB) {
     if (isNormalInteger(a)) {
         typeA = 0
         intA = a
-    }
-    else if (-1 != a.indexOf('+')) {
+    } else if (-1 != a.indexOf('+')) {
         typeA = 1
         var splitA = a.split('+')
         if (isNormalInteger(splitA[0]) && isNormalInteger(splitA[1])) {
             intA = parseInt(splitA[0])
             int2A = parseInt(splitA[1])
         }
-    }
-    else if (-1 != a.indexOf('/')) {
+    } else if (-1 != a.indexOf('/')) {
         typeA = 2
         var splitA = a.split('/')
         if (isNormalInteger(splitA[0]) && isNormalInteger(splitA[1])) {
@@ -506,16 +493,14 @@ function compareTimecontrolsByName(itemA, itemB) {
     if (isNormalInteger(b)) {
         typeB = 0
         intB = b
-    }
-    else if (-1 != b.indexOf('+')) {
+    } else if (-1 != b.indexOf('+')) {
         typeB = 1
         var splitB = b.split('+')
         if (isNormalInteger(splitB[0]) && isNormalInteger(splitB[1])) {
             intB = parseInt(splitB[0])
             int2B = parseInt(splitB[1])
         }
-    }
-    else if (-1 != b.indexOf('/')) {
+    } else if (-1 != b.indexOf('/')) {
         typeB = 2
         var splitB = b.split('/')
         if (isNormalInteger(splitB[0]) && isNormalInteger(splitB[1])) {
@@ -530,13 +515,11 @@ function compareTimecontrolsByName(itemA, itemB) {
     }
     if (intA == intB) {
         if (typeA != typeB) {
-            return typeA - typeB  // case of n compared to n+0
-        }
-        else {
+            return typeA - typeB // case of n compared to n+0
+        } else {
             return int2A - int2B
         }
-    }
-    else {
+    } else {
         return intA - intB
     }
 }
@@ -601,8 +584,7 @@ function handleNextMovesResponse(dataObject) {
                 game: element.game,
                 move: element.move,
             })
-        }
-        else {
+        } else {
             openingLink = true
             if (mostPopularMove == '') {
                 mostPopularMove = element.move
@@ -624,11 +606,11 @@ function handleNextMovesResponse(dataObject) {
     });
 
     $('#next-moves').html(Mustache.render(nextMovesTpl, moves))
-    $('.next-move').bind('click', function (e) {
+    $('.next-move').bind('click', function(e) {
         e.preventDefault();
         move($(this).html())
     });
-    $('.replay-game').bind('click', function (e) {
+    $('.replay-game').bind('click', function(e) {
         e.preventDefault();
         replayGame($(this).attr('data-gameid'))
     });
@@ -671,16 +653,15 @@ function setOpeningMode() {
 
 function replayGame(gameId) {
     setReplayMode()
-    // load data
-    $.get(`${apiHost}/game`, { gameId: gameId }, function (response) {
+        // load data
+    $.get(`${apiHost}/game`, { gameId: gameId }, function(response) {
         var jsonResponse = JSON.parse(response)
         if (jsonResponse.error != undefined && jsonResponse.error != '') {
             showError(jsonResponse.error)
-        }
-        else {
+        } else {
             handleGameResponse(jsonResponse.data)
         }
-    }).fail(function () {
+    }).fail(function() {
         showError('Error connecting to ' + apiHost)
     });
 }
@@ -701,8 +682,7 @@ function handleGameResponse(data) {
         }
         if (index % 3 == 1) {
             gameReplaying[round].white = value
-        }
-        else {
+        } else {
             gameReplaying[round].black = value
             gameReplaying[round].isComplete = true
         }
@@ -710,7 +690,7 @@ function handleGameResponse(data) {
     data.dateStr = new Date(data.datetime).toGMTString()
     $('#game-details').html(Mustache.render(gameDetailsTpl, data))
     $('#replay').html(Mustache.render(replayBreadcrumbsTpl, gameReplaying))
-    $('#replay a').bind('click', function (e) {
+    $('#replay a').bind('click', function(e) {
         e.preventDefault();
         var round = $(this).attr('data-index')
         var color = $(this).attr('data-color')
@@ -741,8 +721,7 @@ function replayNext() {
     var round = Math.floor(game.history().length / 2)
     if (game.history().length % 2 == 0) {
         move(gameReplaying[round].white)
-    }
-    else {
+    } else {
         move(gameReplaying[round].black)
     }
     highlightMove()
@@ -773,8 +752,7 @@ function updateOpeningBreadcrumbs() {
                 black: '',
                 isComplete: false
             })
-        }
-        else {
+        } else {
             splitBreadcrumbs[round].black = value
             splitBreadcrumbs[round].isComplete = true
         }
@@ -783,7 +761,7 @@ function updateOpeningBreadcrumbs() {
     $('#edit-pgn').val(game.pgn())
     $('#opening').html(Mustache.render(openingBreadcrumbsTpl, splitBreadcrumbs))
 
-    $('#opening a').bind('click', function (e) {
+    $('#opening a').bind('click', function(e) {
         e.preventDefault();
         var indexInHistory = 2 * $(this).attr('data-index')
         if ($(this).attr('data-color') == 'black') {
@@ -848,6 +826,22 @@ function openingUpdated() {
     updateOpeningBreadcrumbs()
     getNextMoves()
     $('#fen').html(game.fen())
+
+    // update opening name
+    $.get('https://explorer.lichess.ovh/lichess', {
+        fen: game.fen(),
+        variant: 'standard'
+    }, function(jsonResponse) {
+        console.log(jsonResponse.opening)
+        if (jsonResponse.opening === null) {
+            $('#opening-name').html('')
+        } else {
+            $('#opening-name').html(jsonResponse.opening.name)
+        }
+    }).fail(function() {
+        showError('Error connecting to https://explorer.lichess.ovh')
+    });
+
 }
 
 
@@ -865,4 +859,3 @@ board = Chessboard('myBoard', config)
 board.resize()
 
 resetBoard()
-
