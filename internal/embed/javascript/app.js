@@ -839,7 +839,7 @@ function openingUpdated() {
             $('#opening-name').html(jsonResponse.opening.name)
         }
     }).fail(function() {
-        showError('Error connecting to https://explorer.lichess.ovh')
+        console.log('Error connecting to https://explorer.lichess.ovh')
     });
 
 }
