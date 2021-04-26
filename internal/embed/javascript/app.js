@@ -832,9 +832,11 @@ function openingUpdated() {
         fen: game.fen(),
         variant: 'standard'
     }, function(jsonResponse) {
-        console.log(jsonResponse.opening)
+        console.log(jsonResponse)
         if (jsonResponse.opening === null) {
-            $('#opening-name').html('')
+            if (game.pgn() == '') {
+                $('#opening-name').html('')
+            }
         } else {
             $('#opening-name').html(jsonResponse.opening.name)
         }
