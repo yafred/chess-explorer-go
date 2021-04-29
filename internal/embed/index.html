@@ -21,20 +21,20 @@
             <div style="width:20%; text-align: center;">{{total}}</div>
 
             <div style="width:70%; display:flex; border: 1px solid #aaa; margin-bottom: .1rem">
-                <div style="background-color: white; width:{{winPercent}}%">{{winPercentText}}</div>
+                <div style="background-color: white; width:{{whitePercent}}%">{{whitePercentText}}</div>
                 <div style="text-align: center; background-color: #aaa; width:{{drawPercent}}%">{{drawPercentText}}</div>
-                <div style="text-align: right; color: white; background-color: #595959; width:{{losePercent}}%">{{losePercentText}}</div>
+                <div style="text-align: right; color: white; background-color: #595959; width:{{blackPercent}}%">{{blackPercentText}}</div>
             </div>
             {{/openingLink}} {{#replayLink}}
             <div style="width:10%;"><a href="#" class="replay-game" data-gameid="{{game._id}}">{{move}}</a></div>
             <div style="width:10%; margin-bottom: .1rem; margin-right: .1rem; text-align: center;">
-                {{#win}}
+                {{#white}}
                 <div style="background-color: white;"><span>{{game.result}}</span></div>
-                {{/win}} {{#draw}}
+                {{/white}} {{#draw}}
                 <div style="background-color: #aaa;"><span>{{game.result}}</span></div>
-                {{/draw}} {{#lose}}
+                {{/draw}} {{#black}}
                 <div style="background-color: #595959; color: white;"><span>{{game.result}}</span></div>
-                {{/lose}}
+                {{/black}}
             </div>
             <div style="width:80%;">
                 <span><a target="_blank" href="{{game.userlink}}{{game.white}}">{{game.white}}</a> ({{game.whiteelo}}) - <a target="_blank" href="{{game.userlink}}{{game.black}}">{{game.black}}</a> ({{game.blackelo}}) - {{game.date}} on {{game.site}}</span>

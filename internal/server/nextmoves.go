@@ -72,9 +72,9 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		// Only the fields below go in the response
 		Results []Result     `json:"results"`
 		Move    string       `json:"move"`
-		Win     uint32       `json:"win"`
+		White   uint32       `json:"white"`
 		Draw    uint32       `json:"draw"`
-		Lose    uint32       `json:"lose"`
+		Black   uint32       `json:"black"`
 		Total   uint32       `json:"total"`
 		Game    pgntodb.Game `json:"game,omitempty"` // when Total = 1
 	}
@@ -224,15 +224,15 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 	for iNextMove := range nextmoves {
 		for _, y := range nextmoves[iNextMove].Results {
 			if y.Result == "1-0" {
-				nextmoves[iNextMove].Win = y.Sum
+				nextmoves[iNextMove].White = y.Sum
 			} else if y.Result == "0-1" {
-				nextmoves[iNextMove].Lose = y.Sum
+				nextmoves[iNextMove].Black = y.Sum
 			} else {
 				nextmoves[iNextMove].Draw = y.Sum
 			}
 		}
 
-		nextmoves[iNextMove].Total = nextmoves[iNextMove].Win + nextmoves[iNextMove].Draw + nextmoves[iNextMove].Lose
+		nextmoves[iNextMove].Total = nextmoves[iNextMove].White + nextmoves[iNextMove].Draw + nextmoves[iNextMove].Black
 
 		if nextmoves[iNextMove].Total == 1 {
 			if filter.mongoAggregation {
@@ -259,9 +259,9 @@ func nextMovesHandler(w http.ResponseWriter, r *http.Request) {
 		item := NextMove{Move: "End", Game: loneGame, Total: 1}
 		switch loneGame.Result {
 		case "1-0":
-			item.Win = 1
+			item.White = 1
 		case "0-1":
-			item.Lose = 1
+			item.Black = 1
 		default:
 			item.Draw = 1
 		}

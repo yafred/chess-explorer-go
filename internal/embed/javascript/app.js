@@ -537,16 +537,16 @@ function handleNextMovesResponse(dataObject) {
 
     dataObject.forEach(element => {
 
-        var winPercent = Math.round(100 * element.win / element.total)
-        var losePercent = Math.round(100 * element.lose / element.total)
-        var drawPercent = 100 - winPercent - losePercent
-        var winPercentText = ''
-        if (winPercent > 12) {
-            winPercentText = '' + winPercent + '%'
+        var whitePercent = Math.round(100 * element.white / element.total)
+        var blackPercent = Math.round(100 * element.black / element.total)
+        var drawPercent = 100 - whitePercent - blackPercent
+        var whitePercentText = ''
+        if (whitePercent > 12) {
+            whitePercentText = '' + whitePercent + '%'
         }
-        var losePercentText = ''
-        if (losePercent > 12) {
-            losePercentText = '' + losePercent + '%'
+        var blackPercentText = ''
+        if (blackPercent > 12) {
+            blackPercentText = '' + blackPercent + '%'
         }
         var drawPercentText = ''
         if (drawPercent > 12) {
@@ -561,14 +561,14 @@ function handleNextMovesResponse(dataObject) {
             if (element.game.site == 'lichess.org') {
                 element.game.userlink = 'https://lichess.org/@/'
             }
-            // win,draw,lose
-            var win = false
-            var lose = false
+            // white,draw,black
+            var white = false
+            var black = false
             var draw = false
             if (element.game.result == '1-0') {
-                win = true
+                white = true
             } else if (element.game.result == '0-1') {
-                lose = true
+                black = true
             } else {
                 element.game.result = '1/2'
                 draw = true
@@ -578,8 +578,8 @@ function handleNextMovesResponse(dataObject) {
             moves.push({
                 openingLink: openingLink,
                 replayLink: replayLink,
-                win: win,
-                lose: lose,
+                white: white,
+                black: black,
                 draw: draw,
                 game: element.game,
                 move: element.move,
@@ -594,11 +594,11 @@ function handleNextMovesResponse(dataObject) {
                 replayLink: replayLink,
                 move: element.move,
                 total: element.total,
-                winPercent: winPercent,
-                losePercent: losePercent,
+                whitePercent: whitePercent,
+                blackPercent: blackPercent,
                 drawPercent: drawPercent,
-                winPercentText: winPercentText,
-                losePercentText: losePercentText,
+                whitePercentText: whitePercentText,
+                blackPercentText: blackPercentText,
                 drawPercentText: drawPercentText,
             })
         }
