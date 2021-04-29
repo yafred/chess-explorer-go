@@ -830,7 +830,9 @@ function openingUpdated() {
     // update opening name
     $.get('https://explorer.lichess.ovh/lichess', {
         fen: game.fen(),
-        variant: 'standard'
+        variant: 'standard',
+        'ratings[]': [1600, 1800, 2000, 2200, 2500],
+        'speeds[]': ['bullet', 'blitz', 'rapid', 'classical']
     }, function(jsonResponse) {
         console.log(jsonResponse)
         if (jsonResponse.opening === null) {
