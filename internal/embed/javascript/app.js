@@ -534,9 +534,15 @@ function handleNextMovesResponse(dataObject) {
 
     var moves = []
     var grandTotal = 0
+    var grandWhite = 0
+    var grandDraw = 0
+    var grandBlack = 0
 
     dataObject.forEach(element => {
 
+        grandWhite += element.white
+        grandDraw += element.draw
+        grandBlack += element.black
         var whitePercent = Math.round(100 * element.white / element.total)
         var blackPercent = Math.round(100 * element.black / element.total)
         var drawPercent = 100 - whitePercent - blackPercent
@@ -605,6 +611,10 @@ function handleNextMovesResponse(dataObject) {
         grandTotal += element.total
     });
 
+    var grandWhitePercent = Math.round(100 * grandWhite / grandTotal)
+    var grandBlackPercent = Math.round(100 * grandBlack / grandTotal)
+    var grandDrawPercent = 100 - grandWhitePercent - grandBlackPercent
+
     $('#next-moves').html(Mustache.render(nextMovesTpl, moves))
     $('.next-move').bind('click', function(e) {
         e.preventDefault();
@@ -614,7 +624,7 @@ function handleNextMovesResponse(dataObject) {
         e.preventDefault();
         replayGame($(this).attr('data-gameid'))
     });
-    $('#total-games').html(grandTotal)
+    $('#total-games').html(grandTotal + ' (' + grandWhitePercent + '/' + grandDrawPercent + '/' + grandBlackPercent + ')')
 }
 
 function setReplayMode() {
