@@ -624,7 +624,7 @@ function handleNextMovesResponse(dataObject) {
         e.preventDefault();
         replayGame($(this).attr('data-gameid'))
     });
-    $('#total-games').html(grandTotal + ' (' + grandWhitePercent + '/' + grandDrawPercent + '/' + grandBlackPercent + ')')
+    $('#total-games').html(grandTotal + ' (' + grandWhitePercent + '/' + grandDrawPercent + '/' + grandBlackPercent + ')&percnt;')
 }
 
 function setReplayMode() {
