@@ -535,13 +535,11 @@ function handleNextMovesResponse(dataObject) {
     var moves = []
     var grandTotal = 0
     var grandWhite = 0
-    var grandDraw = 0
     var grandBlack = 0
 
     dataObject.forEach(element => {
 
         grandWhite += element.white
-        grandDraw += element.draw
         grandBlack += element.black
         var whitePercent = Math.round(100 * element.white / element.total)
         var blackPercent = Math.round(100 * element.black / element.total)
@@ -838,7 +836,8 @@ function openingUpdated() {
     $('#fen').html(game.fen())
 
     // update opening name
-    $.get('https://explorer.lichess.ovh/lichess', {
+    var bookType = 'lichess' // 'lichess', 'master'
+    $.get(`https://explorer.lichess.ovh/${bookType}`, {
         fen: game.fen(),
         variant: 'standard',
         'ratings[]': [1600, 1800, 2000, 2200, 2500],
