@@ -142,6 +142,22 @@ $('#reset').click(function(e) {
     resetBoard()
 });
 
+$('#show-filter').click(function(e) {
+    $('#show-filter').hide()
+    $('#book-moves').hide()
+    $('#show-book-moves').show()
+    $('#filter').show()
+    e.preventDefault();
+});
+
+$('#show-book-moves').click(function(e) {
+    $('#show-book-moves').hide()
+    $('#filter').hide()
+    $('#show-filter').show()
+    $('#book-moves').show()
+    e.preventDefault();
+});
+
 $('#edit-pgn-link').click(function(e) {
     e.preventDefault();
     if ($('#edit-pgn').css('display') == 'none') {
@@ -639,6 +655,11 @@ function setReplayMode() {
     $('#game-details').show()
     $('#fen-container').hide()
     $('#total-games').hide()
+    $('#show-book-moves').hide()
+    $('#filter').hide()
+    $('#show-filter').hide()
+    $('#book-moves').hide()
+
 }
 
 function setOpeningMode() {
@@ -657,6 +678,11 @@ function setOpeningMode() {
         $('#fen-container').show()
     }
     $('#total-games').show()
+    $('#show-book-moves').show()
+    $('#filter').show()
+    $('#show-filter').hide()
+    $('#book-moves').hide()
+
 }
 
 function replayGame(gameId) {
@@ -850,6 +876,48 @@ function openingUpdated() {
             }
         } else {
             $('#opening-name').html(jsonResponse.opening.name)
+        }
+        if (jsonResponse.moves === null || Array.isArray(jsonResponse.moves) == false) {
+            $('#book-moves').html('')
+        } else {
+            var moves = []
+            jsonResponse.moves.forEach(element => {
+                var total = element.white + element.black + element.draws
+                var whitePercent = Math.round(100 * element.white / total)
+                var blackPercent = Math.round(100 * element.black / total)
+                var drawPercent = 100 - whitePercent - blackPercent
+
+                var whitePercentText = ''
+                if (whitePercent > 12) {
+                    whitePercentText = '' + whitePercent + '%'
+                }
+                var blackPercentText = ''
+                if (blackPercent > 12) {
+                    blackPercentText = '' + blackPercent + '%'
+                }
+                var drawPercentText = ''
+                if (drawPercent > 12) {
+                    drawPercentText = '' + drawPercent + '%'
+                }
+
+                moves.push({
+                    openingLink: true,
+                    move: element.san,
+                    total: total,
+                    whitePercent: whitePercent,
+                    blackPercent: blackPercent,
+                    drawPercent: drawPercent,
+                    whitePercentText: whitePercentText,
+                    blackPercentText: blackPercentText,
+                    drawPercentText: drawPercentText,
+                })
+
+                $('#book-moves').html(Mustache.render(nextMovesTpl, moves))
+                $('.next-move').bind('click', function(e) {
+                    e.preventDefault();
+                    move($(this).html())
+                });
+            })
         }
     }).fail(function() {
         console.log('Error connecting to https://explorer.lichess.ovh')
