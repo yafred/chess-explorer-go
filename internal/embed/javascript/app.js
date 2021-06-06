@@ -144,7 +144,7 @@ $('#reset').click(function(e) {
 
 $('#show-filter').click(function(e) {
     $('#show-filter').hide()
-    $('#book-moves').hide()
+    $('#book-moves-panel').hide()
     $('#show-book-moves').show()
     $('#filter').show()
     e.preventDefault();
@@ -154,7 +154,8 @@ $('#show-book-moves').click(function(e) {
     $('#show-book-moves').hide()
     $('#filter').hide()
     $('#show-filter').show()
-    $('#book-moves').show()
+    $('#book-moves-panel').show()
+    updateBookMoves()
     e.preventDefault();
 });
 
@@ -264,6 +265,42 @@ $('#search-fen').click(function(e) {
     });
 
 });
+
+$('#book-moves-db-master-unchecked').click(function(e) {
+    e.preventDefault();
+    $(this).hide()
+    $('#book-moves-db-master-checked').show()
+    $('#book-moves-db-lichess-checked').hide()
+    $('#book-moves-db-lichess-unchecked').show()
+    updateBookMoves()
+});
+
+$('#book-moves-db-lichess-unchecked').click(function(e) {
+    e.preventDefault();
+    $(this).hide()
+    $('#book-moves-db-lichess-checked').show()
+    $('#book-moves-db-master-checked').hide()
+    $('#book-moves-db-master-unchecked').show()
+    updateBookMoves()
+});
+
+['#book-moves-rating-1600', '#book-moves-rating-1800', '#book-moves-rating-2000', '#book-moves-rating-2200', '#book-moves-rating-2500',
+    '#book-moves-speed-bullet', '#book-moves-speed-blitz', '#book-moves-speed-rapid', '#book-moves-speed-classical'
+].forEach(element => {
+    $(`${element}-unchecked`).click(function(e) {
+        e.preventDefault();
+        $(this).hide()
+        $(`${element}-checked`).show()
+        updateBookMoves()
+    });
+
+    $(`${element}-checked`).click(function(e) {
+        e.preventDefault();
+        $(this).hide()
+        $(`${element}-unchecked`).show()
+        updateBookMoves()
+    });
+})
 
 // functions
 function resetBoard() {
@@ -658,7 +695,7 @@ function setReplayMode() {
     $('#show-book-moves').hide()
     $('#filter').hide()
     $('#show-filter').hide()
-    $('#book-moves').hide()
+    $('#book-moves-panel').hide()
 
 }
 
@@ -681,7 +718,7 @@ function setOpeningMode() {
     $('#show-book-moves').show()
     $('#filter').show()
     $('#show-filter').hide()
-    $('#book-moves').hide()
+    $('#book-moves-panel').hide()
 
 }
 
@@ -860,14 +897,42 @@ function openingUpdated() {
     updateOpeningBreadcrumbs()
     getNextMoves()
     $('#fen').html(game.fen())
+    updateBookMoves()
+}
 
-    // update opening name
+function updateBookMoves() {
+    /* we need to call book moves for opening name even if book moves panel is hidden
+    if ($('#book-moves-panel').is(':visible') == false) {
+        bookType = 'master'
+    }
+    */
+    console.log('updateBookMoves')
+        // update opening name
     var bookType = 'lichess' // 'lichess', 'master'
+    if ($('#book-moves-db-master-checked').is(':visible')) {
+        bookType = 'master'
+    }
+
+    const allRatings = [1600, 1800, 2000, 2200, 2500]
+    const allSpeeds = ['bullet', 'blitz', 'rapid', 'classical']
+    var ratings = []
+    var speeds = []
+    allRatings.forEach(element => {
+        if ($(`#book-moves-rating-${element}-checked`).is(':visible')) {
+            ratings.push(element)
+        }
+    })
+    allSpeeds.forEach(element => {
+        if ($(`#book-moves-speed-${element}-checked`).is(':visible')) {
+            speeds.push(element)
+        }
+    })
+
     $.get(`https://explorer.lichess.ovh/${bookType}`, {
         fen: game.fen(),
         variant: 'standard',
-        'ratings[]': [1600, 1800, 2000, 2200, 2500],
-        'speeds[]': ['bullet', 'blitz', 'rapid', 'classical']
+        'ratings[]': ratings,
+        'speeds[]': speeds
     }, function(jsonResponse) {
         console.log(jsonResponse)
         if (jsonResponse.opening === null) {
@@ -912,7 +977,7 @@ function openingUpdated() {
                     drawPercentText: drawPercentText,
                 })
 
-                $('#book-moves').html(Mustache.render(nextMovesTpl, moves))
+                $('#book-moves').html(Mustache.render(nextMovesTpl, moves.slice(0, 12))) // limit to 12 entries
                 $('.next-move').bind('click', function(e) {
                     e.preventDefault();
                     move($(this).html())
