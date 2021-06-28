@@ -14,8 +14,9 @@
   * You can scan the selected games to know if they have reached a specific position (FEN)
   * When there is only one result for the next move of the opening, you can replay the game locally or go to the site where the game was played.
 
-## This tool needs a local database
-  * Install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
+## This tool needs a Mongo database to cache your data
+  * Either install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
+  * Or create a MongoDB cluster online (there are some free plans, for example: [MongoDB Atlas](https://docs.atlas.mongodb.com/tutorial/deploy-free-tier-cluster/))
 
 ## Alternative 1: using executable
   * Download the executable for your platform from the [releases page](https://github.com/yafred/chess-explorer-go/releases)
