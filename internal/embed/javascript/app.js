@@ -150,10 +150,23 @@ $('#show-filter').click(function(e) {
     e.preventDefault();
 });
 
+$('#show-game-details').click(function(e) {
+    $('#show-game-details').hide()
+    $('#book-moves-panel').hide()
+    $('#show-book-moves').show()
+    $('#game-details').show()
+    e.preventDefault();
+});
+
 $('#show-book-moves').click(function(e) {
     $('#show-book-moves').hide()
     $('#filter').hide()
-    $('#show-filter').show()
+    $('#game-details').hide()
+    if (uiMode == 'opening') {
+        $('#show-filter').show()
+    } else {
+        $('#show-game-details').show()
+    }
     $('#book-moves-panel').show()
     updateBookMoves()
     e.preventDefault();
@@ -692,7 +705,7 @@ function setReplayMode() {
     $('#game-details').show()
     $('#fen-container').hide()
     $('#total-games').hide()
-    $('#show-book-moves').hide()
+    $('#show-book-moves').show()
     $('#filter').hide()
     $('#show-filter').hide()
     $('#book-moves-panel').hide()
@@ -809,6 +822,7 @@ function highlightMove() {
         }
         $('#replay a[data-index="' + round + '"][data-color="' + color + '"]').parent().addClass('highlight')
     }
+    updateBookMoves()
 }
 
 function updateOpeningBreadcrumbs() {
@@ -980,7 +994,9 @@ function updateBookMoves() {
                 $('#book-moves').html(Mustache.render(nextMovesTpl, moves.slice(0, 12))) // limit to 12 entries
                 $('.next-move').bind('click', function(e) {
                     e.preventDefault();
-                    move($(this).html())
+                    if (uiMode == 'opening') {
+                        move($(this).html())
+                    }
                 });
             })
         }
