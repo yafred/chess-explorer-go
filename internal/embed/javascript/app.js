@@ -81,12 +81,13 @@ $('#swap').click(function(e) {
 $('#undo').click(function(e) {
     e.preventDefault();
     game.undo()
+
     board.position(game.fen())
     if (uiMode == 'opening') {
         openingUpdated()
     }
     if (uiMode == 'replay') {
-        highlightMove()
+        highlightMoveOnReplayList()
     }
 });
 
@@ -324,7 +325,7 @@ function resetBoard() {
         updateReport()
     }
     if (uiMode == 'replay') {
-        highlightMove()
+        highlightMoveOnReplayList()
     }
 }
 
@@ -575,7 +576,7 @@ function compareTimecontrolsByName(itemA, itemB) {
         }
     }
 
-    //   console.log('a ' + a + typeA + ' ' + intA + ' ' + int2A + ' ... b ' + b + typeB + ' ' + intB + ' ' + int2B)
+    //  log('a ' + a + typeA + ' ' + intA + ' ' + int2A + ' ... b ' + b + typeB + ' ' + intB + ' ' + int2B)
     if (typeA != typeB && !(typeA == 0 && typeB == 1) && !(typeB == 0 && typeA == 1)) {
         return typeA - typeB
     }
@@ -788,7 +789,7 @@ function handleGameResponse(data) {
             game.move(gameReplaying[round].black)
         }
         board.position(game.fen(), true)
-        highlightMove()
+        highlightMoveOnReplayList()
     });
     // replay first move after opening
     replayNext()
@@ -808,11 +809,11 @@ function replayNext() {
     } else {
         move(gameReplaying[round].black)
     }
-    highlightMove()
+    highlightMoveOnReplayList()
 }
 
 
-function highlightMove() {
+function highlightMoveOnReplayList() {
     $('#replay a').parent().removeClass('highlight')
     if (game.history().length > 0) {
         var round = Math.floor((game.history().length - 1) / 2)
@@ -823,6 +824,7 @@ function highlightMove() {
         $('#replay a[data-index="' + round + '"][data-color="' + color + '"]').parent().addClass('highlight')
     }
     updateBookMoves()
+    highlightLastMoveOnBoard()
 }
 
 function updateOpeningBreadcrumbs() {
@@ -908,6 +910,7 @@ function onSnapEnd() {
 }
 
 function openingUpdated() {
+    highlightLastMoveOnBoard()
     updateOpeningBreadcrumbs()
     getNextMoves()
     $('#fen').html(game.fen())
@@ -920,8 +923,7 @@ function updateBookMoves() {
         bookType = 'master'
     }
     */
-    console.log('updateBookMoves')
-        // update opening name
+    // update opening name
     var bookType = 'lichess' // 'lichess', 'master'
     if ($('#book-moves-db-master-checked').is(':visible')) {
         bookType = 'master'
@@ -948,7 +950,6 @@ function updateBookMoves() {
         'ratings[]': ratings,
         'speeds[]': speeds
     }, function(jsonResponse) {
-        console.log(jsonResponse)
         if (jsonResponse.opening === null) {
             if (game.pgn() == '') {
                 $('#opening-name').html('')
@@ -1007,6 +1008,21 @@ function updateBookMoves() {
 }
 
 
+// highlight squares 'from' and 'to' on the board
+// -> { color: 'w', from: 'e2', to: 'e4', flags: 'b', piece: 'p', san: 'e4' }
+function highlightLastMoveOnBoard() {
+    var gameHistory = game.history({ verbose: true })
+    var lastMove = null
+    if (gameHistory.length > 0) {
+        lastMove = gameHistory[gameHistory.length - 1]
+    }
+    $('#myBoard').find('.square-55d63').removeClass('highlight-square')
+    if (lastMove) {
+        $('#myBoard').find('.square-' + lastMove.from).addClass('highlight-square')
+        $('#myBoard').find('.square-' + lastMove.to).addClass('highlight-square')
+    }
+
+}
 
 // init
 var config = {
