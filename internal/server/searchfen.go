@@ -18,6 +18,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+type searchFENResult struct {
+	game   pgntodb.Game
+	moveId int
+}
+
 func searchFentHandler(w http.ResponseWriter, r *http.Request) {
 	defer timeTrack(time.Now(), "searchFentHandler")
 
@@ -65,16 +70,17 @@ func searchFEN(fen string, maxMoves int, gameFilterBson primitive.M) {
 	}()
 
 	// start the log accumulator
-	logChannel := make(chan string)
+	logChannel := make(chan *searchFENResult)
 	go func() {
-		var logs []string
+		var logs []*searchFENResult
 		for {
 			item := <-logChannel
-			if item != "" {
+			if item != nil {
 				logs = append(logs, item)
 			} else {
-				for _, line := range logs {
-					log.Println(line)
+				log.Println(strconv.Itoa(len(logs)) + " hits")
+				for _, logItem := range logs {
+					log.Println("move " + strconv.Itoa(logItem.moveId) + " in game " + logItem.game.Link + " " + logItem.game.Result)
 				}
 				return
 			}
@@ -128,17 +134,17 @@ func searchFEN(fen string, maxMoves int, gameFilterBson primitive.M) {
 		concurrencyChannel <- true
 	}
 
-	logChannel <- "replayed " + strconv.Itoa(count) + " games"
+	log.Printf("replayed " + strconv.Itoa(count) + " games")
 
 	// stop the ticker
 	ticker.Stop()
 	tickerChannel <- true
 
 	// dump the logs
-	logChannel <- ""
+	logChannel <- nil
 }
 
-func replay(game pgntodb.Game, fen string, maxMoves int, concurrencyChannel chan bool, logChannel chan string) {
+func replay(game pgntodb.Game, fen string, maxMoves int, concurrencyChannel chan bool, logChannel chan *searchFENResult) {
 
 	defer func() { <-concurrencyChannel }() // release the slot when finished
 
@@ -167,7 +173,7 @@ func replay(game pgntodb.Game, fen string, maxMoves int, concurrencyChannel chan
 		// Compare
 		if chessGame.Position().String() == fen {
 			iMove++
-			logChannel <- "move " + strconv.Itoa(iMove) + " in game " + game.Link
+			logChannel <- &searchFENResult{game: game, moveId: iMove}
 			break
 		}
 
