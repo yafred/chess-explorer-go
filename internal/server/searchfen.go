@@ -79,9 +79,19 @@ func searchFEN(fen string, maxMoves int, gameFilterBson primitive.M) {
 				logs = append(logs, item)
 			} else {
 				log.Println(strconv.Itoa(len(logs)) + " hits")
+				winWins, blackWins, draw := 0, 0, 0
 				for _, logItem := range logs {
 					log.Println("move " + strconv.Itoa(logItem.moveId) + " in game " + logItem.game.Link + " " + logItem.game.Result)
+					switch logItem.game.Result {
+					case "1-0":
+						winWins = winWins + 1
+					case "0-1":
+						blackWins = blackWins + 1
+					default:
+						draw = draw + 1
+					}
 				}
+				log.Println("1-0: " + strconv.Itoa(winWins) + ", 0-1: " + strconv.Itoa(blackWins) + ", 1/2-1/2: " + strconv.Itoa(draw))
 				return
 			}
 		}
