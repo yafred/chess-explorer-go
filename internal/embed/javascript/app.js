@@ -8,6 +8,7 @@
 var apiHost = location.protocol + '//' + location.host
 var board = null
 var game = new Chess()
+var openingTable = null // see https://raw.githubusercontent.com/kevinludwig/chess-eco-codes/master/codes.json
 
 // states
 var mostPopularMove = ''
@@ -918,12 +919,11 @@ function openingUpdated() {
 }
 
 function updateBookMoves() {
-    /* we need to call book moves for opening name even if book moves panel is hidden
+    // do nothing if book moves panel is hidden
     if ($('#book-moves-panel').is(':visible') == false) {
-        bookType = 'master'
+        return
     }
-    */
-    // update opening name
+
     var bookType = 'lichess' // 'lichess', 'master'
     if ($('#book-moves-db-master-checked').is(':visible')) {
         bookType = 'master'
@@ -950,13 +950,6 @@ function updateBookMoves() {
         'ratings[]': ratings,
         'speeds[]': speeds
     }, function(jsonResponse) {
-        if (jsonResponse.opening === null) {
-            if (game.pgn() == '') {
-                $('#opening-name').html('')
-            }
-        } else {
-            $('#opening-name').html(jsonResponse.opening.name)
-        }
         if (jsonResponse.moves === null || Array.isArray(jsonResponse.moves) == false) {
             $('#book-moves').html('')
         } else {
@@ -1004,7 +997,6 @@ function updateBookMoves() {
     }).fail(function() {
         console.log('Error connecting to https://explorer.lichess.ovh')
     });
-
 }
 
 
@@ -1037,3 +1029,8 @@ board = Chessboard('myBoard', config)
 board.resize()
 
 resetBoard()
+
+// initialize opening table
+$.getJSON("https://raw.githubusercontent.com/kevinludwig/chess-eco-codes/master/codes.json", function(data) {
+    openingTable = data
+});
