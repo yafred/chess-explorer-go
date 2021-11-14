@@ -918,7 +918,18 @@ function openingUpdated() {
     updateBookMoves()
 }
 
+function updateOpeningName() {
+    $('#opening-name').html('')
+    if (openingTable != null) {
+        var opening = openingTable.get(game.fen())
+        if (opening != null) {
+        $('#opening-name').html(opening.eco + ' ' + opening.name)
+        }
+    }
+}
+
 function updateBookMoves() {
+    updateOpeningName()
     // do nothing if book moves panel is hidden
     if ($('#book-moves-panel').is(':visible') == false) {
         return
@@ -1032,5 +1043,8 @@ resetBoard()
 
 // initialize opening table
 $.getJSON("https://raw.githubusercontent.com/kevinludwig/chess-eco-codes/master/codes.json", function(data) {
-    openingTable = data
+    openingTable = new Map()
+    $.each( data, function( key, val ) {
+        openingTable.set(key, val)
+      });
 });
