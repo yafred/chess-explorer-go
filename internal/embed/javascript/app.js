@@ -725,6 +725,7 @@ function setOpeningMode() {
     $('#reset-all').show()
     $('#replay').hide()
     $('#game-details').hide()
+    $('#show-game-details').hide()
     $('#fen-container').hide()
     if ($('#show-fen-checked').is(':visible')) {
         $('#fen-container').show()
