@@ -50,4 +50,13 @@ $and: [ { site: "lichess.org" }, { $or: [ { white: "EricRosen" }, { black: "Eric
 ```
 
 ### timecontrols starting with
+```
 { timecontrol: { $regex: /^600\+/ } }
+```
+
+### compare elo (how many wins when elo is lower)
+```
+{ $and: [ { white: "fredo599" }, 
+          { result: "1-0" }] },
+          { $expr: {$gt: [ $blackeo, $whitelo] } } ]
+```
