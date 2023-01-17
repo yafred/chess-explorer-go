@@ -47,4 +47,3 @@
     * `{command} delete lichess.org:{username}` 
     * `{command} delete chess.com:{username}` 
     * `{command} pgntodb {path to your PGN file} --username {username}` 
-
