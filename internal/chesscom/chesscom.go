@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	http "net/http"
 	"os"
@@ -71,7 +70,7 @@ func DownloadGames(username string, keepPgn string) {
 func downloadArchive(client *http.Client, url string, lastGame *pgntodb.LastGame, keepPgnFile *os.File) bool {
 
 	// Random file name
-	tmpfile, err := ioutil.TempFile("", "chesscom")
+	tmpfile, err := os.CreateTemp("", "chesscom")
 	if err != nil {
 		log.Fatal(err)
 	}

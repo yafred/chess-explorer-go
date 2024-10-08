@@ -3,7 +3,6 @@ package lichess
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -61,7 +60,7 @@ func DownloadGames(username string, keepPgn string) {
 
 	if fileName == "" {
 		// Create a temp file
-		tmpfile, err := ioutil.TempFile("", "lichess")
+		tmpfile, err := os.CreateTemp("", "lichess")
 		if err != nil {
 			log.Fatal(err)
 		}
